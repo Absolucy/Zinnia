@@ -1,4 +1,3 @@
-import NetworkExtension
 import SwiftUI
 import ZinniaC
 
@@ -10,38 +9,72 @@ struct LockScreenView: View {
 		PDDokdo.sharedInstance()?.refreshWeatherData()
 	}
 
-	func WifiConnected() -> Bool {
-		var strength = 0.0
-		let semaphore = DispatchSemaphore(value: 0)
-		NEHotspotNetwork.fetchCurrent { network in
-			strength = network?.signalStrength ?? 0.0
-			semaphore.signal()
+	func WeatherIcon() -> some View {
+		#if targetEnvironment(simulator)
+		let temperature = Int.random(in: 0...38)
+			let icon = "cloud.fill"
+		#else
+			guard let dokdo = PDDokdo.sharedInstance(), let model = dokdo.weatherWidget?.currentForecastModel(),
+			      let icon = WeatherInfo.codes[Int(model.currentConditions.conditionCode)]
+			else {
+				return AnyView(ZStack {
+					Image(systemName: "cloud")
+					Image(systemName: "questionmark").font(.system(size: 8))
+				})
+			}
+			guard let temperature_string = dokdo.currentTemperature,
+			      let temperature = Int(temperature_string.replacingOccurrences(of: "°", with: ""))
+			else {
+				return AnyView(Image(systemName: icon))
+			}
+		#endif
+		var temperature_color: UIColor
+		// Room temperature
+		if temperature >= 20 && temperature <= 22 {
+			temperature_color = .systemGreen
+		// Above room temperature
+		} else if temperature > 22 {
+			// Cap at around 38C / 100F
+			let capped_temperature = CGFloat(min(temperature, 38)) - 16
+			temperature_color = UIColor.lerp(start: .systemGreen, end: .systemRed, progress: capped_temperature / 22)
+		// Below room temperature
+		} else {
+			let capped_temperature = CGFloat(max(temperature, 0))
+			temperature_color = UIColor.lerp(start: .systemBlue, end: .systemGreen, progress: capped_temperature / 22)
 		}
-		switch semaphore.wait(timeout: DispatchTime(uptimeNanoseconds: 500_000_000)) {
-		case .success:
-			return strength > 0.0
-		case .timedOut:
-			return false
-		}
+		return AnyView(Image(systemName: icon).foregroundColor(Color(temperature_color)))
 	}
 
-	func WeatherIcon() -> some View {
-		guard let code = PDDokdo.sharedInstance().weatherWidget?.currentForecastModel().currentConditions.conditionCode,
-		      let icon = WeatherInfo.codes[Int(code)]
-		else {
-			return AnyView(ZStack {
-				Image(systemName: "cloud")
-				Image(systemName: "questionmark").font(.system(size: 8))
-			})
+	@ViewBuilder func WifiView() -> some View {
+		let signal = NetworkStatus.WifiSignal()
+		let icon = signal > 0.25 ? "wifi" : (signal > 5 ? "wifi.exclamationmark" : "wifi.slash")
+		let color = signal > 0.5 ?
+			UIColor.lerp(start: UIColor.yellow, end: UIColor.green, progress: CGFloat(signal)) :
+			(signal <= 0.01 ? UIColor.gray : UIColor
+				.lerp(start: UIColor.red, end: UIColor.yellow, progress: CGFloat(signal)))
+		Image(systemName: icon)
+			.foregroundColor(Color(color))
+	}
+
+	@ViewBuilder func MobileDataView() -> some View {
+		let signal = NetworkStatus.MobileSignal()
+		let icon = signal > 0.5 ? "chart.bar.fill" : "chart.bar"
+		let color = signal > 0.5 ?
+			UIColor.lerp(start: UIColor.yellow, end: UIColor.green, progress: CGFloat(signal)) :
+			(signal <= 0.01 ? UIColor.gray : UIColor
+				.lerp(start: UIColor.red, end: UIColor.yellow, progress: CGFloat(signal)))
+		ZStack {
+			Image(systemName: icon)
+				.foregroundColor(Color(color))
 		}
-		return AnyView(Image(systemName: icon))
 	}
 
 	@ViewBuilder func QuickGlanceView() -> some View {
 		HStack {
 			Spacer()
 			WeatherIcon().padding(4.0)
-			Image(systemName: WifiConnected() ? "wifi" : "wifi.slash").padding(4.0)
+			WifiView().padding(4.0)
+			MobileDataView().padding(4.0)
 			Spacer()
 		}
 	}
@@ -123,29 +156,5 @@ struct LockScreenView_Previews: PreviewProvider {
 			.preferredColorScheme(.dark)
 			.previewLayout(.device)
 			.previewDevice("iPad (8th generation)")
-	}
-}
-
-extension UIColor {
-	static func blend(color1: UIColor, intensity1: CGFloat = 0.5, color2: UIColor,
-	                  intensity2: CGFloat = 0.5) -> UIColor
-	{
-		let total = intensity1 + intensity2
-		let l1 = intensity1 / total
-		let l2 = intensity2 / total
-		guard l1 > 0 else { return color2 }
-		guard l2 > 0 else { return color1 }
-		var (r1, g1, b1, a1): (CGFloat, CGFloat, CGFloat, CGFloat) = (0, 0, 0, 0)
-		var (r2, g2, b2, a2): (CGFloat, CGFloat, CGFloat, CGFloat) = (0, 0, 0, 0)
-
-		color1.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
-		color2.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
-
-		return UIColor(
-			red: l1 * r1 + l2 * r2,
-			green: l1 * g1 + l2 * g2,
-			blue: l1 * b1 + l2 * b2,
-			alpha: l1 * a1 + l2 * a2
-		)
 	}
 }

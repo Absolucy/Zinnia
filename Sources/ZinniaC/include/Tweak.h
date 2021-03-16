@@ -17,3 +17,5 @@
 @interface PDDokdo (Private)
 @property(nonatomic, retain, readonly)WALockscreenWidgetViewController* weatherWidget __attribute__((weak_import));
 @end
+
+int CTGetSignalStrength();
