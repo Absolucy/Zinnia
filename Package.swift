@@ -13,7 +13,7 @@ else {
 
 let libFlags: [String] = [
 	"-F\(theosPath)/vendor/lib", "-F\(theosPath)/lib",
-	"-I\(theosPath)/vendor/include", "-I\(theosPath)/include"
+	"-I\(theosPath)/vendor/include", "-I\(theosPath)/include",
 ]
 
 let cFlags: [String] = libFlags + [

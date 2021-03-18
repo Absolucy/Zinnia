@@ -11,7 +11,7 @@ struct LockScreenView: View {
 
 	func WeatherIcon() -> some View {
 		#if targetEnvironment(simulator)
-		let temperature = Int.random(in: 0...38)
+			let temperature = Int.random(in: 0 ... 38)
 			let icon = "cloud.fill"
 		#else
 			guard let dokdo = PDDokdo.sharedInstance(), let model = dokdo.weatherWidget?.currentForecastModel(),
@@ -32,12 +32,12 @@ struct LockScreenView: View {
 		// Room temperature
 		if temperature >= 20 && temperature <= 22 {
 			temperature_color = .systemGreen
-		// Above room temperature
+			// Above room temperature
 		} else if temperature > 22 {
 			// Cap at around 38C / 100F
 			let capped_temperature = CGFloat(min(temperature, 38)) - 16
 			temperature_color = UIColor.lerp(start: .systemGreen, end: .systemRed, progress: capped_temperature / 22)
-		// Below room temperature
+			// Below room temperature
 		} else {
 			let capped_temperature = CGFloat(max(temperature, 0))
 			temperature_color = UIColor.lerp(start: .systemBlue, end: .systemGreen, progress: capped_temperature / 22)

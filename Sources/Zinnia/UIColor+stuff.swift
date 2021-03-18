@@ -3,7 +3,7 @@ import UIKit
 
 extension UIColor {
 	static func blend(color1: UIColor, intensity1: CGFloat = 0.5, color2: UIColor,
-					  intensity2: CGFloat = 0.5) -> UIColor
+	                  intensity2: CGFloat = 0.5) -> UIColor
 	{
 		let total = intensity1 + intensity2
 		let l1 = intensity1 / total

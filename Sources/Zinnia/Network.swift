@@ -1,16 +1,16 @@
 //
 //  Network.swift
-//  
+//
 //
 //  Created by Aspen on 3/16/21.
 //
 
+import CoreTelephony
 import Foundation
 import NetworkExtension
-import CoreTelephony
 import ZinniaC
 
-public class NetworkStatus {
+public enum NetworkStatus {
 	public static func WifiSignal() -> Double {
 		var strength = 0.0
 		let semaphore = DispatchSemaphore(value: 0)
@@ -25,7 +25,7 @@ public class NetworkStatus {
 			return 0.0
 		}
 	}
-	
+
 	public static func MobileSignal() -> Double {
 		Double(CTGetSignalStrength()) * 0.01
 	}

@@ -2,41 +2,6 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 
-@interface WFTemperature : NSObject
-@property (assign,nonatomic) double celsius;
-@property (assign,nonatomic) double fahrenheit;
-@property (assign,nonatomic) double kelvin;
-@end
-
-@interface WADayForecast : NSObject
-@property (nonatomic,copy) WFTemperature * high;
-@property (nonatomic,copy) WFTemperature * low;
-@end
-
-@interface WACurrentForecast : NSObject
--(WFTemperature *)feelsLike;
-@end
-
-@interface WAForecastModel : NSObject
--(NSDate *)sunrise;
--(NSDate *)sunset;
--(NSArray *)dailyForecasts;
-@end
-
-@interface WALockscreenWidgetViewController : UIViewController
--(WAForecastModel *)currentForecastModel;
--(id)_temperature;
--(id)_conditionsLine;
--(id)_locationName;
--(id)_conditionsImage;
--(void)_updateTodayView;
--(void)updateWeather;
-@end
-
-@interface PDDokdo()
-@property (nonatomic, retain, readonly) WALockscreenWidgetViewController *weatherWidget;
-@end
-
 @implementation PDDokdo
 @dynamic currentTemperature;
 @dynamic currentConditions;

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Aspen on 3/15/21.
 //
@@ -57,6 +57,6 @@ class WeatherInfo {
 		44: "cloud",
 		45: "cloud.bolt.rain",
 		46: "cloud.snow",
-		47: "cloud.bolt.rain"
-	];
+		47: "cloud.bolt.rain",
+	]
 }
