@@ -1,7 +1,6 @@
 TARGET := iphone:clang:14.4:14.0
 INSTALL_TARGET_PROCESSES = SpringBoard
 
-
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = Zinnia
