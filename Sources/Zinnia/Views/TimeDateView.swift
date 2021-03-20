@@ -8,14 +8,14 @@ struct TimeDateView: View {
 		let time = date_fmt.string(from: current_datetime)
 		date_fmt.dateFormat = "MM/dd/yyyy"
 		let date = date_fmt.string(from: current_datetime)
-		
+
 		return VStack {
 			Text(time).font(.largeTitle)
 			Text(date).font(.callout)
 		}
 	}
-	
-    var body: some View {
+
+	var body: some View {
 		BuildView()
-    }
+	}
 }

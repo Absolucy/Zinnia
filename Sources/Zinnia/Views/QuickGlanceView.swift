@@ -17,8 +17,8 @@ struct QuickGlanceView: View {
 
 	func WeatherIcon() -> some View {
 		#if targetEnvironment(simulator)
-			let temperature = 37
-			let icon_name = "cloud.fill"
+			let temperature = 38
+			let icon_name = WeatherInfo.codes[Int.random(in: 0 ... 47)]!
 		#else
 			guard let dokdo = PDDokdo.sharedInstance(), let model = dokdo.weatherWidget?.currentForecastModel(),
 			      let icon_name = WeatherInfo.codes[Int(model.currentConditions.conditionCode)]
