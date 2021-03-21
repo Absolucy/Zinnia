@@ -11,6 +11,8 @@ import UIKit
 import ZinniaC
 
 struct QuickGlanceView: View {
+	@ObservedObject var globals = ZinniaSharedData.global
+
 	init() {
 		PDDokdo.sharedInstance()?.refreshWeatherData()
 	}
@@ -46,7 +48,11 @@ struct QuickGlanceView: View {
 		case 20 ... 22: // Room temperature
 			temperature_color = .systemGreen
 		case 22 ... Int.max: // Hot temperatures
-			temperature_color = UIColor.lerp(start: .systemBlue, end: .systemGreen, progress: CGFloat(capped_temperature) / 22)
+			temperature_color = UIColor.lerp(
+				start: .systemBlue,
+				end: .systemGreen,
+				progress: CGFloat(capped_temperature) / 22
+			)
 		default:
 			return AnyView(ZStack {
 				Image(systemName: "cloud")
@@ -62,28 +68,48 @@ struct QuickGlanceView: View {
 		)
 	}
 
-	@ViewBuilder func WifiView() -> some View {
-		let signal = NetworkStatus.WifiSignal()
-		let icon = signal > 0.25 ? "wifi" : (signal > 5 ? "wifi.exclamationmark" : "wifi.slash")
-		let color = signal > 0.5 ?
-			UIColor.lerp(start: UIColor.yellow, end: UIColor.green, progress: CGFloat(signal)) :
-			(signal <= 0.01 ? UIColor.gray : UIColor
-				.lerp(start: UIColor.red, end: UIColor.yellow, progress: CGFloat(signal)))
-		Image(systemName: icon)
-			.foregroundColor(Color(color))
+	func WifiView() -> some View {
+		let signal = self.globals.wifi_strength
+		let icon = self.globals.associated ? "wifi" : "wifi.slash"
+		var color = Color.red
+		if self.globals.associated {
+			switch signal {
+			case 1:
+				color = Color.red
+			case 2:
+				color = Color.orange
+			case 3:
+				color = Color.yellow
+			case 4:
+				color = Color.green
+			default:
+				NSLog("Zinnia: Unexpected signal strength \(signal), should be 1-4")
+			}
+		}
+		return Image(systemName: icon)
+			.foregroundColor(color)
 	}
 
-	@ViewBuilder func MobileDataView() -> some View {
-		let signal = NetworkStatus.MobileSignal()
-		let icon = signal > 0.5 ? "chart.bar.fill" : "chart.bar"
-		let color = signal > 0.5 ?
-			UIColor.lerp(start: UIColor.yellow, end: UIColor.green, progress: CGFloat(signal)) :
-			(signal <= 0.01 ? UIColor.gray : UIColor
-				.lerp(start: UIColor.red, end: UIColor.yellow, progress: CGFloat(signal)))
-		ZStack {
-			Image(systemName: icon)
-				.foregroundColor(Color(color))
+	func MobileDataView() -> some View {
+		let signal = self.globals.lte_strength
+		let icon = self.globals.associated ? "chart.bar.fill" : "chart.bar"
+		var color = Color.red
+		if self.globals.associated {
+			switch signal {
+			case 1:
+				color = Color.red
+			case 2:
+				color = Color.orange
+			case 3:
+				color = Color.yellow
+			case 4:
+				color = Color.green
+			default:
+				NSLog("Zinnia: Unexpected signal strength \(signal), should be 1-4")
+			}
 		}
+		return Image(systemName: icon)
+			.foregroundColor(color)
 	}
 
 	var body: some View {

@@ -10,8 +10,10 @@ struct TimeDateView: View {
 		let date = date_fmt.string(from: current_datetime)
 
 		return VStack {
-			Text(time).font(.largeTitle)
-			Text(date).font(.callout)
+			VStack {
+				Text(time).font(.largeTitle)
+				Text(date).font(.callout)
+			}.padding(.top)
 		}
 	}
 

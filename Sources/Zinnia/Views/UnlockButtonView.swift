@@ -11,6 +11,8 @@ import UIKit
 struct UnlockButtonView: View {
 	@State private var anim_stroke_size = CGFloat(10.0)
 	@State private var anim_faceid_alpha = 1.0
+	
+	public var unlock: () -> Void
 
 	private static var gradient_start = Color.pink
 	private static var gradient_end = Color(
@@ -19,6 +21,8 @@ struct UnlockButtonView: View {
 			color2: .white
 		)
 	)
+	
+	
 	var body: some View {
 		GeometryReader { frame in
 			VStack {
@@ -34,8 +38,8 @@ struct UnlockButtonView: View {
 								.stroke(
 									LinearGradient(
 										gradient: Gradient(colors: [Self.gradient_start, Self.gradient_end]),
-										startPoint: /*@START_MENU_TOKEN@*/ .leading/*@END_MENU_TOKEN@*/,
-										endPoint: /*@START_MENU_TOKEN@*/ .trailing/*@END_MENU_TOKEN@*/
+										startPoint: .leading,
+										endPoint: .trailing
 									),
 									lineWidth: anim_stroke_size
 								)
@@ -58,7 +62,7 @@ struct UnlockButtonView: View {
 						)
 						.padding()
 						.onTapGesture {
-							// TODO: unlock here
+							unlock()
 						}
 					Spacer()
 				}
