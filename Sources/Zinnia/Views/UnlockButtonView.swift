@@ -5,6 +5,7 @@
 //  Created by Aspen on 3/18/21.
 //
 
+import LocalAuthentication
 import SwiftUI
 import UIKit
 
@@ -23,6 +24,19 @@ struct UnlockButtonView: View {
 			color2: .white
 		)
 	)
+
+	func get_biometric_icon() -> String {
+		let authContext = LAContext()
+		_ = authContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+		switch authContext.biometryType {
+		case .touchID:
+			return "touchid"
+		case .faceID:
+			return "faceid"
+		default:
+			return "lock"
+		}
+	}
 
 	var body: some View {
 		GeometryReader { frame in
@@ -46,7 +60,7 @@ struct UnlockButtonView: View {
 								)
 								.animation(Animation.easeInOut.repeatForever().speed(0.25))
 								.overlay(
-									Image(systemName: "faceid")
+									Image(systemName: get_biometric_icon())
 										.foregroundColor(.accentColor)
 										.opacity(anim_faceid_alpha)
 										.animation(Animation.easeInOut.repeatForever().speed(0.25))

@@ -71,11 +71,24 @@
 		lazy var host = UIHostingController(rootView: LockScreenView(unlock: zinnia_unlock))
 
 		func viewDidLoad() {
-			host.view.backgroundColor = .clear
-			host.view.frame = target.view.frame
-			target.addChild(host)
-			target.view.addSubview(host.view)
-			host.didMove(toParent: target)
+			// Normally we wouldn't call orig at all,
+			// but this conflicts with tweaks like Eneko,
+			// so instead we just remove all the subviews from child view controllers
+			orig.viewDidLoad()
+			for sub in target.children {
+				let type = String(describing: sub)
+				NSLog("Zinnia: \(type)")
+				if type.contains("DateView") || type.contains("FixedFooter") || type.contains("TeachableMoments") || type
+					.contains("ProudLock")
+				{
+					sub.view.removeFromSuperview()
+				}
+			}
+			self.host.view.backgroundColor = .clear
+			self.host.view.frame = target.view.frame
+			target.addChild(self.host)
+			target.view.addSubview(self.host.view)
+			self.host.didMove(toParent: target)
 		}
 
 		final func zinnia_unlock() {

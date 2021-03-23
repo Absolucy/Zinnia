@@ -51,7 +51,7 @@ int CTGetSignalStrength();
 - (void)_simulateHomeButtonPress;
 @end
 
-@interface CSCombinedListViewController : UIViewController
+@interface CSMainPageContentViewController : UIViewController
 @end
 
 @interface SBFTouchPassThroughViewController : UIViewController

@@ -2,14 +2,14 @@ import Foundation
 import Orion
 import ZinniaC
 
-extension Backends {
-	public struct Libhooker: Backend {
+public extension Backends {
+	struct Libhooker: Backend {
 		public init() {}
 	}
 }
 
-extension Backends.Libhooker {
-	public func apply(descriptors: [HookDescriptor]) {
+public extension Backends.Libhooker {
+	func apply(descriptors: [HookDescriptor]) {
 		descriptors.forEach {
 			switch $0 {
 			case let .method(cls, sel, replacement, completion):
