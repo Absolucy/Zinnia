@@ -9,9 +9,11 @@ import SwiftUI
 import UIKit
 
 struct UnlockButtonView: View {
+	@ObservedObject var globals = ZinniaSharedData.global
+
 	@State private var anim_stroke_size = CGFloat(10.0)
 	@State private var anim_faceid_alpha = 1.0
-	
+
 	public var unlock: () -> Void
 
 	private static var gradient_start = Color.pink
@@ -21,8 +23,7 @@ struct UnlockButtonView: View {
 			color2: .white
 		)
 	)
-	
-	
+
 	var body: some View {
 		GeometryReader { frame in
 			VStack {
@@ -54,7 +55,7 @@ struct UnlockButtonView: View {
 										.padding()
 										.onAppear(perform: {
 											self.anim_faceid_alpha = 0.0
-										})
+										}).opacity(globals.unlocked ? 0.0 : 1.0)
 								)
 								.onAppear(perform: {
 									anim_stroke_size = 5.0

@@ -83,7 +83,7 @@ struct QuickGlanceView: View {
 			case 4:
 				color = Color.green
 			default:
-				NSLog("Zinnia: Unexpected signal strength \(signal), should be 1-4")
+				break
 			}
 		}
 		return Image(systemName: icon)

@@ -4,13 +4,18 @@
 	import SwiftUI
 	import SystemConfiguration.CaptiveNetwork
 	import ZinniaC
-	
+
+	struct ZinniaTweak: TweakWithBackend {
+		static var backend = Backends.Automatic()
+		typealias BackendType = Backends.Automatic
+	}
 
 	class ZinniaSharedData: ObservableObject {
 		static let global = ZinniaSharedData()
 		@Published var associated = false
 		@Published var wifi_strength = 0
 		@Published var lte_strength = 0
+		@Published var unlocked = false
 	}
 
 	class UIVHook: ClassHook<UIViewController> {
@@ -25,7 +30,7 @@
 			ZinniaSharedData.global.associated = associated
 			return associated
 		}
-		
+
 		func signalStrengthBars() -> Int {
 			let strength = orig.signalStrengthBars()
 			ZinniaSharedData.global.wifi_strength = strength
@@ -40,20 +45,44 @@
 		}
 	}
 
+	class LockStateHook: ClassHook<SASLockStateMonitor> {
+		func setUnlockedByTouchID(_ state: Bool) {
+			orig.setUnlockedByTouchID(state)
+			ZinniaSharedData.global.unlocked = state
+		}
+
+		func setLockState(_ state: UInt64) {
+			orig.setLockState(state)
+			if state == 0x1 {
+				ZinniaSharedData.global.unlocked = true
+			} else if state == 0x3 {
+				ZinniaSharedData.global.unlocked = false
+			} else {
+				NSLog("Zinnia: unknown lock state \(state)")
+			}
+		}
+	}
+
+	@objc protocol SpringBoardInterface {
+		func sharedApplication() -> SpringBoard
+	}
+
 	class LockScreenHook: ClassHook<CSCoverSheetViewController> {
 		lazy var host = UIHostingController(rootView: LockScreenView(unlock: zinnia_unlock))
 
 		func viewDidLoad() {
-			NSLog("Zinnia: viewDidLoad")
-			self.host.view.backgroundColor = .clear
-			self.host.view.frame = target.view.frame
-			target.addChild(self.host)
-			target.view.addSubview(self.host.view)
-			self.host.didMove(toParent: target)
+			host.view.backgroundColor = .clear
+			host.view.frame = target.view.frame
+			target.addChild(host)
+			target.view.addSubview(host.view)
+			host.didMove(toParent: target)
 		}
 
 		final func zinnia_unlock() {
-			target.setPasscodeLockVisible(true, animated: true)
+			Dynamic.SpringBoard
+				.as(interface: SpringBoardInterface.self)
+				.sharedApplication()
+				._simulateHomeButtonPress()
 		}
 	}
 #endif
