@@ -3,16 +3,15 @@ import ZinniaC
 
 struct LockScreenView: View {
 	public var unlock: () -> Void
+	public var camera: () -> Void
 
 	var body: some View {
-		ZStack {
-			VStack {
-				TimeDateView()
-					.padding(.top, 24.0)
-				QuickGlanceView()
-				UnlockButtonView(unlock: unlock)
-					.padding(.vertical)
-			}
+		VStack {
+			TimeDateView()
+				.padding(.vertical, 30)
+			QuickGlanceView()
+			Spacer().allowsHitTesting(false)
+			UnlockButtonView(unlock: unlock, camera: camera)
 		}
 	}
 }

@@ -13,7 +13,25 @@ struct TimeDateView: View {
 			VStack {
 				Text(time).font(.largeTitle)
 				Text(date).font(.callout)
-			}.padding(.top)
+			}
+			.padding(8)
+			.modifier(
+				NeonEffect(
+					base: RoundedRectangle(cornerRadius: 16, style: .continuous),
+					color: Color.purple,
+					brightness: 0.1,
+					innerSize: 1.5,
+					middleSize: 3,
+					outerSize: 5,
+					innerBlur: 3,
+					blur: 5
+				)
+			)
+			.background(
+				RoundedRectangle(cornerRadius: 16, style: .continuous)
+					.foregroundColor(.black)
+					.opacity(0.25)
+			)
 		}
 	}
 

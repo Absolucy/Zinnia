@@ -5,23 +5,33 @@
 #import <Foundation/Foundation.h>
 
 int CTGetSignalStrength();
+void zinnia_open_the_damn_camera();
 
-@interface SBFLockScreenDateViewController : UIViewController
+@interface AVFlashlight : NSObject
+@property (getter=isAvailable, nonatomic, readonly) bool available;
+@property (nonatomic, readonly) float flashlightLevel;
+@property (getter=isOverheated, nonatomic, readonly) bool overheated;
+
++ (bool)hasFlashlight;
++ (void)initialize;
+
+- (void)_handleNotification:(id)arg1 payload:(id)arg2;
+- (void)_reconnectToServer;
+- (void)_setupFlashlight;
+- (void)_teardownFlashlight;
+- (void)dealloc;
+- (float)flashlightLevel;
+- (id)init;
+- (bool)isAvailable;
+- (bool)isOverheated;
+- (bool)setFlashlightLevel:(float)arg1 withError:(id*)arg2;
+- (void)turnPowerOff;
+- (bool)turnPowerOnWithError:(id*)arg1;
 @end
 
-@interface SBFLockScreenDateView : UIView
-@end
-
-@interface CSLockScreenSettings : NSObject
-@end
-
-@interface CSCoverSheetViewController : UIViewController {
-	CSLockScreenSettings *_prototypeSettings;
-}
+@interface CSCoverSheetViewController : UIViewController
 - (void)setPasscodeLockVisible:(BOOL)arg1 animated:(BOOL)arg2;
-@end
-
-@interface SBLockScreenViewControllerBase : UIViewController
+- (void)activatePage:(unsigned long long)arg1 animated:(BOOL)arg2 withCompletion:(/*^block*/id)arg3 ;
 @end
 
 @interface SBWiFiManager : NSObject
@@ -42,8 +52,9 @@ int CTGetSignalStrength();
 @end
 
 @interface SBLockScreenManager : NSObject
+@property (nonatomic,readonly) CSCoverSheetViewController * coverSheetViewController; 
 + (id)sharedInstance;
-- (BOOL)unlockUIFromSource:(int)arg1 withOptions:(id)arg2 ;
+- (BOOL)unlockUIFromSource:(int)arg1 withOptions:(id)arg2;
 @end
 
 @interface SpringBoard : UIApplication
@@ -52,9 +63,4 @@ int CTGetSignalStrength();
 @end
 
 @interface CSMainPageContentViewController : UIViewController
-@end
-
-@interface SBFTouchPassThroughViewController : UIViewController
--(void)loadView;
--(void)configureTouchPassThroughView:(id)arg1 ;
 @end

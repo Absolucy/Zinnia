@@ -1,21 +1,22 @@
+import Foundation
+import SwiftUI
+
+class ZinniaSharedData: ObservableObject {
+	static let global = ZinniaSharedData()
+	@Published var associated = false
+	@Published var wifi_strength = 0
+	@Published var lte_strength = 0
+	@Published var unlocked = false
+}
+
 #if !targetEnvironment(simulator)
-	import Foundation
 	import Orion
-	import SwiftUI
 	import SystemConfiguration.CaptiveNetwork
 	import ZinniaC
 
 	struct ZinniaTweak: TweakWithBackend {
 		static var backend = Backends.Automatic()
 		typealias BackendType = Backends.Automatic
-	}
-
-	class ZinniaSharedData: ObservableObject {
-		static let global = ZinniaSharedData()
-		@Published var associated = false
-		@Published var wifi_strength = 0
-		@Published var lte_strength = 0
-		@Published var unlocked = false
 	}
 
 	class UIVHook: ClassHook<UIViewController> {
@@ -68,7 +69,10 @@
 	}
 
 	class LockScreenHook: ClassHook<CSCoverSheetViewController> {
-		lazy var host = UIHostingController(rootView: LockScreenView(unlock: zinnia_unlock))
+		lazy var buttonHost =
+			UIHostingController(rootView: AnyView(UnlockButtonView(unlock: self.zinnia_unlock, camera: self.zinnia_camera)
+						.padding(.bottom, 16)))
+		lazy var timeDateHost = UIHostingController(rootView: AnyView(TimeDateView().padding(.top, 64)))
 
 		func viewDidLoad() {
 			// Normally we wouldn't call orig at all,
@@ -77,18 +81,43 @@
 			orig.viewDidLoad()
 			for sub in target.children {
 				let type = String(describing: sub)
-				NSLog("Zinnia: \(type)")
-				if type.contains("DateView") || type.contains("FixedFooter") || type.contains("TeachableMoments") || type
-					.contains("ProudLock")
+				if type.contains("DateView")
+					|| type.contains("FixedFooter")
+					|| type.contains("TeachableMoments")
+					|| type.contains("ProudLock")
+					|| type.contains("QuickActions")
 				{
 					sub.view.removeFromSuperview()
 				}
 			}
-			self.host.view.backgroundColor = .clear
-			self.host.view.frame = target.view.frame
-			target.addChild(self.host)
-			target.view.addSubview(self.host.view)
-			self.host.didMove(toParent: target)
+
+			self.buttonHost.view.backgroundColor = .clear
+			self.buttonHost.view.frame = target.view.frame
+			target.addChild(self.buttonHost)
+			target.view.addSubview(self.buttonHost.view)
+
+			self.buttonHost.view.translatesAutoresizingMaskIntoConstraints = false
+			NSLayoutConstraint.activate([
+				self.buttonHost.view.leftAnchor.constraint(equalTo: target.view.leftAnchor),
+				self.buttonHost.view.rightAnchor.constraint(equalTo: target.view.rightAnchor),
+				self.buttonHost.view.bottomAnchor.constraint(equalTo: target.view.bottomAnchor),
+			])
+
+			self.buttonHost.didMove(toParent: target)
+
+			self.timeDateHost.view.backgroundColor = .clear
+			self.timeDateHost.view.frame = target.view.frame
+			target.addChild(self.timeDateHost)
+			target.view.addSubview(self.timeDateHost.view)
+
+			self.timeDateHost.view.translatesAutoresizingMaskIntoConstraints = false
+			NSLayoutConstraint.activate([
+				self.timeDateHost.view.leftAnchor.constraint(equalTo: target.view.leftAnchor),
+				self.timeDateHost.view.rightAnchor.constraint(equalTo: target.view.rightAnchor),
+				self.timeDateHost.view.topAnchor.constraint(equalTo: target.view.topAnchor),
+			])
+
+			self.timeDateHost.didMove(toParent: target)
 		}
 
 		final func zinnia_unlock() {
@@ -96,6 +125,10 @@
 				.as(interface: SpringBoardInterface.self)
 				.sharedApplication()
 				._simulateHomeButtonPress()
+		}
+ 
+		final func zinnia_camera() {
+			zinnia_open_the_damn_camera()
 		}
 	}
 #endif
