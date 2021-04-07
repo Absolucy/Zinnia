@@ -10,40 +10,14 @@ import SwiftUI
 import UIKit
 import ZinniaC
 
-#if targetEnvironment(simulator)
-	@objc class AVFlashlight: NSObject {
-		@objc var flashlightLevel: Float = 0
-
-		@objc static func hasFlashlight() -> Bool {
-			true
-		}
-
-		@objc func setFlashlightLevel(_ arg1: Float, withError _: Any?) -> Bool {
-			print("dummy flashlight set to \(arg1) power")
-			self.flashlightLevel = arg1
-			return true
-		}
-
-		@objc func turnPowerOff() {
-			self.flashlightLevel = 0
-		}
-	}
-#endif
-
 struct UnlockButtonView: View {
 	@ObservedObject var globals = ZinniaSharedData.global
 
 	@State private var anim_stroke_size = CGFloat(10.0)
 	@State private var anim_faceid_alpha = 1.0
-	@State private var flashlight: AVFlashlight? = {
-		if AVFlashlight.hasFlashlight() {
-			return AVFlashlight()
-		} else {
-			return nil
-		}
-	}()
 
 	@State var forceUpdater: Bool = false
+	@State var menuOpenProgress: CGFloat = 0.0
 
 	public var unlock: () -> Void
 	public var camera: () -> Void
@@ -66,49 +40,39 @@ struct UnlockButtonView: View {
 		}
 	}
 
+	/// Compute the x value for the specific index menu item
+	/// - Parameter index: the menuItem index
+	/// - Returns: the x offset
+	private func xOffset(_ index: Int) -> CGFloat {
+		let menuRadius = UIScreen.main.bounds.width * 0.3
+
+		let slice = CGFloat(2 * .pi / CGFloat(self.getPopups().count))
+		return menuRadius * cos(slice * CGFloat(index))
+	}
+
+	/// Compute the y value for the specific index menu item
+	/// - Parameter index: the menuItem index
+	/// - Returns: the y offset
+	private func yOffset(_ index: Int) -> CGFloat {
+		let menuRadius = UIScreen.main.bounds.width * 0.3
+
+		let slice = CGFloat(2 * .pi / CGFloat(self.getPopups().count))
+		return menuRadius * sin(slice * CGFloat(index))
+	}
+
+	private func getPopups() -> [AnyView] {
+		var popups: [AnyView] = []
+		popups.append(AnyView(CameraPopup(camera: self.camera)))
+		popups.append(AnyView(LockPopup(unlock: self.unlock)))
+		popups.append(AnyView(FlashlightPopup()))
+		return popups
+	}
+
 	var body: some View {
-		VStack {
-			Text("Tap to unlock")
-			HStack {
-				Spacer()
-				if let flashlight = self.flashlight {
-					Circle()
-						.frame(width: UIScreen.main.bounds.width * 0.1, height: UIScreen.main.bounds.width * 0.1)
-						.foregroundColor(.primary)
-						.modifier(
-							NeonEffect(
-								base: Circle(),
-								color: Color.orange,
-								brightness: 0.1,
-								innerSize: 1.5,
-								middleSize: 3,
-								outerSize: 5,
-								innerBlur: 3,
-								blur: 6
-							)
-						)
-						.overlay(
-							Image(systemName: flashlight.flashlightLevel > 0 ? "flashlight.on.fill" : "flashlight.off.fill")
-								.resizable()
-								.aspectRatio(contentMode: .fit)
-								.frame(width: UIScreen.main.bounds.width * 0.1 * 0.5, height: UIScreen.main.bounds.width * 0.1 * 0.5)
-								.foregroundColor(.accentColor)
-								.opacity(flashlight.flashlightLevel > 0 ? 1 : 0.5)
-								.padding()
-								.allowsHitTesting(false)
-						)
-						.padding()
-						.onTapGesture {
-							if flashlight.flashlightLevel > 0 {
-								flashlight.setFlashlightLevel(0, withError: nil)
-								flashlight.turnPowerOff()
-							} else {
-								flashlight.setFlashlightLevel(1, withError: nil)
-							}
-							forceUpdater.toggle()
-						}
-					Spacer()
-				}
+		let popups = self.getPopups()
+		HStack {
+			Spacer()
+			ZStack {
 				Circle()
 					.frame(width: UIScreen.main.bounds.width * 0.25, height: UIScreen.main.bounds.width * 0.25)
 					.foregroundColor(.primary)
@@ -139,40 +103,36 @@ struct UnlockButtonView: View {
 					)
 					.padding()
 					.onTapGesture {
-						unlock()
+						withAnimation {
+							self.menuOpenProgress = self.menuOpenProgress > 0 ? 0 : 1
+						}
 					}
-				Spacer()
-				Circle()
-					.frame(width: UIScreen.main.bounds.width * 0.1, height: UIScreen.main.bounds.width * 0.1)
-					.foregroundColor(.primary)
-					.modifier(
-						NeonEffect(
-							base: Circle(),
-							color: Color.orange,
-							brightness: 0.1,
-							innerSize: 1.5,
-							middleSize: 3,
-							outerSize: 5,
-							innerBlur: 3,
-							blur: 6
-						)
+					.gesture(
+						DragGesture()
+							.onChanged { gesture in
+								let radius = (UIScreen.main.bounds.width * 0.3) - (UIScreen.main.bounds.width * 0.15)
+								let offset = gesture.translation
+								withAnimation(Animation.spring()) {
+									self.menuOpenProgress = min(1.0, ((offset.width + offset.height) / 2) / radius)
+								}
+							}
+							.onEnded { _ in
+								withAnimation(Animation.spring()) {
+									self.menuOpenProgress = self.menuOpenProgress < 0.75 ? 0 : 1
+								}
+							}
 					)
-					.overlay(
-						Image(systemName: "camera.fill")
-							.resizable()
-							.aspectRatio(contentMode: .fit)
-							.frame(width: UIScreen.main.bounds.width * 0.1 * 0.5, height: UIScreen.main.bounds.width * 0.1 * 0.5)
-							.foregroundColor(.accentColor)
-							.padding()
-							.allowsHitTesting(false)
-					)
-					.padding()
-					.onTapGesture {
-						self.camera()
-					}
-
-				Spacer()
+				ForEach(0 ..< popups.count, id: \.self) { index in
+					popups[index]
+						.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
+						.offset(x: self.xOffset(index),
+						        y: self.yOffset(index))
+						.opacity(Double(self.menuOpenProgress))
+						.scaleEffect(self.menuOpenProgress)
+					// .rotationEffect(self.menuOpen ? Angle(degrees: 0) : Angle(degrees: 45))
+				}
 			}
+			Spacer()
 		}.padding()
 	}
 }

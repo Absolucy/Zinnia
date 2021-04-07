@@ -29,6 +29,13 @@ void zinnia_open_the_damn_camera();
 - (bool)turnPowerOnWithError:(id*)arg1;
 @end
 
+@interface CSQuickActionsViewController : UIViewController
+@end
+@interface CSProudLockViewController : UIViewController
+@end
+@interface CSQuickActionsButton : UIControl
+@end
+
 @interface CSCoverSheetViewController : UIViewController
 - (void)setPasscodeLockVisible:(BOOL)arg1 animated:(BOOL)arg2;
 - (void)activatePage:(unsigned long long)arg1 animated:(BOOL)arg2 withCompletion:(/*^block*/id)arg3 ;

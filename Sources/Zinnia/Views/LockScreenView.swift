@@ -19,11 +19,11 @@ struct LockScreenView: View {
 #if targetEnvironment(simulator)
 	struct LockScreenView_Previews: PreviewProvider {
 		static var previews: some View {
-			LockScreenView {}
+			LockScreenView {} camera: {}
 				.preferredColorScheme(.dark)
 				.previewLayout(.device)
 				.previewDevice("iPhone 11")
-			LockScreenView {}
+			LockScreenView {} camera: {}
 				.preferredColorScheme(.dark)
 				.previewLayout(.device)
 				.previewDevice("iPad (8th generation)")

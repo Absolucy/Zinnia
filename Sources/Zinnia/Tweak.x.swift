@@ -68,6 +68,22 @@ class ZinniaSharedData: ObservableObject {
 		func sharedApplication() -> SpringBoard
 	}
 
+	class NoHook: ClassHook<CSProudLockViewController> {
+		func viewDidLoad() {}
+	}
+
+	class NoHook2: ClassHook<CSQuickActionsViewController> {
+		func viewDidLoad() {}
+	}
+
+	class NoHook3: ClassHook<CSQuickActionsButton> {
+		func initWithFrame(_: CGRect) -> Target {
+			orig.initWithFrame(CGRect(x: 0, y: 0, width: 0, height: 0))
+		}
+
+		func layoutSubviews() {}
+	}
+
 	class LockScreenHook: ClassHook<CSCoverSheetViewController> {
 		lazy var buttonHost =
 			UIHostingController(rootView: AnyView(UnlockButtonView(unlock: self.zinnia_unlock, camera: self.zinnia_camera)
@@ -75,17 +91,15 @@ class ZinniaSharedData: ObservableObject {
 		lazy var timeDateHost = UIHostingController(rootView: AnyView(TimeDateView().padding(.top, 64)))
 
 		func viewDidLoad() {
-			// Normally we wouldn't call orig at all,
-			// but this conflicts with tweaks like Eneko,
-			// so instead we just remove all the subviews from child view controllers
 			orig.viewDidLoad()
+
 			for sub in target.children {
-				let type = String(describing: sub)
-				if type.contains("DateView")
-					|| type.contains("FixedFooter")
-					|| type.contains("TeachableMoments")
-					|| type.contains("ProudLock")
-					|| type.contains("QuickActions")
+				let type_name = String(describing: type(of: sub))
+				if type_name.contains("DateView")
+					|| type_name.contains("FixedFooter")
+					|| type_name.contains("TeachableMoments")
+					|| type_name.contains("ProudLock")
+					|| type_name.contains("QuickActions")
 				{
 					sub.view.removeFromSuperview()
 				}
@@ -126,9 +140,9 @@ class ZinniaSharedData: ObservableObject {
 				.sharedApplication()
 				._simulateHomeButtonPress()
 		}
- 
+
 		final func zinnia_camera() {
-			zinnia_open_the_damn_camera()
+			target.activatePage(1, animated: true, withCompletion: nil)
 		}
 	}
 #endif
