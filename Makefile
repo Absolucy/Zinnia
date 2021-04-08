@@ -5,7 +5,8 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = Zinnia
 
-Zinnia_FILES              = $(shell find Sources/Zinnia -name '*.swift') \
+Zinnia_FILES              = $(shell find Sources/ZinniaTweak -name '*.swift') \
+							 $(shell find Sources/ZinniaUI -name '*.swift') \
                              $(shell find Sources/ZinniaC -name '*.m' -o -name "*.x" -o -name '*.c' -o -name '*.mm' -o -name '*.cpp') \
                              $(shell find Sources/NomaePreferencess -name '*.swift') \
 Zinnia_SWIFTFLAGS         = -ISources/ZinniaC/include
