@@ -1,31 +1,35 @@
 import Foundation
+import NomaePreferences
 import SwiftUI
-
-class ZinniaSharedData: ObservableObject {
-	static let global = ZinniaSharedData()
-	@Published var associated = false
-	@Published var wifi_strength = 0
-	@Published var lte_strength = 0
-	@Published var unlocked = false
-}
+import ZinniaUI
 
 #if !targetEnvironment(simulator)
 	import Orion
 	import SystemConfiguration.CaptiveNetwork
 	import ZinniaC
 
-	struct ZinniaTweak: TweakWithBackend {
+	struct Zinnia: TweakWithBackend {
 		static var backend = Backends.Automatic()
 		typealias BackendType = Backends.Automatic
+
+		init() {
+			if ZinniaPreferences.enabled {
+				ZinniaHooks().activate()
+			}
+		}
 	}
 
+	struct ZinniaHooks: HookGroup {}
+
 	class UIVHook: ClassHook<UIViewController> {
+		typealias Group = ZinniaHooks
 		func _canShowWhileLocked() -> Bool {
 			true
 		}
 	}
 
 	class SBWifiHook: ClassHook<SBWiFiManager> {
+		typealias Group = ZinniaHooks
 		func isAssociated() -> Bool {
 			let associated = orig.isAssociated()
 			ZinniaSharedData.global.associated = associated
@@ -40,6 +44,7 @@ class ZinniaSharedData: ObservableObject {
 	}
 
 	class SBLTEHook: ClassHook<_UIStatusBarCellularSignalView> {
+		typealias Group = ZinniaHooks
 		func _updateActiveBars() {
 			orig._updateActiveBars()
 			ZinniaSharedData.global.lte_strength = Int(target.numberOfActiveBars)
@@ -47,6 +52,7 @@ class ZinniaSharedData: ObservableObject {
 	}
 
 	class LockStateHook: ClassHook<SASLockStateMonitor> {
+		typealias Group = ZinniaHooks
 		func setUnlockedByTouchID(_ state: Bool) {
 			orig.setUnlockedByTouchID(state)
 			ZinniaSharedData.global.unlocked = state
@@ -69,14 +75,17 @@ class ZinniaSharedData: ObservableObject {
 	}
 
 	class NoHook: ClassHook<CSProudLockViewController> {
+		typealias Group = ZinniaHooks
 		func viewDidLoad() {}
 	}
 
 	class NoHook2: ClassHook<CSQuickActionsViewController> {
+		typealias Group = ZinniaHooks
 		func viewDidLoad() {}
 	}
 
 	class NoHook3: ClassHook<CSQuickActionsButton> {
+		typealias Group = ZinniaHooks
 		func initWithFrame(_: CGRect) -> Target {
 			orig.initWithFrame(CGRect(x: 0, y: 0, width: 0, height: 0))
 		}
@@ -85,9 +94,13 @@ class ZinniaSharedData: ObservableObject {
 	}
 
 	class LockScreenHook: ClassHook<CSCoverSheetViewController> {
+		typealias Group = ZinniaHooks
 		lazy var buttonHost =
-			UIHostingController(rootView: AnyView(UnlockButtonView(unlock: self.zinnia_unlock, camera: self.zinnia_camera)
-						.padding(.bottom, 16)))
+			UIHostingController(rootView:
+				AnyView(
+					UnlockButtonView(unlock: self.zinnia_unlock, camera: self.zinnia_camera)
+						.frame(height: UIScreen.main.bounds.width * 0.375 * 2)
+				))
 		lazy var timeDateHost = UIHostingController(rootView: AnyView(TimeDateView().padding(.top, 64)))
 
 		func viewDidLoad() {

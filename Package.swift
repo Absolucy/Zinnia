@@ -32,7 +32,7 @@ let package = Package(
 	products: [
 		.library(
 			name: "Zinnia",
-			targets: ["Zinnia"]
+			targets: ["ZinniaTweak"]
 		),
 	],
 	targets: [
@@ -42,8 +42,17 @@ let package = Package(
 			cxxSettings: [.unsafeFlags(cxxFlags)]
 		),
 		.target(
-			name: "Zinnia",
-			dependencies: ["ZinniaC"],
+			name: "NomaePreferences",
+			swiftSettings: [.unsafeFlags(swiftFlags)]
+		),
+		.target(
+			name: "ZinniaUI",
+			dependencies: ["ZinniaC", "NomaePreferences"],
+			swiftSettings: [.unsafeFlags(swiftFlags)]
+		),
+		.target(
+			name: "ZinniaTweak",
+			dependencies: ["ZinniaC", "ZinniaUI"],
 			swiftSettings: [.unsafeFlags(swiftFlags)]
 		),
 	]

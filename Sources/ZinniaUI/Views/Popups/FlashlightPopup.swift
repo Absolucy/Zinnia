@@ -28,53 +28,37 @@ import ZinniaC
 	}
 #endif
 
-struct FlashlightPopup: View {
-	@State private var flashlight: AVFlashlight? = {
-		if AVFlashlight.hasFlashlight() {
-			return AVFlashlight()
-		} else {
-			return nil
-		}
-	}()
+public struct FlashlightPopup: View {
+	@Binding var flashlight: AVFlashlight?
+	var action: () -> Void
 
-	var body: some View {
-		if let flashlight = self.flashlight {
+	public var body: some View {
+		Button(action: action, label: {
 			Circle()
 				.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
-				.foregroundColor(.primary)
+				.foregroundColor(ZinniaPreferences.flashlightBgColor)
 				.modifier(
 					NeonEffect(
 						base: Circle(),
-						color: Color.orange,
+						color: ZinniaPreferences.flashlightNeonColor,
 						brightness: 0.1,
-						innerSize: 1.5,
-						middleSize: 3,
-						outerSize: 5,
+						innerSize: 1.5 * ZinniaPreferences.flashlightNeonMul,
+						middleSize: 3 * ZinniaPreferences.flashlightNeonMul,
+						outerSize: 5 * ZinniaPreferences.flashlightNeonMul,
 						innerBlur: 3,
 						blur: 6
 					)
 				)
 				.overlay(
-					Image(systemName: flashlight.flashlightLevel > 0 ? "flashlight.on.fill" : "flashlight.off.fill")
+					Image(systemName: flashlight!.flashlightLevel > 0 ? "flashlight.on.fill" : "flashlight.off.fill")
 						.resizable()
 						.aspectRatio(contentMode: .fit)
 						.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
-						.foregroundColor(.accentColor)
-						.opacity(flashlight.flashlightLevel > 0 ? 1 : 0.5)
+						.foregroundColor(ZinniaPreferences.flashlightIconColor)
+						.opacity(flashlight!.flashlightLevel > 0 ? 1 : 0.5)
 						.padding()
 						.allowsHitTesting(false)
 				)
-				.padding()
-				.onTapGesture {
-					if flashlight.flashlightLevel > 0 {
-						flashlight.setFlashlightLevel(0, withError: nil)
-						flashlight.turnPowerOff()
-					} else {
-						flashlight.setFlashlightLevel(1, withError: nil)
-					}
-				}
-		} else {
-			EmptyView()
-		}
+		}).padding()
 	}
 }
