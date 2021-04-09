@@ -41,7 +41,7 @@ extern "C" {
 * @result
 * Returns any errors that may have taken place when hooking the method
 */
-enum LIBHOOKER_ERR LBHookMessage(Class objcClass, SEL selector, void *replacement, void *old_ptr);
+extern enum LIBHOOKER_ERR LBHookMessage(Class objcClass, SEL selector, void *replacement, void *old_ptr) __attribute__((weak_import));
 
 #ifdef __cplusplus
 }

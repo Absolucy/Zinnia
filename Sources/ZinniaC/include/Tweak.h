@@ -6,6 +6,8 @@
 
 int CTGetSignalStrength();
 
+extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP *result) __attribute__((weak_import));
+
 @interface AVFlashlight : NSObject
 @property (getter=isAvailable, nonatomic, readonly) bool available;
 @property (nonatomic, readonly) float flashlightLevel;

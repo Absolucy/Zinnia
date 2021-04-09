@@ -1,9 +1,9 @@
 Package: me.aspenuwu.zinnia
 Name: Zinnia
-Version: 0.0.1
+Version: 1.0.0
 Architecture: iphoneos-arm
-Description: An awesome Orion tweak!
+Description: A wonderful neon overhaul for your lock screen!
 Maintainer: Aspen
 Author: Aspen
 Section: Tweaks
-Depends: ${ORION}, firmware (>= 12.2)
+Depends: firmware (>= 14.0), preferenceloader

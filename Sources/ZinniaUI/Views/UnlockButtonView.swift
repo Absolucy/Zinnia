@@ -61,11 +61,13 @@ public struct UnlockButtonView: View {
 	}
 
 	private func toggleFlashlight() {
-		if self.flashlight!.flashlightLevel > 0 {
-			_ = self.flashlight!.setFlashlightLevel(0, withError: nil)
-			self.flashlight!.turnPowerOff()
-		} else {
-			_ = self.flashlight!.setFlashlightLevel(1, withError: nil)
+		if let flashlight = self.flashlight {
+			if flashlight.flashlightLevel > 0 {
+				_ = flashlight.setFlashlightLevel(0, withError: nil)
+				flashlight.turnPowerOff()
+			} else {
+				_ = flashlight.setFlashlightLevel(1, withError: nil)
+			}
 		}
 	}
 
