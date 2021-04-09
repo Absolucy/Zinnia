@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-public extension View {
+extension View {
 	/// Applies a modifier to a view if an optional item can be unwrapped.
 	///
 	///     someView

@@ -3,11 +3,11 @@ import SwiftUI
 	import ZinniaC
 #endif
 
-public struct LockScreenView: View {
-	public var unlock: () -> Void
-	public var camera: () -> Void
+struct LockScreenView: View {
+	var unlock: () -> Void
+	var camera: () -> Void
 
-	public var body: some View {
+	var body: some View {
 		VStack {
 			TimeDateView()
 				.padding(.vertical, 30)

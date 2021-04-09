@@ -9,9 +9,9 @@ import Foundation
 import SwiftUI
 import UIKit
 
-public enum WeatherInfo {
+enum WeatherInfo {
 	// https://gist.github.com/bzerangue/805520
-	public static var codes: [Int: String] = [
+	static var codes: [Int: String] = [
 		0: "tornado",
 		1: "tropicalstorm",
 		2: "hurricane",

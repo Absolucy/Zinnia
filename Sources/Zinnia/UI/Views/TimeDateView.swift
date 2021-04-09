@@ -3,12 +3,12 @@
 #endif
 import SwiftUI
 
-public struct TimeDateView: View {
-	@Preference("dateFormat", identifier: ZinniaPreferences.identifier) public var dateFormat = "MM/dd/yyyy"
-	@Preference("timeFormat", identifier: ZinniaPreferences.identifier) public var timeFormat = "hh:mm a"
-	@Preference("dateTimeNeonMul", identifier: ZinniaPreferences.identifier) public var dateTimeNeonMul: Double = 1
-	@Preference("dateTimeNeonColor", identifier: ZinniaPreferences.identifier) public var dateTimeNeonColor = Color.purple
-	@Preference("dateTimeBgColor", identifier: ZinniaPreferences.identifier) public var dateTimeBgColor = Color.black
+struct TimeDateView: View {
+	@Preference("dateFormat", identifier: ZinniaPreferences.identifier) var dateFormat = "MM/dd/yyyy"
+	@Preference("timeFormat", identifier: ZinniaPreferences.identifier) var timeFormat = "hh:mm a"
+	@Preference("dateTimeNeonMul", identifier: ZinniaPreferences.identifier) var dateTimeNeonMul: Double = 1
+	@Preference("dateTimeNeonColor", identifier: ZinniaPreferences.identifier) var dateTimeNeonColor = Color.purple
+	@Preference("dateTimeBgColor", identifier: ZinniaPreferences.identifier) var dateTimeBgColor = Color.black
 
 	@State var dateText: String = "4/9/2021"
 	@State var timeText: String = "9:41 AM"
@@ -18,7 +18,7 @@ public struct TimeDateView: View {
 
 	let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-	public init() {
+	init() {
 		self.dateFormatter = DateFormatter()
 		self.timeFormatter = DateFormatter()
 		self.dateFormatter.dateFormat = self.dateFormat
@@ -59,7 +59,7 @@ public struct TimeDateView: View {
 		}
 	}
 
-	public var body: some View {
+	var body: some View {
 		BuildView()
 	}
 }

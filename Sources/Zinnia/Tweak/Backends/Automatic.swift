@@ -2,10 +2,10 @@
  import Foundation
  import Orion
 
- public extension Backends {
+ extension Backends {
  	struct Automatic: Backend {
  		var backend: Backend
- 		public init() {
+ 		init() {
  			if dlopen("/usr/lib/libhooker.dylib", RTLD_NOW) != nil && dlopen("/usr/lib/libblackjack.dylib", RTLD_NOW) != nil {
  				NSLog("Zinnia: using libhooker :)")
  				self.backend = Libhooker()
@@ -19,7 +19,7 @@
  	}
  }
 
- public extension Backends.Automatic {
+ extension Backends.Automatic {
  	func apply(descriptors: [HookDescriptor]) {
  		backend.apply(descriptors: descriptors)
  	}

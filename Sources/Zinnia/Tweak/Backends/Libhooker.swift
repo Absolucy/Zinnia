@@ -3,13 +3,13 @@
  import Orion
  import ZinniaC
 
- public extension Backends {
+ extension Backends {
  	struct Libhooker: Backend {
- 		public init() {}
+ 		init() {}
  	}
  }
 
- public extension Backends.Libhooker {
+ extension Backends.Libhooker {
  	func apply(descriptors: [HookDescriptor]) {
  		descriptors.forEach {
  			switch $0 {

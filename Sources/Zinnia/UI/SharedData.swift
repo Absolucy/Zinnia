@@ -1,15 +1,15 @@
 import Foundation
 
-public class ZinniaSharedData: ObservableObject {
-	public static let global = ZinniaSharedData()
-	@Published public var associated = false
-	@Published public var wifi_strength = 0
-	@Published public var lte_strength = 0
-	@Published public var unlocked = false
+class ZinniaSharedData: ObservableObject {
+	static let global = ZinniaSharedData()
+	@Published var associated = false
+	@Published var wifi_strength = 0
+	@Published var lte_strength = 0
+	@Published var unlocked = false
 
-	public init() {}
+	init() {}
 
-	public init(unlocked: Bool) {
+	init(unlocked: Bool) {
 		self.unlocked = unlocked
 	}
 }

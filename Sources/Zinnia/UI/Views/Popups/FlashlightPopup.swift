@@ -5,7 +5,7 @@ import SwiftUI
 import ZinniaC
 
 #if targetEnvironment(simulator)
-	@objc public class AVFlashlight: NSObject {
+	@objc class AVFlashlight: NSObject {
 		@objc var flashlightLevel: Float = 0
 
 		@objc static func hasFlashlight() -> Bool {
@@ -24,9 +24,9 @@ import ZinniaC
 	}
 #endif
 
-public struct FlashlightPopup: View {
-	@Binding public var flashlight: AVFlashlight?
-	public var action: () -> Void
+struct FlashlightPopup: View {
+	@Binding var flashlight: AVFlashlight?
+	var action: () -> Void
 
 	@Preference("flashlightBgColor", identifier: ZinniaPreferences.identifier) var flashlightBgColor = Color.primary
 	@Preference("flashlightNeonColor", identifier: ZinniaPreferences.identifier) var flashlightNeonColor = Color.yellow
@@ -34,12 +34,12 @@ public struct FlashlightPopup: View {
 	@Preference("flashlightIconColor", identifier: ZinniaPreferences.identifier) var flashlightIconColor = Color
 		.accentColor
 
-	public init(flashlight: Binding<AVFlashlight?> = .constant(nil), action: @escaping () -> Void) {
+	init(flashlight: Binding<AVFlashlight?> = .constant(nil), action: @escaping () -> Void) {
 		self._flashlight = flashlight
 		self.action = action
 	}
 
-	public var body: some View {
+	var body: some View {
 		Button(action: action, label: {
 			Circle()
 				.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)

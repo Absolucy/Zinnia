@@ -6,7 +6,7 @@ import SwiftUI
 import UIKit
 import ZinniaC
 
-public struct UnlockButtonView: View {
+struct UnlockButtonView: View {
 	@ObservedObject var globals = ZinniaSharedData.global
 	@State var anim_faceid_alpha = 1.0
 	@State var selected: Int? = nil
@@ -25,10 +25,10 @@ public struct UnlockButtonView: View {
 	@Preference("unlockNeonColor", identifier: ZinniaPreferences.identifier) var unlockNeonColor = Color.purple
 	@Preference("unlockIconColor", identifier: ZinniaPreferences.identifier) var unlockIconColor = Color.accentColor
 
-	public var unlock: () -> Void
-	public var camera: () -> Void
+	var unlock: () -> Void
+	var camera: () -> Void
 
-	public init(unlock: @escaping () -> Void, camera: @escaping () -> Void) {
+	init(unlock: @escaping () -> Void, camera: @escaping () -> Void) {
 		self.unlock = unlock
 		self.camera = camera
 	}
@@ -82,7 +82,7 @@ public struct UnlockButtonView: View {
 		return popups
 	}
 
-	public var body: some View {
+	var body: some View {
 		let popups = self.getPopups()
 		HStack {
 			Spacer()

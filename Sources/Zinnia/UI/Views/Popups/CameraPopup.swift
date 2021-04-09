@@ -3,8 +3,8 @@
 #endif
 import SwiftUI
 
-public struct CameraPopup: View {
-	public var camera: () -> Void
+struct CameraPopup: View {
+	var camera: () -> Void
 
 	// Camera popup
 	@Preference("cameraBgColor", identifier: ZinniaPreferences.identifier) var cameraBgColor = Color.primary
@@ -12,11 +12,11 @@ public struct CameraPopup: View {
 	@Preference("cameraNeonMul", identifier: ZinniaPreferences.identifier) var cameraNeonMul: Double = 1
 	@Preference("cameraIconColor", identifier: ZinniaPreferences.identifier) var cameraIconColor = Color.accentColor
 
-	public init(camera: @escaping () -> Void) {
+	init(camera: @escaping () -> Void) {
 		self.camera = camera
 	}
 
-	public var body: some View {
+	var body: some View {
 		Button(action: camera, label: {
 			Circle()
 				.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)

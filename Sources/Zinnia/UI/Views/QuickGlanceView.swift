@@ -3,7 +3,7 @@ import SwiftUI
 import UIKit
 import ZinniaC
 
-public struct QuickGlanceView: View {
+struct QuickGlanceView: View {
 	@ObservedObject var globals = ZinniaSharedData.global
 
 	init() {
@@ -105,7 +105,7 @@ public struct QuickGlanceView: View {
 			.foregroundColor(color)
 	}
 
-	public var body: some View {
+	var body: some View {
 		HStack {
 			WeatherIcon().padding(4.0)
 			WifiView().padding(4.0)

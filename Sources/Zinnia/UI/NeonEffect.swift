@@ -8,18 +8,18 @@
 import Foundation
 import SwiftUI
 
-public struct NeonEffect<S: Shape>: ViewModifier {
-	public var base: S
-	public var mask: AnyView?
-	public var color: Color
-	public var brightness: Double
-	public var innerSize: Double
-	public var middleSize: Double?
-	public var outerSize: Double?
-	public var innerBlur: Double?
-	public var blur: Double
+struct NeonEffect<S: Shape>: ViewModifier {
+	var base: S
+	var mask: AnyView?
+	var color: Color
+	var brightness: Double
+	var innerSize: Double
+	var middleSize: Double?
+	var outerSize: Double?
+	var innerBlur: Double?
+	var blur: Double
 
-	public func body(content: Content) -> some View {
+	func body(content: Content) -> some View {
 		ZStack {
 			content.foregroundColor(color)
 			content.blur(radius: CGFloat(blur))
