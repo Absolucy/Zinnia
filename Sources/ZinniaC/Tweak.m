@@ -4,6 +4,7 @@
 #import "Zinnia-Swift.h"
 #import "include/libblackjack.h"
 #import "include/libhooker.h"
+#import "Godzilla/Godzilla.h"
 
 UIViewController* unlockButton;
 UIViewController* timeDate;
