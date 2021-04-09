@@ -104,11 +104,12 @@ public struct UnlockButtonView: View {
 						Image(systemName: get_biometric_icon())
 							.foregroundColor(self.unlockIconColor)
 							.opacity(anim_faceid_alpha)
-							.animation(Animation.easeInOut.repeatForever().speed(0.25))
 							.font(.system(size: 60))
 							.padding()
 							.onAppear(perform: {
-								self.anim_faceid_alpha = 0.0
+								withAnimation(Animation.easeInOut.repeatForever().speed(0.25)) {
+									self.anim_faceid_alpha = 0.0
+								}
 							})
 							.opacity(globals.unlocked ? 0.0 : 1.0)
 							.allowsHitTesting(false)
