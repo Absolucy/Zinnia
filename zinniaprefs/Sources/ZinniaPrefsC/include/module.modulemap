@@ -1,4 +1,0 @@
-module ZinniaPrefsC {
-    umbrella "."
-    export *
-}

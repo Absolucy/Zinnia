@@ -1,17 +1,17 @@
 import Foundation
-import NomaePreferences
 import Orion
 import SwiftUI
 import SystemConfiguration.CaptiveNetwork
 import ZinniaC
-import ZinniaUI
 
 struct Zinnia: TweakWithBackend {
 	static var backend = Backends.Automatic()
 	typealias BackendType = Backends.Automatic
 
+	@Preference("enabled", identifier: ZinniaPreferences.identifier) var enabled = true
+
 	init() {
-		if ZinniaPreferences.enabled {
+		if self.enabled {
 			ZinniaHooks().activate()
 		}
 	}

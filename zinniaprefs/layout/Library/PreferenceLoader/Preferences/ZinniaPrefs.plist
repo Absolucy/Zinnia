@@ -9,13 +9,13 @@
 		<key>cell</key>
 		<string>PSLinkCell</string>
 		<key>detail</key>
-		<string>ZinniaPrefs.RootListController</string>
+		<string>ZinniaPrefs.RootPreferences</string>
 		<key>icon</key>
-		<string>icon.png</string>
+		<string>zinnia.png</string>
 		<key>isController</key>
 		<true/>
 		<key>label</key>
-		<string>ZinniaPrefs</string>
+		<string>Zinnia</string>
 	</dict>
 </dict>
 </plist>

@@ -1,6 +1,8 @@
-import NomaePreferences
+#if !THEOS_SWIFT
+	import NomaePreferences
+	import ZinniaUI
+#endif
 import SwiftUI
-import ZinniaUI
 
 struct UnlockPrefs: View {
 	@Preference("unlockBgColor", identifier: ZinniaPreferences.identifier) var unlockBgColor = Color.white

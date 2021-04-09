@@ -1,6 +1,8 @@
-import NomaePreferences
+#if !THEOS_SWIFT
+	import NomaePreferences
+	import ZinniaUI
+#endif
 import SwiftUI
-import ZinniaUI
 
 struct TimeDatePrefs: View {
 	@Preference("dateFormat", identifier: ZinniaPreferences.identifier) var dateFormat = "MM/dd/yyyy"

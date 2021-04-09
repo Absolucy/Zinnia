@@ -5,7 +5,6 @@
 #import <Foundation/Foundation.h>
 
 int CTGetSignalStrength();
-void zinnia_open_the_damn_camera();
 
 @interface AVFlashlight : NSObject
 @property (getter=isAvailable, nonatomic, readonly) bool available;

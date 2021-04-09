@@ -1,5 +1,7 @@
 import LocalAuthentication
-import NomaePreferences
+#if !THEOS_SWIFT
+	import NomaePreferences
+#endif
 import SwiftUI
 import UIKit
 import ZinniaC

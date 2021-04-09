@@ -1,10 +1,3 @@
-//
-//  QuickInfoView.swift
-//
-//
-//  Created by Aspen on 3/18/21.
-//
-
 import Foundation
 import SwiftUI
 import UIKit

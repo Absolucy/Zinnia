@@ -1,7 +1,9 @@
 import Foundation
-import NomaePreferences
+#if !THEOS_SWIFT
+	import NomaePreferences
+	import ZinniaUI
+#endif
 import SwiftUI
-import ZinniaUI
 
 struct PreferencesView: View {
 	@Environment(\.colorScheme) var colorScheme
@@ -10,24 +12,25 @@ struct PreferencesView: View {
 	@Preference("enabled", identifier: ZinniaPreferences.identifier) var enabled = true
 
 	var body: some View {
-		VStack {
-			Toggle("Enabled", isOn: $enabled)
-			if self.enabled {
-				Button("Full Preview") {
-					fullPreview = true
-				}
-				ScrollView {
-					VStack {
-						Divider().padding()
-						TimeDatePrefs()
-						Divider().padding()
-						UnlockPrefs()
-						Divider().padding()
-						PopupPrefs()
-						Divider().padding()
+		ScrollView {
+			VStack {
+				Header("Zinnia",
+				       icon: (Image(contentsOfFile: "/Library/PreferenceBundles/ZinniaPrefs.bundle/zinnia.png") ??
+				       	Image(systemName: "lock.rectangle.stack")).resizable().frame(width: 50, height: 50))
+				Toggle("Enabled", isOn: $enabled)
+				if self.enabled {
+					Button("Full Preview") {
+						fullPreview = true
 					}
+					Divider().padding()
+					TimeDatePrefs()
+					Divider().padding()
+					UnlockPrefs()
+					Divider().padding()
+					PopupPrefs()
+					Divider().padding()
 				}
-			}
+			}.padding(.horizontal)
 		}
 		.padding()
 		.fullScreenCover(isPresented: $fullPreview) {
@@ -53,5 +56,12 @@ struct PreferencesViewPreviews: PreviewProvider {
 			.preferredColorScheme(.dark)
 		PreferencesView()
 			.preferredColorScheme(.light)
+	}
+}
+
+private extension Image {
+	init?(contentsOfFile path: String) {
+		guard let uiImage = UIImage(contentsOfFile: path) else { return nil }
+		self.init(uiImage: uiImage)
 	}
 }

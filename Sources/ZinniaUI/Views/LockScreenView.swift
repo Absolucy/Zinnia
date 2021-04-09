@@ -1,5 +1,7 @@
 import SwiftUI
-import ZinniaC
+#if !THEOS_SWIFT
+	import ZinniaC
+#endif
 
 public struct LockScreenView: View {
 	public var unlock: () -> Void
