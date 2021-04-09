@@ -1,11 +1,5 @@
-//
-//  SwiftUIView.swift
-//
-//
-//  Created by Aspen on 3/18/21.
-//
-
 import LocalAuthentication
+import NomaePreferences
 import SwiftUI
 import UIKit
 import ZinniaC
@@ -23,6 +17,11 @@ public struct UnlockButtonView: View {
 			return nil
 		}
 	}()
+
+	@Preference("unlockBgColor", identifier: ZinniaPreferences.identifier) var unlockBgColor = Color.primary
+	@Preference("unlockNeonMul", identifier: ZinniaPreferences.identifier) var unlockNeonMul: Double = 1
+	@Preference("unlockNeonColor", identifier: ZinniaPreferences.identifier) var unlockNeonColor = Color.purple
+	@Preference("unlockIconColor", identifier: ZinniaPreferences.identifier) var unlockIconColor = Color.accentColor
 
 	public var unlock: () -> Void
 	public var camera: () -> Void
@@ -86,22 +85,22 @@ public struct UnlockButtonView: View {
 			ZStack {
 				Circle()
 					.frame(width: UIScreen.main.bounds.width * 0.25, height: UIScreen.main.bounds.width * 0.25)
-					.foregroundColor(ZinniaPreferences.unlockBgColor)
+					.foregroundColor(self.unlockBgColor)
 					.modifier(
 						NeonEffect(
 							base: Circle(),
-							color: ZinniaPreferences.unlockNeonColor,
+							color: self.unlockNeonColor,
 							brightness: 0.1,
-							innerSize: 1.5 * ZinniaPreferences.unlockNeonMul,
-							middleSize: 3 * ZinniaPreferences.unlockNeonMul,
-							outerSize: 5 * ZinniaPreferences.unlockNeonMul,
+							innerSize: 1.5 * self.unlockNeonMul,
+							middleSize: 3 * self.unlockNeonMul,
+							outerSize: 5 * self.unlockNeonMul,
 							innerBlur: 3,
 							blur: 6
 						)
 					)
 					.overlay(
 						Image(systemName: get_biometric_icon())
-							.foregroundColor(ZinniaPreferences.unlockIconColor)
+							.foregroundColor(self.unlockIconColor)
 							.opacity(anim_faceid_alpha)
 							.animation(Animation.easeInOut.repeatForever().speed(0.25))
 							.font(.system(size: 60))
@@ -136,22 +135,17 @@ public struct UnlockButtonView: View {
 									   abs(gesture.location.y - (gesture.startLocation.y + y)) <= (UIScreen.main.bounds.width * 0.15)
 									{
 										selected = index
+										break
 									}
 								}
 								self.selected = selected
 							}
-							.onEnded { gesture in
-								withAnimation(Animation.spring()) {
-									self.menuOpenProgress = 0
+							.onEnded { _ in
+								if let selected = self.selected {
+									popups[selected].1()
 								}
-								for index in 0 ..< popups.count {
-									let x = self.xOffset(index)
-									let y = self.yOffset(index)
-									if abs(gesture.location.x - (gesture.startLocation.x + x)) <= (UIScreen.main.bounds.width * 0.15),
-									   abs(gesture.location.y - (gesture.startLocation.y + y)) <= (UIScreen.main.bounds.width * 0.15)
-									{
-										popups[index].1()
-									}
+								withAnimation(Animation.spring().delay(1)) {
+									self.menuOpenProgress = 0
 								}
 								self.selected = nil
 								self.draggingMenuOpen = false

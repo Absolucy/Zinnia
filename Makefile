@@ -16,3 +16,5 @@ Zinnia_FRAMEWORKS         = AVFoundation
 Zinnia_PRIVATE_FRAMEWORKS = CoreTelephony CoverSheet
 
 include $(THEOS_MAKE_PATH)/tweak.mk
+SUBPROJECTS += zinniaprefs
+include $(THEOS_MAKE_PATH)/aggregate.mk

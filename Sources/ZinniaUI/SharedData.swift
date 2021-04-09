@@ -6,4 +6,10 @@ public class ZinniaSharedData: ObservableObject {
 	@Published public var wifi_strength = 0
 	@Published public var lte_strength = 0
 	@Published public var unlocked = false
+
+	public init() {}
+
+	public init(unlocked: Bool) {
+		self.unlocked = unlocked
+	}
 }

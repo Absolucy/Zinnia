@@ -16,17 +16,15 @@ public struct LockScreenView: View {
 	}
 }
 
-#if targetEnvironment(simulator)
-	struct LockScreenView_Previews: PreviewProvider {
-		static var previews: some View {
-			LockScreenView {} camera: {}
-				.preferredColorScheme(.dark)
-				.previewLayout(.device)
-				.previewDevice("iPhone 11")
-			LockScreenView {} camera: {}
-				.preferredColorScheme(.dark)
-				.previewLayout(.device)
-				.previewDevice("iPad (8th generation)")
-		}
+struct LockScreenView_Previews: PreviewProvider {
+	static var previews: some View {
+		LockScreenView {} camera: {}
+			.preferredColorScheme(.dark)
+			.previewLayout(.device)
+			.previewDevice("iPhone 11")
+		LockScreenView {} camera: {}
+			.preferredColorScheme(.dark)
+			.previewLayout(.device)
+			.previewDevice("iPad (8th generation)")
 	}
-#endif
+}

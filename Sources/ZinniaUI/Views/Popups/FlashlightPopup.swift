@@ -1,15 +1,9 @@
-//
-//  SwiftUIView.swift
-//
-//
-//  Created by Aspen on 4/7/21.
-//
-
+import NomaePreferences
 import SwiftUI
 import ZinniaC
 
 #if targetEnvironment(simulator)
-	@objc class AVFlashlight: NSObject {
+	@objc public class AVFlashlight: NSObject {
 		@objc var flashlightLevel: Float = 0
 
 		@objc static func hasFlashlight() -> Bool {
@@ -29,33 +23,44 @@ import ZinniaC
 #endif
 
 public struct FlashlightPopup: View {
-	@Binding var flashlight: AVFlashlight?
-	var action: () -> Void
+	@Binding public var flashlight: AVFlashlight?
+	public var action: () -> Void
+
+	@Preference("flashlightBgColor", identifier: ZinniaPreferences.identifier) var flashlightBgColor = Color.primary
+	@Preference("flashlightNeonColor", identifier: ZinniaPreferences.identifier) var flashlightNeonColor = Color.yellow
+	@Preference("flashlightNeonMul", identifier: ZinniaPreferences.identifier) var flashlightNeonMul: Double = 1
+	@Preference("flashlightIconColor", identifier: ZinniaPreferences.identifier) var flashlightIconColor = Color
+		.accentColor
+
+	public init(flashlight: Binding<AVFlashlight?> = .constant(nil), action: @escaping () -> Void) {
+		self._flashlight = flashlight
+		self.action = action
+	}
 
 	public var body: some View {
 		Button(action: action, label: {
 			Circle()
 				.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
-				.foregroundColor(ZinniaPreferences.flashlightBgColor)
+				.foregroundColor(flashlightBgColor)
 				.modifier(
 					NeonEffect(
 						base: Circle(),
-						color: ZinniaPreferences.flashlightNeonColor,
+						color: flashlightNeonColor,
 						brightness: 0.1,
-						innerSize: 1.5 * ZinniaPreferences.flashlightNeonMul,
-						middleSize: 3 * ZinniaPreferences.flashlightNeonMul,
-						outerSize: 5 * ZinniaPreferences.flashlightNeonMul,
+						innerSize: 1.5 * flashlightNeonMul,
+						middleSize: 3 * flashlightNeonMul,
+						outerSize: 5 * flashlightNeonMul,
 						innerBlur: 3,
 						blur: 6
 					)
 				)
 				.overlay(
-					Image(systemName: flashlight!.flashlightLevel > 0 ? "flashlight.on.fill" : "flashlight.off.fill")
+					Image(systemName: flashlight?.flashlightLevel ?? 0 > 0 ? "flashlight.on.fill" : "flashlight.off.fill")
 						.resizable()
 						.aspectRatio(contentMode: .fit)
 						.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
-						.foregroundColor(ZinniaPreferences.flashlightIconColor)
-						.opacity(flashlight!.flashlightLevel > 0 ? 1 : 0.5)
+						.foregroundColor(flashlightIconColor)
+						.opacity(flashlight?.flashlightLevel ?? 0 > 0 ? 1 : 0.5)
 						.padding()
 						.allowsHitTesting(false)
 				)

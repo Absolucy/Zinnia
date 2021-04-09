@@ -1,33 +1,42 @@
-//
-//  SwiftUIView.swift
-//
-//
-//  Created by Aspen on 4/7/21.
-//
-
+import NomaePreferences
 import SwiftUI
 
 public struct LockPopup: View {
-	@ObservedObject var globals = ZinniaSharedData.global
+	@ObservedObject var globals: ZinniaSharedData
 	public var unlock: () -> Void
+
+	@Preference("lockBgColorUnlocked", identifier: ZinniaPreferences.identifier) var lockBgColorUnlocked = Color.primary
+	@Preference("lockBgColorLocked", identifier: ZinniaPreferences.identifier) var lockBgColorLocked = Color.primary
+	@Preference("lockNeonMulUnlocked", identifier: ZinniaPreferences.identifier) var lockNeonMulUnlocked: Double = 1
+	@Preference("lockNeonMulLocked", identifier: ZinniaPreferences.identifier) var lockNeonMulLocked: Double = 1
+	@Preference("lockNeonColorUnlocked", identifier: ZinniaPreferences.identifier) var lockNeonColorUnlocked = Color.green
+	@Preference("lockNeonColorLocked", identifier: ZinniaPreferences.identifier) var lockNeonColorLocked = Color.red
+	@Preference("lockIconColorUnlocked", identifier: ZinniaPreferences.identifier) var lockIconColorUnlocked = Color
+		.accentColor
+	@Preference("lockIconColorLocked", identifier: ZinniaPreferences.identifier) var lockIconColorLocked = Color
+		.accentColor
+
+	public init(unlock: @escaping () -> Void, globals: ZinniaSharedData = ZinniaSharedData.global) {
+		self.unlock = unlock
+		self.globals = globals
+	}
 
 	public var body: some View {
 		Button(action: unlock, label: {
 			Circle()
 				.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
-				.foregroundColor(self.globals.unlocked ? ZinniaPreferences.lockBgColorUnlocked : ZinniaPreferences
-					.lockBgColorLocked)
+				.foregroundColor(self.globals.unlocked ? lockBgColorUnlocked : lockBgColorLocked)
 				.modifier(
 					NeonEffect(
 						base: Circle(),
-						color: self.globals.unlocked ? ZinniaPreferences.lockNeonColorUnlocked : ZinniaPreferences.lockNeonColorLocked,
+						color: self.globals.unlocked ? lockNeonColorUnlocked : lockNeonColorLocked,
 						brightness: 0.1,
 						innerSize: 1.5 *
-							(self.globals.unlocked ? ZinniaPreferences.lockNeonMulUnlocked : ZinniaPreferences.lockNeonMulLocked),
+							(self.globals.unlocked ? lockNeonMulUnlocked : lockNeonMulLocked),
 						middleSize: 3 *
-							(self.globals.unlocked ? ZinniaPreferences.lockNeonMulUnlocked : ZinniaPreferences.lockNeonMulLocked),
+							(self.globals.unlocked ? lockNeonMulUnlocked : lockNeonMulLocked),
 						outerSize: 5 *
-							(self.globals.unlocked ? ZinniaPreferences.lockNeonMulUnlocked : ZinniaPreferences.lockNeonMulLocked),
+							(self.globals.unlocked ? lockNeonMulUnlocked : lockNeonMulLocked),
 						innerBlur: 3,
 						blur: 6
 					)
@@ -37,8 +46,7 @@ public struct LockPopup: View {
 						.resizable()
 						.aspectRatio(contentMode: .fit)
 						.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
-						.foregroundColor(self.globals.unlocked ? ZinniaPreferences.lockIconColorUnlocked : ZinniaPreferences
-							.lockIconColorLocked)
+						.foregroundColor(self.globals.unlocked ? lockIconColorUnlocked : lockIconColorLocked)
 						.padding()
 						.allowsHitTesting(false)
 				)

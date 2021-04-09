@@ -27,17 +27,9 @@ let swiftFlags: [String] = libFlags + [
 ]
 
 let package = Package(
-	name: "Zinnia",
-	platforms: [.iOS("14.0")],
+	name: "ZinniaPrefs",
+	platforms: [.iOS("12.2")],
 	products: [
-		.library(
-			name: "Zinnia",
-			targets: ["ZinniaTweak"]
-		),
-		.library(
-			name: "ZinniaUI",
-			targets: ["ZinniaUI"]
-		),
 		.library(
 			name: "ZinniaPrefs",
 			targets: ["ZinniaPrefs"]
@@ -45,27 +37,13 @@ let package = Package(
 	],
 	targets: [
 		.target(
-			name: "ZinniaC",
+			name: "ZinniaPrefsC",
 			cSettings: [.unsafeFlags(cFlags)],
 			cxxSettings: [.unsafeFlags(cxxFlags)]
 		),
 		.target(
-			name: "NomaePreferences",
-			swiftSettings: [.unsafeFlags(swiftFlags)]
-		),
-		.target(
-			name: "ZinniaUI",
-			dependencies: ["ZinniaC", "NomaePreferences"],
-			swiftSettings: [.unsafeFlags(swiftFlags)]
-		),
-		.target(
 			name: "ZinniaPrefs",
-			dependencies: ["ZinniaC", "ZinniaUI"],
-			swiftSettings: [.unsafeFlags(swiftFlags)]
-		),
-		.target(
-			name: "ZinniaTweak",
-			dependencies: ["ZinniaC", "ZinniaUI"],
+			dependencies: ["ZinniaPrefsC"],
 			swiftSettings: [.unsafeFlags(swiftFlags)]
 		),
 	]
