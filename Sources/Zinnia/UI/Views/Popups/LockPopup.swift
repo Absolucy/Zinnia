@@ -3,9 +3,9 @@
 #endif
 import SwiftUI
 
-public struct LockPopup: View {
+struct LockPopup: View {
 	@ObservedObject var globals: ZinniaSharedData
-	public var unlock: () -> Void
+	var unlock: () -> Void
 
 	@Preference("lockBgColorUnlocked", identifier: ZinniaPreferences.identifier) var lockBgColorUnlocked = Color.primary
 	@Preference("lockBgColorLocked", identifier: ZinniaPreferences.identifier) var lockBgColorLocked = Color.primary
@@ -18,12 +18,12 @@ public struct LockPopup: View {
 	@Preference("lockIconColorLocked", identifier: ZinniaPreferences.identifier) var lockIconColorLocked = Color
 		.accentColor
 
-	public init(unlock: @escaping () -> Void, globals: ZinniaSharedData = ZinniaSharedData.global) {
+	init(unlock: @escaping () -> Void, globals: ZinniaSharedData = ZinniaSharedData.global) {
 		self.unlock = unlock
 		self.globals = globals
 	}
 
-	public var body: some View {
+	var body: some View {
 		Button(action: unlock, label: {
 			Circle()
 				.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)

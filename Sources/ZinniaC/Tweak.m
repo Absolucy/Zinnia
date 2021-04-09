@@ -105,6 +105,9 @@ void hook(Class class, SEL sel, void* imp, void** result) {
 }
 
 __attribute__((constructor)) static void init() {
+	if (!check_for_plist())
+		return;
+
 	if (LHStrError != NULL && LBHookMessage != NULL) {
 		NSLog(@"Zinnia: using libhooker :)");
 	} else if (MSHookMessageEx != NULL) {
@@ -113,6 +116,9 @@ __attribute__((constructor)) static void init() {
 		NSLog(@"Zinnia: neither libhooker or substrate/substitute is loaded... confused and dazed, but trying to "
 			  @"continue.");
 	}
+
+	if (!check_for_plist())
+		return;
 
 	if ([ZinniaInterface tweakEnabled]) {
 		hook(objc_getClass("CSCoverSheetViewController"), @selector(viewDidLoad),

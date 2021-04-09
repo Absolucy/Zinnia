@@ -4,8 +4,8 @@ include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = ZinniaPrefs
 
-ZinniaPrefs_FILES              = $(shell find ../Sources/ZinniaPrefs -name '*.swift') \
-							 $(shell find ../Sources/ZinniaUI -name '*.swift') \
+ZinniaPrefs_FILES              = $(shell find ../Sources/Zinnia/Prefs -name '*.swift') \
+							 $(shell find ../Sources/Zinnia/UI -name '*.swift') \
                              $(shell find ../Sources/NomaePreferences -name '*.swift') \
 							 ../Sources/ZinniaC/libpddokdo.m
 ZinniaPrefs_INSTALL_PATH = /Library/PreferenceBundles

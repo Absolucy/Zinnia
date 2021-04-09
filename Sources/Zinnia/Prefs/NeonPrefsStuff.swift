@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct NeonPrefsStuff: View {
-	@Binding public var mul: Double
-	@Binding public var color: Color
-	@Binding public var bg: Color
+	@Binding var mul: Double
+	@Binding var color: Color
+	@Binding var bg: Color
 
-	public var defaultColor = Color.purple
-	public var defaultBg = Color.white
+	var defaultColor = Color.purple
+	var defaultBg = Color.white
 
 	var body: some View {
 		VStack {
