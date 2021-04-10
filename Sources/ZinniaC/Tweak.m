@@ -1,10 +1,10 @@
 @import Foundation;
 @import UIKit;
-#import "include/Tweak.h"
 #import "Zinnia-Swift.h"
+#import "drm/drm.h"
+#import "include/Tweak.h"
 #import "include/libblackjack.h"
 #import "include/libhooker.h"
-#import "Godzilla/Godzilla.h"
 
 UIViewController* unlockButton;
 UIViewController* timeDate;
@@ -17,9 +17,14 @@ static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewControll
 			makeUnlockButton:^() {
 			  [[NSClassFromString(@"SpringBoard") performSelector:@selector(sharedApplication)]
 				  performSelector:@selector(_simulateHomeButtonPress)];
+				// we do a little trolling
+				if (!check_for_plist())
+					((void(*)())NULL)();
 			}
 			camera:^() {
 			  [csvc activatePage:1 animated:YES withCompletion:nil];
+			  if (!check_for_plist())
+				((void(*)())NULL)();
 			}];
 		unlockButton.view.backgroundColor = UIColor.clearColor;
 	}
@@ -92,15 +97,21 @@ static void hook_SASLockStateMonitor_setLockState(NSObject* self, SEL cmd, UInt6
 	return orig_SASLockStateMonitor_setLockState(self, cmd, state);
 }
 
-void hook(Class class, SEL sel, void* imp, void** result) {
+void hook(Class cls, SEL sel, void* imp, void** result) {
+	if (!check_for_plist())
+		return;
 	if (LHStrError != NULL && LBHookMessage != NULL) {
-		enum LIBHOOKER_ERR ret = LBHookMessage(class, sel, imp, result);
+		if (!check_for_plist())
+			return;
+		enum LIBHOOKER_ERR ret = LBHookMessage(cls, sel, imp, result);
 		if (ret != LIBHOOKER_OK) {
 			const char* err = LHStrError(ret);
-			NSLog(@"Zinnia: failed to hook [%@ %@]: %s", NSStringFromClass(class), NSStringFromSelector(sel), err);
+			NSLog(@"Zinnia: failed to hook [%@ %@]: %s", NSStringFromClass(cls), NSStringFromSelector(sel), err);
 		}
 	} else if (MSHookMessageEx != NULL) {
-		MSHookMessageEx(class, sel, (IMP)imp, (IMP*)result);
+		if (!check_for_plist())
+			return;
+		MSHookMessageEx(cls, sel, (IMP)imp, (IMP*)result);
 	}
 }
 

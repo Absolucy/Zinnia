@@ -4,6 +4,10 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int CTGetSignalStrength();
 
 extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP *result) __attribute__((weak_import));
@@ -60,7 +64,7 @@ extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP *result) __attri
 @end
 
 @interface SBLockScreenManager : NSObject
-@property (nonatomic,readonly) CSCoverSheetViewController * coverSheetViewController; 
+@property (nonatomic,readonly) CSCoverSheetViewController * coverSheetViewController;
 + (id)sharedInstance;
 - (BOOL)unlockUIFromSource:(int)arg1 withOptions:(id)arg2;
 @end
@@ -72,3 +76,7 @@ extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP *result) __attri
 
 @interface CSMainPageContentViewController : UIViewController
 @end
+
+#ifdef __cplusplus
+}
+#endif
