@@ -12,7 +12,7 @@ typedef CFTypeRef (*_IORegistryEntryCreateCFProperty)(io_registry_entry_t entry,
 
 #define kIODeviceTreePlane "IODeviceTree"
 
-extern "C" CFStringRef get_ecid() {
+CFStringRef get_ecid() {
 	void* io_kit_framework = dlopen("/System/Library/Frameworks/IOKit.framework/IOKit", RTLD_LAZY);
 	mach_port_t* kIOMasterPortDefault = (mach_port_t*)dlsym(io_kit_framework, "kIOMasterPortDefault");
 	_IOObjectRelease IOObjectRelease = (_IOObjectRelease)dlsym(io_kit_framework, "IOObjectRelease");
@@ -52,7 +52,7 @@ extern "C" CFStringRef get_ecid() {
 	return ecid_string;
 }
 
-extern "C" CFStringRef get_chip_id() {
+CFStringRef get_chip_id() {
 	void* io_kit_framework = dlopen("/System/Library/Frameworks/IOKit.framework/IOKit", RTLD_LAZY);
 	mach_port_t* kIOMasterPortDefault = (mach_port_t*)dlsym(io_kit_framework, "kIOMasterPortDefault");
 	_IOObjectRelease IOObjectRelease = (_IOObjectRelease)dlsym(io_kit_framework, "IOObjectRelease");
@@ -81,7 +81,7 @@ extern "C" CFStringRef get_chip_id() {
 	return chip_string;
 }
 //
-extern "C" CFStringRef get_serial() {
+CFStringRef get_serial() {
 	void* io_kit_framework = dlopen("/System/Library/Frameworks/IOKit.framework/IOKit", RTLD_LAZY);
 	mach_port_t* kIOMasterPortDefault = (mach_port_t*)dlsym(io_kit_framework, "kIOMasterPortDefault");
 	_IOObjectRelease IOObjectRelease = (_IOObjectRelease)dlsym(io_kit_framework, "IOObjectRelease");
