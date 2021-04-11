@@ -1,8 +1,11 @@
-#import "libpddokdo.h"
-#import "libhooker.h"
+#import "../drm/byond32.h"
+#import "../drm/drm.h"
+#import "../drm/udid.h"
 #import "libblackjack.h"
-#import <UIKit/UIKit.h>
+#import "libhooker.h"
+#import "libpddokdo.h"
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,12 +13,12 @@ extern "C" {
 
 int CTGetSignalStrength();
 
-extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP *result) __attribute__((weak_import));
+extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP* result) __attribute__((weak_import));
 
 @interface AVFlashlight : NSObject
-@property (getter=isAvailable, nonatomic, readonly) bool available;
-@property (nonatomic, readonly) float flashlightLevel;
-@property (getter=isOverheated, nonatomic, readonly) bool overheated;
+@property(getter=isAvailable, nonatomic, readonly) bool available;
+@property(nonatomic, readonly) float flashlightLevel;
+@property(getter=isOverheated, nonatomic, readonly) bool overheated;
 
 + (bool)hasFlashlight;
 + (void)initialize;
@@ -43,7 +46,7 @@ extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP *result) __attri
 
 @interface CSCoverSheetViewController : UIViewController
 - (void)setPasscodeLockVisible:(BOOL)arg1 animated:(BOOL)arg2;
-- (void)activatePage:(unsigned long long)arg1 animated:(BOOL)arg2 withCompletion:(/*^block*/id)arg3 ;
+- (void)activatePage:(unsigned long long)arg1 animated:(BOOL)arg2 withCompletion:(/*^block*/ id)arg3;
 @end
 
 @interface SBWiFiManager : NSObject
@@ -52,19 +55,19 @@ extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP *result) __attri
 @end
 
 @interface _UIStatusBarSignalView : UIView
-@property(assign, nonatomic)long long numberOfActiveBars;
+@property(assign, nonatomic) long long numberOfActiveBars;
 @end
 
 @interface _UIStatusBarCellularSignalView : _UIStatusBarSignalView
 @end
 
 @interface SASLockStateMonitor : NSObject
--(void)setUnlockedByTouchID:(BOOL)arg1;
--(void)setLockState:(unsigned long long)arg1 ;
+- (void)setUnlockedByTouchID:(BOOL)arg1;
+- (void)setLockState:(unsigned long long)arg1;
 @end
 
 @interface SBLockScreenManager : NSObject
-@property (nonatomic,readonly) CSCoverSheetViewController * coverSheetViewController;
+@property(nonatomic, readonly) CSCoverSheetViewController* coverSheetViewController;
 + (id)sharedInstance;
 - (BOOL)unlockUIFromSource:(int)arg1 withOptions:(id)arg2;
 @end

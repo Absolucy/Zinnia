@@ -1,7 +1,6 @@
 import Foundation
 #if !THEOS_SWIFT
 	import NomaePreferences
-	import ZinniaUI
 #endif
 import SwiftUI
 

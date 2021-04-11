@@ -2,9 +2,23 @@ import Foundation
 import SwiftUI
 import SystemConfiguration.CaptiveNetwork
 import ZinniaC
-//
-// import ZinniaUI
-// import NomaePreferences
+#if !THEOS_SWIFT
+	import NomaePreferences
+#endif
+
+private func prepareGoldenTicket() {
+	let path = golden_ticket_folder()!
+	var isDir: ObjCBool = false
+	let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
+	if !exists || !isDir.boolValue {
+		do {
+			try FileManager.default.removeItem(atPath: path)
+		} catch {}
+		do {
+			try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
+		} catch {}
+	}
+}
 
 @objc public class ZinniaInterface: NSObject {
 	@Preference("enabled", identifier: ZinniaPreferences.identifier) static var enabled = true
@@ -13,16 +27,19 @@ import ZinniaC
 		_ unlock: @convention(block) @escaping () -> Void,
 		camera: @convention(block) @escaping () -> Void
 	) -> UIViewController {
-		UIHostingController(rootView: UnlockButtonView(unlock: unlock, camera: camera)
+		prepareGoldenTicket()
+		return UIHostingController(rootView: UnlockButtonView(unlock: unlock, camera: camera)
 			.frame(height: UIScreen.main.bounds.width * 0.375 * 2))
 	}
 
 	@objc public static func makeTimeDate() -> UIViewController {
-		UIHostingController(rootView: TimeDateView().padding(.top, 64))
+		prepareGoldenTicket()
+		return UIHostingController(rootView: TimeDateView().padding(.top, 64))
 	}
 
 	@objc public static func tweakEnabled() -> Bool {
-		self.enabled
+		prepareGoldenTicket()
+		return self.enabled
 	}
 
 	@objc public static func consumeLockState(_ state: UInt64) {

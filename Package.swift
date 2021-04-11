@@ -33,7 +33,7 @@ let package = Package(
 		.library(
 			name: "Zinnia",
 			targets: ["Zinnia"]
-		)
+		),
 	],
 	targets: [
 		.target(
@@ -49,6 +49,6 @@ let package = Package(
 			name: "Zinnia",
 			dependencies: ["ZinniaC", "NomaePreferences"],
 			swiftSettings: [.unsafeFlags(swiftFlags)]
-		)
+		),
 	]
 )

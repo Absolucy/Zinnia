@@ -1,6 +1,6 @@
 #import "include/libpddokdo.h"
-#import <objc/runtime.h>
 #import <UIKit/UIKit.h>
+#import <objc/runtime.h>
 
 @implementation PDDokdo
 @dynamic currentTemperature;
@@ -14,14 +14,14 @@
 
 + (instancetype)sharedInstance {
 	static dispatch_once_t p = 0;
-	static __strong PDDokdo *_sharedSelf = nil;
+	static __strong PDDokdo* _sharedSelf = nil;
 	dispatch_once(&p, ^{
-		_sharedSelf = [[PDDokdo alloc] init];
+	  _sharedSelf = [[PDDokdo alloc] init];
 	});
 	return _sharedSelf;
 }
 
-- (WALockscreenWidgetViewController *)weatherWidget {
+- (WALockscreenWidgetViewController*)weatherWidget {
 	if (_weatherWidget) {
 		return _weatherWidget;
 	}
@@ -29,7 +29,7 @@
 	return _weatherWidget;
 }
 
--(void)refreshWeatherData {
+- (void)refreshWeatherData {
 	if ([self.weatherWidget respondsToSelector:@selector(updateWeather)]) {
 		[self.weatherWidget updateWeather];
 	}
@@ -38,49 +38,60 @@
 	}
 }
 
--(NSDictionary *)weatherData {
-	NSMutableDictionary *data = [NSMutableDictionary dictionary];
-	if (self.currentTemperature) [data setObject:self.currentTemperature forKey:@"temperature"]; else [data setObject:@"N/A" forKey:@"temperature"];
-	if (self.currentConditions) [data setObject:self.currentConditions forKey:@"conditions"]; else [data setObject:@"N/A" forKey:@"conditions"];
-	if (self.currentLocation) [data setObject:self.currentLocation forKey:@"location"]; else [data setObject:@"N/A" forKey:@"location"];
-	if (self.sunrise) [data setObject:self.sunrise forKey:@"sunrise"];
-	if (self.sunset) [data setObject:self.sunset forKey:@"sunset"];
-	UIImage *currentConditionsImage = self.currentConditionsImage;
+- (NSDictionary*)weatherData {
+	NSMutableDictionary* data = [NSMutableDictionary dictionary];
+	if (self.currentTemperature)
+		[data setObject:self.currentTemperature forKey:@"temperature"];
+	else
+		[data setObject:@"N/A" forKey:@"temperature"];
+	if (self.currentConditions)
+		[data setObject:self.currentConditions forKey:@"conditions"];
+	else
+		[data setObject:@"N/A" forKey:@"conditions"];
+	if (self.currentLocation)
+		[data setObject:self.currentLocation forKey:@"location"];
+	else
+		[data setObject:@"N/A" forKey:@"location"];
+	if (self.sunrise)
+		[data setObject:self.sunrise forKey:@"sunrise"];
+	if (self.sunset)
+		[data setObject:self.sunset forKey:@"sunset"];
+	UIImage* currentConditionsImage = self.currentConditionsImage;
 	if (currentConditionsImage) {
 		[data setObject:currentConditionsImage forKey:@"conditionsImage"];
 	}
 	return data;
 }
 
--(NSString *)currentTemperature {
+- (NSString*)currentTemperature {
 	if ([self.weatherWidget respondsToSelector:@selector(_temperature)]) {
 		return [self.weatherWidget _temperature];
 	}
 	return @"N/A";
 }
 
--(NSString *)currentConditions {
+- (NSString*)currentConditions {
 	if ([self.weatherWidget respondsToSelector:@selector(_conditionsLine)]) {
 		return [self.weatherWidget _conditionsLine];
 	}
 	return @"N/A";
 }
 
--(NSString *)currentLocation {
+- (NSString*)currentLocation {
 	if ([self.weatherWidget respondsToSelector:@selector(_locationName)]) {
 		return [self.weatherWidget _locationName];
 	}
 	return @"N/A";
 }
 
--(UIImage *)currentConditionsImage {
+- (UIImage*)currentConditionsImage {
 	if ([self.weatherWidget respondsToSelector:@selector(_conditionsImage)]) {
 		return [self.weatherWidget _conditionsImage];
 	}
 	return NULL;
 }
 
--(NSDate *)sunrise {
+- (NSDate*)sunrise {
 	if ([self.weatherWidget respondsToSelector:@selector(currentForecastModel)]) {
 		if ([self.weatherWidget currentForecastModel]) {
 			return [[self.weatherWidget currentForecastModel] sunrise];
@@ -89,7 +100,7 @@
 	return NULL;
 }
 
--(NSDate *)sunset {
+- (NSDate*)sunset {
 	if ([self.weatherWidget respondsToSelector:@selector(currentForecastModel)]) {
 		if ([self.weatherWidget currentForecastModel]) {
 			return [[self.weatherWidget currentForecastModel] sunset];
@@ -98,7 +109,7 @@
 	return NULL;
 }
 
--(NSString *)highestTemperatureIn:(int)type {
+- (NSString*)highestTemperatureIn:(int)type {
 	/*
 		0: celsius
 		1: fahrenheit
@@ -106,7 +117,7 @@
 	*/
 	if ([self.weatherWidget respondsToSelector:@selector(currentForecastModel)]) {
 		if ([self.weatherWidget currentForecastModel]) {
-			WADayForecast *dailyForecast = [[self.weatherWidget currentForecastModel] dailyForecasts][0];
+			WADayForecast* dailyForecast = [[self.weatherWidget currentForecastModel] dailyForecasts][0];
 			if (type == 0) {
 				return [NSString stringWithFormat:@"%.0f°", dailyForecast.high.celsius];
 			} else if (type == 1) {
@@ -121,7 +132,7 @@
 	return NULL;
 }
 
--(NSString *)lowestTemperatureIn:(int)type {
+- (NSString*)lowestTemperatureIn:(int)type {
 	/*
 		0: celsius
 		1: fahrenheit
@@ -129,7 +140,7 @@
 	*/
 	if ([self.weatherWidget respondsToSelector:@selector(currentForecastModel)]) {
 		if ([self.weatherWidget currentForecastModel]) {
-			WADayForecast *dailyForecast = [[self.weatherWidget currentForecastModel] dailyForecasts][0];
+			WADayForecast* dailyForecast = [[self.weatherWidget currentForecastModel] dailyForecasts][0];
 			if (type == 0) {
 				return [NSString stringWithFormat:@"%.0f°", dailyForecast.low.celsius];
 			} else if (type == 1) {
