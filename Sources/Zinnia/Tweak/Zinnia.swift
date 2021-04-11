@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import SwiftUI
 import SystemConfiguration.CaptiveNetwork
@@ -5,6 +6,55 @@ import ZinniaC
 #if !THEOS_SWIFT
 	import NomaePreferences
 #endif
+
+private struct AuthorizationRequest: Encodable {
+	// random UUID
+	var id = UUID()
+	// creation time
+	var t = UInt64(Date().timeIntervalSince1970)
+	// device udid
+	var u: String = udid()!
+	// device model
+	var m: String = model()!
+}
+
+private struct AuthorizationTicket: Codable {
+	// random uuid
+	var id: UUID
+	// device udid
+	var u: String
+	// device model
+	var m: String
+	// time issued (seconds since unix epoch)
+	var i: UInt64
+	// time expired (seconds since unix epoch)
+	var e: UInt64
+	// ed25519 signature
+	var s: Data
+}
+
+extension AuthorizationTicket {
+	func is_valid() -> Bool {
+		let publicKey = try! Curve25519.Signing.PublicKey(rawRepresentation: pubkey())
+		var data = Data()
+		withUnsafePointer(to: id) {
+			data.append(Data(bytes: $0, count: MemoryLayout.size(ofValue: id)))
+		}
+		data.append(self.u.data(using: .utf8)!)
+		data.append(self.m.data(using: .utf8)!)
+		withUnsafePointer(to: self.i) {
+			data.append(Data(bytes: $0, count: MemoryLayout.size(ofValue: i)))
+		}
+		withUnsafePointer(to: self.e) {
+			data.append(Data(bytes: $0, count: MemoryLayout.size(ofValue: e)))
+		}
+		for i in 0 ..< data.count {
+			data[i] ^= 42
+		}
+		let now = UInt64(Date().timeIntervalSince1970)
+		return publicKey.isValidSignature(self.s, for: data) && now >= self.i && now < self.e
+	}
+}
 
 private func prepareGoldenTicket() {
 	let path = golden_ticket_folder()!
