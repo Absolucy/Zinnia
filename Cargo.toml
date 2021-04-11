@@ -1,0 +1,7 @@
+[workspace]
+members = ["venusflytrap"]
+
+[profile.release]
+opt-level = "s"
+codegen-units = 1
+debug = false

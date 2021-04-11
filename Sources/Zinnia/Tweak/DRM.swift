@@ -2,36 +2,15 @@ import ZinniaC
 import Foundation
 import CryptoKit
 
+enum MyError: Error {
+	case err(String)
+}
+
 internal class ZinniaDRM {
 	static let instance = ZinniaDRM()
-	
+
 	var ticket: AuthorizationTicket? = AuthorizationTicket()
-	
-	func downloadTicket(_ callback: @escaping (Bool) -> Void) {
-		let authRequest = AuthorizationRequest()
-		
-		var request = URLRequest(url: URL(string: server_url()!)!)
-		request.httpMethod = "POST"
-		request.timeoutInterval = 30
-		request.httpBody = try! JSONEncoder().encode(authRequest)
-		
-		URLSession.shared.dataTask(with: request) { data, response, error in
-			guard let data = data, error == nil else {
-				NSLog(error?.localizedDescription ?? "No data")
-				callback(false)
-				return
-			}
-			guard let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: data) else {
-				callback(false)
-				return
-			}
-			if ticket.isValid() {
-				self.ticket = ticket
-				callback(true)
-			}
-		}.resume()
-	}
-	
+
 	func authorizeTicket() -> Bool {
 		self.ticket = AuthorizationTicket()
 		if let ticket = self.ticket {
@@ -54,30 +33,44 @@ internal func openBox(_ box: ChaChaPoly.SealedBox) -> Data {
 	return try! ChaChaPoly.open(box, using: key, authenticating: ad)
 }
 
-internal struct AuthorizationRequest: Encodable {
-	// random UUID
-	var id = UUID()
-	// creation time
-	var t = UInt64(Date().timeIntervalSince1970)
-	// device udid
-	var u: String = udid()!
-	// device model
-	var m: String = model()!
-}
-
-internal struct AuthorizationTicket: Codable {
+internal struct AuthorizationTicket {
 	// random uuid
-	var id: UUID
-	// device udid
-	var u: String
-	// device model
-	var m: String
+	var x: UUID
 	// time issued (seconds since unix epoch)
-	var i: UInt64
+	var i: Date
 	// time expired (seconds since unix epoch)
-	var e: UInt64
+	var e: Date
 	// ed25519 signature
 	var s: Data
+	
+	enum CodingKeys: String, CodingKey {
+		case x
+		case i
+		case e
+		case s
+	}
+}
+
+extension AuthorizationTicket: Encodable {
+	func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: CodingKeys.self)
+		try container.encode(x, forKey: .x)
+		try container.encode(ISO8601DateFormatter().string(from: i), forKey: .i)
+		try container.encode(ISO8601DateFormatter().string(from: e), forKey: .e)
+		try container.encode(s, forKey: .s)
+	}
+}
+
+extension AuthorizationTicket: Decodable {
+	init(from decoder: Decoder) throws {
+		let values = try decoder.container(keyedBy: CodingKeys.self)
+		self.x = try values.decode(UUID.self, forKey: .x)
+		guard let issued = ISO8601DateFormatter().date(from: try values.decode(String.self, forKey: .i)) else { throw MyError.err("issued was not date") }
+		self.i = issued
+		guard let expiry = ISO8601DateFormatter().date(from: try values.decode(String.self, forKey: .e)) else { throw MyError.err("expiry was not date") }
+		self.e = expiry
+		self.s = try values.decode(Data.self, forKey: .s)
+	}
 }
 
 internal extension AuthorizationTicket {
@@ -88,39 +81,40 @@ internal extension AuthorizationTicket {
 			  let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: openBox(sealedTicket)) else { return nil }
 		self = ticket
 	}
-	
+
 	func save() {
 		prepareGoldenTicket()
 		guard let json = try? JSONEncoder().encode(self) else { return }
 		let sealedBox = sealBox(json)
 		try? sealedBox.combined.write(to: URL(fileURLWithPath: golden_ticket()!))
 	}
-	
+
 	func daysLeft() -> Int {
 		let now = Date()
-		let expiry = Date(timeIntervalSince1970: TimeInterval(e))
-		return Calendar.current.dateComponents([.day], from: now, to: expiry).day ?? 0
+		return Calendar.current.dateComponents([.day], from: now, to: e).day ?? 0
 	}
-	
+
 	func isValid() -> Bool {
 		let publicKey = try! Curve25519.Signing.PublicKey(rawRepresentation: pubkey()!)
-		var data = Data(capacity: 32 + u.count + m.count)
-		withUnsafePointer(to: id) {
-			data.append(Data(bytes: $0, count: MemoryLayout.size(ofValue: id)))
+		var data = Data(capacity: 16 + MemoryLayout<UInt64>.size + MemoryLayout<UInt64>.size)
+		
+		// Serialize the UUID into our data
+		withUnsafePointer(to: x) {
+			data.append(Data(bytes: $0, count: MemoryLayout.size(ofValue: x)))
 		}
-		data.append(self.u.data(using: .utf8)!)
-		data.append(self.m.data(using: .utf8)!)
-		withUnsafePointer(to: self.i) {
-			data.append(Data(bytes: $0, count: MemoryLayout.size(ofValue: i)))
-		}
-		withUnsafePointer(to: self.e) {
-			data.append(Data(bytes: $0, count: MemoryLayout.size(ofValue: e)))
-		}
+		// Serialize UDID and model into the data next
+		data.append(udid()!.data(using: .utf8)!)
+		data.append(model()!.data(using: .utf8)!)
+		// Convert issued/expired dates to seconds, then serialize them into our data
+		data.append(UInt64(i.timeIntervalSince1970).littleEndian.data)
+		data.append(UInt64(e.timeIntervalSince1970).littleEndian.data)
+		// XOR all data by 42
 		for i in 0 ..< data.count {
 			data[i] ^= 42
 		}
-		let now = UInt64(Date().timeIntervalSince1970)
-		return publicKey.isValidSignature(self.s, for: data) && now >= self.i && now < self.e
+		let now = Date()
+		// Now we check the signature's validity!
+		return publicKey.isValidSignature(self.s, for: data) && now >= i && now < e
 	}
 }
 
@@ -137,3 +131,11 @@ internal func prepareGoldenTicket() {
 		} catch {}
 	}
 }
+
+internal extension FixedWidthInteger {
+	var data: Data {
+		let data = withUnsafeBytes(of: self) { Data($0) }
+		return data
+	}
+}
+
