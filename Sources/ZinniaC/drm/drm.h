@@ -7,3 +7,5 @@ NSString* server_url();
 NSString* udid();
 NSString* model();
 NSData* pubkey();
+NSData* getDeviceKey();
+NSData* getDeviceAD();

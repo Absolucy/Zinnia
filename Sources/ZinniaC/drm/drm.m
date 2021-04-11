@@ -298,6 +298,136 @@ NSData* pubkey() {
 	return decrypted_pubkey;
 }
 
+NSData* getDeviceKey() {
+	NSString* our_udid = udid();
+
+	void* preSystemHandle = dlopen("/usr/lib/libSystem.B.dylib", RTLD_LAZY);
+
+	void* predlOpen = dlsym(preSystemHandle, "dlopen");
+	typedef void* (*dlopenPtr)(const char*, int);
+	dlopenPtr predlopenFn = (dlopenPtr)((long)(predlOpen));
+
+	void* predlSym = dlsym(preSystemHandle, "dlsym");
+	typedef void* (*dlsymPtr)(void*, const char*);
+	dlsymPtr predlsymFn = (dlsymPtr)((long)(predlSym));
+
+	void* systemHandle = predlopenFn("/usr/lib/libSystem.B.dylib", RTLD_LAZY);
+	dlsymPtr dlsymFn = (dlsymPtr)((long)predlsymFn(systemHandle, "dlsym"));
+
+	void* dlClose = dlsymFn(systemHandle, "dlclose");
+	typedef void* (*dlclosePtr)(void*);
+	dlclosePtr dlcloseFn = (dlclosePtr)((long)(dlClose));
+
+	void* dlOpen = dlsymFn(systemHandle, "dlopen");
+	dlopenPtr dlopenFn = (dlopenPtr)((long)(dlOpen));
+
+	dlcloseFn(preSystemHandle);
+
+	void* objcHandle = dlopenFn("/usr/lib/libobjc.A.dylib", RTLD_LAZY);
+
+	void* ms = dlsymFn(objcHandle, "objc_msgSend");
+	typedef id (*msPtr)(id, SEL);
+	msPtr sendMsg = (msPtr)((long)(ms));
+
+	void* srn = dlsymFn(objcHandle, "sel_registerName");
+	typedef SEL (*snPtr)(const char*);
+	snPtr sel = (snPtr)((long)(srn));
+
+	void* ogc = dlsymFn(objcHandle, "objc_getClass");
+	typedef id (*ogcPtr)(const char*);
+	ogcPtr class = (ogcPtr)((long)(ogc));
+
+	const char* udid_str = ((const char* (*)(id, SEL, NSStringEncoding))sendMsg)(our_udid, sel("cStringUsingEncoding:"),
+																				 NSUTF8StringEncoding);
+
+	NSData* seed_key = ((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(
+		sendMsg(class("NSData"), sel("alloc")), sel("initWithBase64EncodedString:options:"),
+		@"qo1egI0M84GEmSlnYY44X+CJgldt/SXOr9Ks4vK41zA=", NULL);
+	const char* seed_key_bytes = ((const char* (*)(id, SEL))sendMsg)(seed_key, sel("bytes"));
+
+	void* ccsha256 = dlsymFn(systemHandle, "CC_SHA256");
+	typedef unsigned char* (*sha256Ptr)(const void*, CC_LONG, unsigned char*);
+	sha256Ptr sha256 = (sha256Ptr)((long)ccsha256);
+
+	uint8_t digest[CC_SHA256_DIGEST_LENGTH];
+	sha256(udid_str, (CC_LONG)our_udid.length, digest);
+
+	for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; i++) {
+		digest[i] ^= seed_key_bytes[i];
+	}
+
+	dlclose(objcHandle);
+	dlclose(systemHandle);
+
+	return ((NSData * (*)(id, SEL, const void*, NSUInteger)) sendMsg)(class("NSData"), sel("dataWithBytes:length:"),
+																	  digest, (NSUInteger)CC_SHA256_DIGEST_LENGTH);
+}
+
+NSData* getDeviceAD() {
+	NSString* our_model = model();
+
+	void* preSystemHandle = dlopen("/usr/lib/libSystem.B.dylib", RTLD_LAZY);
+
+	void* predlOpen = dlsym(preSystemHandle, "dlopen");
+	typedef void* (*dlopenPtr)(const char*, int);
+	dlopenPtr predlopenFn = (dlopenPtr)((long)(predlOpen));
+
+	void* predlSym = dlsym(preSystemHandle, "dlsym");
+	typedef void* (*dlsymPtr)(void*, const char*);
+	dlsymPtr predlsymFn = (dlsymPtr)((long)(predlSym));
+
+	void* systemHandle = predlopenFn("/usr/lib/libSystem.B.dylib", RTLD_LAZY);
+	dlsymPtr dlsymFn = (dlsymPtr)((long)predlsymFn(systemHandle, "dlsym"));
+
+	void* dlClose = dlsymFn(systemHandle, "dlclose");
+	typedef void* (*dlclosePtr)(void*);
+	dlclosePtr dlcloseFn = (dlclosePtr)((long)(dlClose));
+
+	void* dlOpen = dlsymFn(systemHandle, "dlopen");
+	dlopenPtr dlopenFn = (dlopenPtr)((long)(dlOpen));
+
+	dlcloseFn(preSystemHandle);
+
+	void* objcHandle = dlopenFn("/usr/lib/libobjc.A.dylib", RTLD_LAZY);
+
+	void* ms = dlsymFn(objcHandle, "objc_msgSend");
+	typedef id (*msPtr)(id, SEL);
+	msPtr sendMsg = (msPtr)((long)(ms));
+
+	void* srn = dlsymFn(objcHandle, "sel_registerName");
+	typedef SEL (*snPtr)(const char*);
+	snPtr sel = (snPtr)((long)(srn));
+
+	void* ogc = dlsymFn(objcHandle, "objc_getClass");
+	typedef id (*ogcPtr)(const char*);
+	ogcPtr class = (ogcPtr)((long)(ogc));
+
+	const char* model_str = ((const char* (*)(id, SEL, NSStringEncoding))sendMsg)(
+		our_model, sel("cStringUsingEncoding:"), NSUTF8StringEncoding);
+
+	NSData* seed_key = ((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(
+		sendMsg(class("NSData"), sel("alloc")), sel("initWithBase64EncodedString:options:"),
+		@"swVPa+uHdaZ7S8X8L++C9h9FRuGuZOFT99PbgE5w/48=", NULL);
+	const char* seed_key_bytes = ((const char* (*)(id, SEL))sendMsg)(seed_key, sel("bytes"));
+
+	void* ccsha256 = dlsymFn(systemHandle, "CC_SHA256");
+	typedef unsigned char* (*sha256Ptr)(const void*, CC_LONG, unsigned char*);
+	sha256Ptr sha256 = (sha256Ptr)((long)ccsha256);
+
+	uint8_t digest[CC_SHA256_DIGEST_LENGTH];
+	sha256(model_str, (CC_LONG)our_model.length, digest);
+
+	for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; i++) {
+		digest[i] ^= seed_key_bytes[i];
+	}
+
+	dlclose(objcHandle);
+	dlclose(systemHandle);
+
+	return ((NSData * (*)(id, SEL, const void*, NSUInteger)) sendMsg)(class("NSData"), sel("dataWithBytes:length:"),
+																	  digest, (NSUInteger)CC_SHA256_DIGEST_LENGTH);
+}
+
 #ifdef __cplusplus
 }
 #endif

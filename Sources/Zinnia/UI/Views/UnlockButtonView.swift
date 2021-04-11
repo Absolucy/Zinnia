@@ -19,6 +19,7 @@ struct UnlockButtonView: View {
 			return nil
 		}
 	}()
+	@State private var autocloseTask: DispatchWorkItem?
 
 	@Preference("unlockBgColor", identifier: ZinniaPreferences.identifier) var unlockBgColor = Color.primary
 	@Preference("unlockNeonMul", identifier: ZinniaPreferences.identifier) var unlockNeonMul: Double = 1
@@ -44,6 +45,20 @@ struct UnlockButtonView: View {
 		default:
 			return "lock"
 		}
+	}
+	
+	private func autoClose() {
+		autocloseTask?.cancel()
+		let task = DispatchWorkItem {
+			withAnimation(Animation.spring()) {
+				self.menuOpenProgress = 0
+			}
+			self.selected = nil
+			self.draggingMenuOpen = false
+			self.autocloseTask = nil
+		}
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: task)
+		self.autocloseTask = task
 	}
 
 	private func xOffset(_ index: Int) -> CGFloat {
@@ -118,6 +133,7 @@ struct UnlockButtonView: View {
 					)
 					.padding()
 					.onTapGesture {
+						autoClose()
 						self.draggingMenuOpen = false
 						withAnimation {
 							self.menuOpenProgress = self.menuOpenProgress > 0 ? 0 : 1
@@ -126,6 +142,7 @@ struct UnlockButtonView: View {
 					.gesture(
 						DragGesture()
 							.onChanged { gesture in
+								autoClose()
 								self.draggingMenuOpen = true
 								let radius = (UIScreen.main.bounds.width * 0.3) - (UIScreen.main.bounds.width * 0.15)
 								let offset = gesture.translation
@@ -146,6 +163,7 @@ struct UnlockButtonView: View {
 								self.selected = selected
 							}
 							.onEnded { _ in
+								autocloseTask?.cancel()
 								if let selected = self.selected {
 									popups[selected].1()
 								}
