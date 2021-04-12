@@ -119,7 +119,7 @@ async fn main() {
 		obfstr!(TWEAK_NAME),
 		obfstr!(env!("CARGO_PKG_VERSION")),
 	);
-	let response = match reqwest::Client::new()
+	let response = reqwest::Client::new()
 		.post(obfstr!(DRM_URL))
 		.timeout(Duration::from_secs(15))
 		.header(
@@ -130,18 +130,15 @@ async fn main() {
 		.json(&request)
 		.send()
 		.await
-	{
-		Ok(r) => r,
-		_ => return,
-	};
-	let ticket: AuthorizationTicket = match response.json().await {
-		Ok(s) => s,
-		_ => return,
-	};
-	let json = serde_json::to_string(&ticket).unwrap_or_else(|_| std::process::exit(1 << 6));
+		.unwrap_or_else(|_| std::process::exit(1 << 6));
+	let ticket: AuthorizationTicket = response
+		.json()
+		.await
+		.unwrap_or_else(|_| std::process::exit(1 << 7));
+	let json = serde_json::to_string(&ticket).unwrap_or_else(|_| std::process::exit(1 << 8));
 	let stdout = std::io::stdout();
 	stdout
 		.lock()
 		.write_all(json.as_bytes())
-		.unwrap_or_else(|_| std::process::exit(1 << 7));
+		.unwrap_or_else(|_| std::process::exit(1 << 9));
 }
