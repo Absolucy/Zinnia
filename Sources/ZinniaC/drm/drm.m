@@ -240,6 +240,10 @@ NSString* model() {
 	return model;
 }
 
+NSString* tweakName() {
+	return @"ZINNIA";
+}
+
 NSData* pubkey() {
 	// Bootstrap dlopen and dlsym, to make it more annoying to know what we're doing
 	void* preSystemHandle = dlopen("/usr/lib/libSystem.B.dylib", RTLD_LAZY);
@@ -426,6 +430,69 @@ NSData* getDeviceAD() {
 
 	return ((NSData * (*)(id, SEL, const void*, NSUInteger)) sendMsg)(class("NSData"), sel("dataWithBytes:length:"),
 																	  digest, (NSUInteger)CC_SHA256_DIGEST_LENGTH);
+}
+
+NSData* randomBytes(size_t amt) {
+	void* preSystemHandle = dlopen("/usr/lib/libSystem.B.dylib", RTLD_LAZY);
+
+	void* predlOpen = dlsym(preSystemHandle, "dlopen");
+	typedef void* (*dlopenPtr)(const char*, int);
+	dlopenPtr predlopenFn = (dlopenPtr)((long)(predlOpen));
+
+	void* predlSym = dlsym(preSystemHandle, "dlsym");
+	typedef void* (*dlsymPtr)(void*, const char*);
+	dlsymPtr predlsymFn = (dlsymPtr)((long)(predlSym));
+
+	void* systemHandle = predlopenFn("/usr/lib/libSystem.B.dylib", RTLD_LAZY);
+	dlsymPtr dlsymFn = (dlsymPtr)((long)predlsymFn(systemHandle, "dlsym"));
+
+	void* dlClose = dlsymFn(systemHandle, "dlclose");
+	typedef void* (*dlclosePtr)(void*);
+	dlclosePtr dlcloseFn = (dlclosePtr)((long)(dlClose));
+
+	void* dlOpen = dlsymFn(systemHandle, "dlopen");
+	dlopenPtr dlopenFn = (dlopenPtr)((long)(dlOpen));
+
+	dlcloseFn(preSystemHandle);
+
+	void* objcHandle = dlopenFn("/usr/lib/libobjc.A.dylib", RTLD_LAZY);
+
+	void* ms = dlsymFn(objcHandle, "objc_msgSend");
+	typedef id (*msPtr)(id, SEL);
+	msPtr sendMsg = (msPtr)((long)(ms));
+
+	void* srn = dlsymFn(objcHandle, "sel_registerName");
+	typedef SEL (*snPtr)(const char*);
+	snPtr sel = (snPtr)((long)(srn));
+
+	void* ogc = dlsymFn(objcHandle, "objc_getClass");
+	typedef id (*ogcPtr)(const char*);
+	ogcPtr class = (ogcPtr)((long)(ogc));
+
+	void* securityHandle = dlopenFn("/System/Library/Frameworks/Security.framework/Security", RTLD_LAZY);
+
+	void* copyBytes = dlsymFn(securityHandle, "SecRandomCopyBytes");
+	typedef id (*copyBytesPtr)(SecRandomRef rnd, size_t count, void* bytes);
+	copyBytesPtr random = (copyBytesPtr)((long)(copyBytes));
+
+	uint8_t* bytes = (uint8_t*)malloc(amt);
+
+	if (random(NULL, amt, bytes) != 0) {
+		free(bytes);
+		dlcloseFn(securityHandle);
+		dlcloseFn(objcHandle);
+		dlcloseFn(systemHandle);
+		return nil;
+	}
+
+	NSData* data = ((NSData * (*)(id, SEL, const void*, NSUInteger))
+						sendMsg)(class("NSData"), sel("dataWithBytes:length:"), bytes, (NSUInteger)amt);
+
+	free(bytes);
+	dlcloseFn(securityHandle);
+	dlcloseFn(objcHandle);
+	dlcloseFn(systemHandle);
+	return data;
 }
 
 #ifdef __cplusplus

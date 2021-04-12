@@ -10,8 +10,6 @@ struct UnlockButtonView: View {
 	@ObservedObject var globals = ZinniaSharedData.global
 	@State var anim_faceid_alpha = 1.0
 	@State var selected: Int? = nil
-	@State var menuOpenProgress: CGFloat = 0.0
-	@State var draggingMenuOpen = false
 	@State private var flashlight: AVFlashlight? = {
 		if AVFlashlight.hasFlashlight() {
 			return AVFlashlight()
@@ -19,6 +17,7 @@ struct UnlockButtonView: View {
 			return nil
 		}
 	}()
+
 	@State private var autocloseTask: DispatchWorkItem?
 
 	@Preference("unlockBgColor", identifier: ZinniaPreferences.identifier) var unlockBgColor = Color.primary
@@ -46,15 +45,15 @@ struct UnlockButtonView: View {
 			return "lock"
 		}
 	}
-	
+
 	private func autoClose() {
-		autocloseTask?.cancel()
+		self.autocloseTask?.cancel()
 		let task = DispatchWorkItem {
 			withAnimation(Animation.spring()) {
-				self.menuOpenProgress = 0
+				globals.menuOpenProgress = 0
 			}
 			self.selected = nil
-			self.draggingMenuOpen = false
+			globals.draggingMenuOpen = false
 			self.autocloseTask = nil
 		}
 		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: task)
@@ -134,20 +133,20 @@ struct UnlockButtonView: View {
 					.padding()
 					.onTapGesture {
 						autoClose()
-						self.draggingMenuOpen = false
+						globals.draggingMenuOpen = false
 						withAnimation {
-							self.menuOpenProgress = self.menuOpenProgress > 0 ? 0 : 1
+							globals.menuOpenProgress = globals.menuOpenProgress > 0 ? 0 : 1
 						}
 					}
 					.gesture(
 						DragGesture()
 							.onChanged { gesture in
 								autoClose()
-								self.draggingMenuOpen = true
+								globals.draggingMenuOpen = true
 								let radius = (UIScreen.main.bounds.width * 0.3) - (UIScreen.main.bounds.width * 0.15)
 								let offset = gesture.translation
 								withAnimation(Animation.spring()) {
-									self.menuOpenProgress = min(1.0, max(abs(offset.width), abs(offset.height)) / radius)
+									globals.menuOpenProgress = min(1.0, max(abs(offset.width), abs(offset.height)) / radius)
 								}
 								var selected: Int?
 								for index in 0 ..< popups.count {
@@ -168,10 +167,10 @@ struct UnlockButtonView: View {
 									popups[selected].1()
 								}
 								withAnimation(Animation.spring().delay(1)) {
-									self.menuOpenProgress = 0
+									globals.menuOpenProgress = 0
 								}
 								self.selected = nil
-								self.draggingMenuOpen = false
+								globals.draggingMenuOpen = false
 							}
 					)
 				ForEach(0 ..< popups.count, id: \.self) { index in
@@ -180,10 +179,10 @@ struct UnlockButtonView: View {
 						.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
 						.offset(x: self.xOffset(index),
 						        y: self.yOffset(index))
-						.opacity(self
-							.menuOpenProgress >= 1 ? (draggingMenuOpen ? (self.selected == index ? 1 : 0.5) : 1) :
-							Double(self.menuOpenProgress))
-						.scaleEffect(self.menuOpenProgress)
+						.opacity(globals
+							.menuOpenProgress >= 1 ? (globals.draggingMenuOpen ? (self.selected == index ? 1 : 0.5) : 1) :
+							Double(globals.menuOpenProgress))
+						.scaleEffect(globals.menuOpenProgress)
 				}
 			}
 			Spacer()

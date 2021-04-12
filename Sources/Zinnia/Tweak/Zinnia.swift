@@ -14,16 +14,17 @@ import ZinniaC
 		_ unlock: @convention(block) @escaping () -> Void,
 		camera: @convention(block) @escaping () -> Void
 	) -> UIViewController {
+		NSLog("ZINNIA: \(createCommunicationFile().base64EncodedString())")
 		return UIHostingController(rootView: UnlockButtonView(unlock: unlock, camera: camera)
 			.frame(height: UIScreen.main.bounds.width * 0.375 * 2))
 	}
 
 	@objc public static func makeTimeDate() -> UIViewController {
-		return UIHostingController(rootView: TimeDateView().padding(.top, 64))
+		UIHostingController(rootView: TimeDateView().padding(.top, 64))
 	}
 
 	@objc public static func tweakEnabled() -> Bool {
-		return self.enabled
+		self.enabled
 	}
 
 	@objc public static func consumeLockState(_ state: UInt64) {
@@ -32,6 +33,8 @@ import ZinniaC
 			ZinniaSharedData.global.unlocked = true
 		case 0x3:
 			ZinniaSharedData.global.unlocked = false
+			ZinniaSharedData.global.menuOpenProgress = 0
+			ZinniaSharedData.global.draggingMenuOpen = false
 		default:
 			NSLog("Zinnia: unknown lock state \(state)")
 		}

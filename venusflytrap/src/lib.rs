@@ -1,5 +1,6 @@
 use chrono::{DateTime, Duration, Utc};
 use ed25519_dalek::{Keypair, PublicKey, Signature, Signer};
+use obfstr::obfstr;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -23,19 +24,22 @@ pub struct AuthorizationRequest {
 	pub model: String,
 	#[serde(rename = "a")]
 	pub at: DateTime<Utc>,
+	#[serde(rename = "t")]
+	pub tweak: String,
 	#[serde(rename = "v")]
 	pub version: String,
 }
 
 impl AuthorizationRequest {
 	#[inline(always)]
-	pub fn new(udid: String, model: String, version: String) -> Self {
+	pub fn new(udid: String, model: String, tweak: &str, version: &str) -> Self {
 		let at = Utc::now();
 		AuthorizationRequest {
 			at,
 			udid,
 			model,
-			version,
+			tweak: tweak.to_string(),
+			version: version.to_string(),
 		}
 	}
 
@@ -50,6 +54,7 @@ impl AuthorizationRequest {
 		bytes.extend_from_slice(uuid.as_bytes());
 		bytes.extend_from_slice(self.udid.as_bytes());
 		bytes.extend_from_slice(self.model.as_bytes());
+		bytes.extend_from_slice(self.tweak.to_uppercase().as_bytes());
 		bytes.extend_from_slice(&issued.timestamp().to_le_bytes());
 		bytes.extend_from_slice(&until.timestamp().to_le_bytes());
 		bytes.iter_mut().for_each(|byte| *byte ^= 42);
@@ -75,7 +80,7 @@ pub enum AuthStatus {
 pub struct AuthorizationTicket {
 	#[serde(rename = "x")]
 	pub uuid: Uuid,
-	// udid + model is signed in here
+	// udid + model + tweak is signed in here
 	#[serde(rename = "i")]
 	pub issued: DateTime<Utc>,
 	#[serde(rename = "e")]
@@ -93,6 +98,7 @@ impl AuthorizationTicket {
 		bytes.extend_from_slice(self.uuid.as_bytes());
 		bytes.extend_from_slice(udid.as_bytes());
 		bytes.extend_from_slice(model.as_bytes());
+		bytes.extend_from_slice(obfstr!("Zinnia").to_uppercase().as_bytes());
 		bytes.extend_from_slice(&self.issued.timestamp().to_le_bytes());
 		bytes.extend_from_slice(&self.until.timestamp().to_le_bytes());
 		let now = Utc::now();
