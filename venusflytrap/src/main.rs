@@ -8,7 +8,7 @@ use std::{
 	io::{Read, Write},
 	time::Duration,
 };
-use venusflytrap::{AuthorizationRequest, AuthorizationTicket};
+use venusflytrap::{AuthStatus, AuthorizationRequest, AuthorizationTicket};
 
 const DRM_URL: &str = "https://aiwass.aspenuwu.me/authorize";
 const TWEAK_NAME: &str = "Zinnia";
@@ -114,8 +114,8 @@ async fn main() {
 	let udid = data.get_udid();
 	let model = data.get_model();
 	let request = AuthorizationRequest::new(
-		udid,
-		model,
+		&udid,
+		&model,
 		obfstr!(TWEAK_NAME),
 		obfstr!(env!("CARGO_PKG_VERSION")),
 	);
@@ -135,6 +135,9 @@ async fn main() {
 		.json()
 		.await
 		.unwrap_or_else(|_| std::process::exit(1 << 7));
+	if ticket.validate(obfstr!(TWEAK_NAME), &udid, &model) != AuthStatus::Valid {
+		std::process::exit(0);
+	}
 	let json = serde_json::to_string(&ticket).unwrap_or_else(|_| std::process::exit(1 << 8));
 	let stdout = std::io::stdout();
 	stdout

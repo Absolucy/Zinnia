@@ -32,12 +32,12 @@ pub struct AuthorizationRequest {
 
 impl AuthorizationRequest {
 	#[inline(always)]
-	pub fn new(udid: String, model: String, tweak: &str, version: &str) -> Self {
+	pub fn new(udid: &str, model: &str, tweak: &str, version: &str) -> Self {
 		let at = Utc::now();
 		AuthorizationRequest {
 			at,
-			udid,
-			model,
+			udid: udid.to_string(),
+			model: model.to_string(),
 			tweak: tweak.to_string(),
 			version: version.to_string(),
 		}
@@ -91,14 +91,14 @@ pub struct AuthorizationTicket {
 
 impl AuthorizationTicket {
 	#[inline(always)]
-	pub fn validate(&self, udid: &str, model: &str) -> AuthStatus {
+	pub fn validate(&self, tweak: &str, udid: &str, model: &str) -> AuthStatus {
 		let mut bytes = Vec::<u8>::with_capacity(
 			std::mem::size_of::<AuthorizationTicket>() - std::mem::size_of::<Signature>(),
 		);
 		bytes.extend_from_slice(self.uuid.as_bytes());
 		bytes.extend_from_slice(udid.as_bytes());
 		bytes.extend_from_slice(model.as_bytes());
-		bytes.extend_from_slice(obfstr!("Zinnia").to_uppercase().as_bytes());
+		bytes.extend_from_slice(tweak.to_uppercase().as_bytes());
 		bytes.extend_from_slice(&self.issued.timestamp().to_le_bytes());
 		bytes.extend_from_slice(&self.until.timestamp().to_le_bytes());
 		let now = Utc::now();

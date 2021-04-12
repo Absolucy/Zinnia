@@ -6,18 +6,18 @@ enum MyError: Error {
 	case err(String)
 }
 
-internal class ZinniaDRM {
-	static let instance = ZinniaDRM()
+internal struct ZinniaDRM {
+	internal static var instance = ZinniaDRM()
 
-	var ticket: AuthorizationTicket? = AuthorizationTicket()
-	
-	var authSemaphore = DispatchSemaphore(value: 0)
-	var pid: pid_t = 0
-	var inputPipe: [Int32] = [-1, -1]
-	var outputPipe: [Int32] = [-1, -1]
-	var childFDActions: posix_spawn_file_actions_t? = nil
+	private var ticket: AuthorizationTicket? = AuthorizationTicket()
 
-	func authorizeTicket() -> Bool {
+	private var authSemaphore = DispatchSemaphore(value: 0)
+	private var pid: pid_t = 0
+	private var inputPipe: [Int32] = [-1, -1]
+	private var outputPipe: [Int32] = [-1, -1]
+	private var childFDActions: posix_spawn_file_actions_t?
+
+	mutating func authorizeTicket() -> Bool {
 		self.ticket = AuthorizationTicket()
 		if let ticket = self.ticket {
 			return ticket.isValid()
@@ -25,40 +25,41 @@ internal class ZinniaDRM {
 			return false
 		}
 	}
-	
-	func requestTicket() {
-		assert(pipe(&inputPipe) == 0)
-		assert(pipe(&outputPipe) == 0)
-		
-		posix_spawn_file_actions_init(&childFDActions)
-		posix_spawn_file_actions_adddup2(&childFDActions, inputPipe[0], STDIN_FILENO)
-		posix_spawn_file_actions_addclose(&childFDActions, inputPipe[0])
-		posix_spawn_file_actions_adddup2(&childFDActions, outputPipe[1], STDOUT_FILENO)
-		posix_spawn_file_actions_addclose(&childFDActions, outputPipe[1])
-		assert(posix_spawn(&pid, "/usr/lib/aspenuwu/me.aspenuwu.zinnia.bs", &childFDActions, nil, [nil], nil) == 0)
-		
-		watchStreams()
-		
-		var data = createCommunicationData().data(using: .ascii)!
-		data.append(0x0a)
+
+	mutating func requestTicket() {
+		assert(pipe(&self.inputPipe) == 0)
+		assert(pipe(&self.outputPipe) == 0)
+
+		posix_spawn_file_actions_init(&self.childFDActions)
+		posix_spawn_file_actions_adddup2(&self.childFDActions, self.inputPipe[0], STDIN_FILENO)
+		posix_spawn_file_actions_addclose(&self.childFDActions, self.inputPipe[0])
+		posix_spawn_file_actions_adddup2(&self.childFDActions, self.outputPipe[1], STDOUT_FILENO)
+		posix_spawn_file_actions_addclose(&self.childFDActions, self.outputPipe[1])
+		assert(posix_spawn(&self.pid, "/usr/lib/aspenuwu/me.aspenuwu.zinnia.bs", &self.childFDActions, nil, [nil], nil) == 0)
+
+		self.watchStreams()
+
+		var data = self.createCommunicationData().data(using: .ascii)!
+		data.append(0x0A)
 		data.withUnsafeBytes { rawBufferPointer in
 			let rawPtr = rawBufferPointer.baseAddress!
 			write(inputPipe[1], rawPtr, data.count)
 		}
 	}
-	
-	func onReceiveTicket(_ ticket: String) {
+
+	private func onReceiveTicket(_ ticket: String) {
 		NSLog("Zinnia got ticket: \(ticket)")
-		authSemaphore.signal()
+		self.authSemaphore.signal()
 	}
-	
-	struct ThreadInfo {
+
+	private struct ThreadInfo {
 		let outputPipe: UnsafeMutablePointer<Int32>
 		let callback: (String) -> Void
 	}
-	var threadInfo: ThreadInfo!
-	
-	func watchStreams() {
+
+	private var threadInfo: ThreadInfo!
+
+	private mutating func watchStreams() {
 		func callback(x: UnsafeMutableRawPointer) -> UnsafeMutableRawPointer? {
 			let threadInfo = x.assumingMemoryBound(to: ZinniaDRM.ThreadInfo.self).pointee
 			let outputPipe = threadInfo.outputPipe
@@ -70,7 +71,7 @@ internal class ZinniaDRM {
 				let amtRead = read(outputPipe[0], dynamicBuffer, bufferSize)
 				if amtRead <= 0 { break }
 				let array = Array(UnsafeBufferPointer(start: dynamicBuffer, count: amtRead))
-				let tmp = array  + [UInt8(0)]
+				let tmp = array + [UInt8(0)]
 				tmp.withUnsafeBufferPointer { ptr in
 					let str = String(cString: unsafeBitCast(ptr.baseAddress, to: UnsafePointer<CChar>.self))
 					output.append(str)
@@ -80,12 +81,12 @@ internal class ZinniaDRM {
 			dynamicBuffer.deallocate()
 			return nil
 		}
-		var tid: pthread_t? = nil
-		threadInfo = ThreadInfo(outputPipe: &outputPipe, callback: self.onReceiveTicket)
-		pthread_create(&tid, nil, callback, &threadInfo)
+		var tid: pthread_t?
+		self.threadInfo = ThreadInfo(outputPipe: &self.outputPipe, callback: self.onReceiveTicket)
+		pthread_create(&tid, nil, callback, &self.threadInfo)
 	}
-	
-	func createCommunicationData() -> String {
+
+	private func createCommunicationData() -> String {
 		var key = randomBytes(32)!
 		let keyXor = randomBytes(32)!
 		var udidNonce = randomBytes(12)!
@@ -93,20 +94,20 @@ internal class ZinniaDRM {
 		let nonceXor = randomBytes(12)!
 		let udidData = udid()!.data(using: .ascii)!
 		let modelData = model()!.data(using: .ascii)!
-		let encryptedUdid = try! ChaChaPoly.seal(
+		guard let encryptedUdid = try? ChaChaPoly.seal(
 			udidData,
 			using: SymmetricKey(data: key),
 			nonce: ChaChaPoly.Nonce(data: udidNonce)
-		)
-		let encryptedModel = try! ChaChaPoly.seal(
+		) else { return "" }
+		guard let encryptedModel = try? ChaChaPoly.seal(
 			modelData,
 			using: SymmetricKey(data: key),
 			nonce: ChaChaPoly.Nonce(data: modelNonce)
-		)
+		) else { return "" }
 		var output = Data(capacity: 32 + 32 + 12 + 12 + encryptedUdid.ciphertext.count + encryptedUdid.tag
-							.count + encryptedModel.ciphertext.count + encryptedModel.tag.count + MemoryLayout<UInt64>
-							.size + MemoryLayout<UInt64>.size
-							+ 15 + 5 + 3 + 30 + 30 + 30 + 29 + 29 + 29 + 29 + 4)
+			.count + encryptedModel.ciphertext.count + encryptedModel.tag.count + MemoryLayout<UInt64>
+			.size + MemoryLayout<UInt64>.size
+			+ 15 + 5 + 3 + 30 + 30 + 30 + 29 + 29 + 29 + 29 + 4)
 		// the \x2A\x2A\x2A\x2A magic
 		output.append(contentsOf: [42, 42, 42, 42])
 		// _a1
@@ -162,16 +163,16 @@ internal class ZinniaDRM {
 	}
 }
 
-internal func sealBox(_ data: Data) -> ChaChaPoly.SealedBox {
+internal func sealBox(_ data: Data) -> ChaChaPoly.SealedBox? {
 	let key = SymmetricKey(data: getDeviceKey()!)
 	let ad = getDeviceAD()!
-	return try! ChaChaPoly.seal(data, using: key, authenticating: ad)
+	return try? ChaChaPoly.seal(data, using: key, authenticating: ad)
 }
 
-internal func openBox(_ box: ChaChaPoly.SealedBox) -> Data {
+internal func openBox(_ box: ChaChaPoly.SealedBox) -> Data? {
 	let key = SymmetricKey(data: getDeviceKey()!)
 	let ad = getDeviceAD()!
-	return try! ChaChaPoly.open(box, using: key, authenticating: ad)
+	return try? ChaChaPoly.open(box, using: key, authenticating: ad)
 }
 
 internal struct AuthorizationTicket {
@@ -221,15 +222,16 @@ internal extension AuthorizationTicket {
 		prepareGoldenTicket()
 		guard let encryptedTicket = try? Data(contentsOf: URL(fileURLWithPath: golden_ticket()!)),
 		      let sealedTicket = try? ChaChaPoly.SealedBox(combined: encryptedTicket),
-		      let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: openBox(sealedTicket))
+		      let unsealedTicket = openBox(sealedTicket),
+		      let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: unsealedTicket)
 		else { return nil }
 		self = ticket
 	}
 
 	func save() {
 		prepareGoldenTicket()
-		guard let json = try? JSONEncoder().encode(self) else { return }
-		let sealedBox = sealBox(json)
+		guard let json = try? JSONEncoder().encode(self),
+		      let sealedBox = sealBox(json) else { return }
 		try? sealedBox.combined.write(to: URL(fileURLWithPath: golden_ticket()!))
 	}
 
