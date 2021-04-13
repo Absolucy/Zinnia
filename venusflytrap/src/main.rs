@@ -1,17 +1,46 @@
+mod authorize;
+mod udid;
+mod validate;
+
 use chacha20poly1305::{
 	aead::{Aead, NewAead},
 	ChaCha20Poly1305, Key, Nonce,
 };
 use deku::prelude::*;
-use libaiwass::{AuthStatus, AuthorizationRequest, AuthorizationTicket};
-use obfstr::obfstr;
-use std::{
-	io::{Read, Write},
-	time::Duration,
-};
+use obfstr::{obfstr, xref};
+use once_cell::sync::Lazy;
+use std::{io::Read, time::Duration};
 
-const DRM_URL: &str = "https://aiwass.aspenuwu.me/v1/authorize";
-const TWEAK_NAME: &str = "Zinnia";
+const DRM_AUTH_URL: &str = "https://aiwass.aspenuwu.me/v1/authorize";
+const DRM_VALIDATE_URL: &str = "https://aiwass.aspenuwu.me/v1/authorize";
+const TWEAK_NAME: &str = "me.aspenuwu.zinnia";
+const TICKET_LOCATION: &str = "/var/mobile/Library/Application Support/TWEAK_NAME/.goldenticket";
+
+static HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
+	static TIMEOUT: u64 = 15;
+	let mut headers = reqwest::header::HeaderMap::new();
+	headers.insert(
+		reqwest::header::HeaderName::from_bytes(obfstr!("User-Agent").as_bytes())
+			.unwrap_or_else(|_| std::process::exit(1)),
+		[obfstr!(TWEAK_NAME), obfstr!(env!("CARGO_PKG_VERSION"))]
+			.join(obfstr!(" "))
+			.parse()
+			.unwrap_or_else(|_| std::process::exit(1)),
+	);
+	headers.insert(
+		reqwest::header::HeaderName::from_bytes(obfstr!("Content-Type").as_bytes())
+			.unwrap_or_else(|_| std::process::exit(1)),
+		obfstr!("application/json")
+			.to_string()
+			.parse()
+			.unwrap_or_else(|_| std::process::exit(1)),
+	);
+	reqwest::ClientBuilder::new()
+		.timeout(Duration::from_secs(*xref!(&TIMEOUT)))
+		.default_headers(headers)
+		.build()
+		.unwrap_or_else(|_| std::process::exit(1))
+});
 
 #[derive(DekuRead)]
 #[deku(endian = "little", magic = b"\x2A\x2A\x2A\x2A")]
@@ -68,7 +97,7 @@ impl StartupData {
 		cc20.decrypt(&nonce, self.udid.as_ref())
 			.ok()
 			.and_then(|decrypted| String::from_utf8(decrypted).ok())
-			.unwrap_or_else(|| std::process::exit(1 << 2))
+			.unwrap_or_else(|| std::process::exit(1))
 	}
 
 	#[inline(always)]
@@ -79,66 +108,22 @@ impl StartupData {
 		cc20.decrypt(&nonce, self.model.as_ref())
 			.ok()
 			.and_then(|decrypted| String::from_utf8(decrypted).ok())
-			.unwrap_or_else(|| std::process::exit(1 << 3))
+			.unwrap_or_else(|| std::process::exit(1))
 	}
 }
 
 #[tokio::main]
 async fn main() {
-	let mut data = String::with_capacity(std::mem::size_of::<StartupData>() * 2);
 	let stdin = std::io::stdin();
 	let mut stdin = stdin.lock();
-
 	let mut byte = [0u8];
-	obfstr! {
-		let table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	};
-	while stdin.read_exact(&mut byte).is_ok() {
-		let c = byte[0] as char;
-		if !table.contains(c) {
-			break;
-		}
-		data.push(c);
+	stdin
+		.read_exact(&mut byte)
+		.unwrap_or_else(|_| std::process::exit(1));
+	let input = byte[0] as char;
+	match input {
+		'a' => authorize::authorize(stdin).await,
+		'v' => validate::validate().await,
+		_ => std::process::exit(0),
 	}
-
-	let data = StartupData::from_bytes((
-		&base64::decode(&data).unwrap_or_else(|_| std::process::exit(1 << 3)),
-		0,
-	))
-	.unwrap_or_else(|_| std::process::exit(1 << 5))
-	.1;
-
-	let udid = data.get_udid();
-	let model = data.get_model();
-	let request = AuthorizationRequest::new(
-		&udid,
-		&model,
-		obfstr!(TWEAK_NAME),
-		obfstr!(env!("CARGO_PKG_VERSION")),
-	);
-	let response = reqwest::Client::new()
-		.post(obfstr!(DRM_URL))
-		.timeout(Duration::from_secs(15))
-		.header(
-			obfstr!("User-Agent"),
-			[obfstr!(TWEAK_NAME), obfstr!(env!("CARGO_PKG_VERSION"))].join("-"),
-		)
-		.header(obfstr!("Content-Type"), obfstr!("application/json"))
-		.json(&request)
-		.send()
-		.await
-		.unwrap_or_else(|_| std::process::exit(1 << 6));
-	let ticket: AuthorizationTicket = response
-		.json()
-		.await
-		.unwrap_or_else(|_| std::process::exit(1 << 7));
-	if ticket.validate(obfstr!(TWEAK_NAME), &udid, &model) != AuthStatus::Valid {
-		std::process::exit(0);
-	}
-	let json = serde_json::to_string(&ticket).unwrap_or_else(|_| std::process::exit(1 << 8));
-	let stdout = std::io::stdout();
-	stdout
-		.lock()
-		.write_all(json.as_bytes())
-		.unwrap_or_else(|_| std::process::exit(1 << 9));
 }
