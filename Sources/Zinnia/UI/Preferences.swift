@@ -4,6 +4,6 @@ import Foundation
 #endif
 import SwiftUI
 
-enum ZinniaPreferences {
-	static let identifier = "me.aspenuwu.zinnia"
+internal enum ZinniaPreferences {
+	internal static let identifier = "me.aspenuwu.zinnia"
 }

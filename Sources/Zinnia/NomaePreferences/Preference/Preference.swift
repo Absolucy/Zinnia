@@ -36,7 +36,7 @@ import SwiftUI
 
 /// A property wrapper type that reflects a value from `UserDefaults` and
 /// invalidates a view on a change in value in that user default.
-@frozen @propertyWrapper public struct Preference<Value>: DynamicProperty {
+@propertyWrapper internal struct Preference<Value>: DynamicProperty {
 	@ObservedObject private var _value: Storage<Value>
 	private let saveValue: (Value) -> Void
 
@@ -51,7 +51,7 @@ import SwiftUI
 		self.saveValue = saveValue
 	}
 
-	public var wrappedValue: Value {
+	internal var wrappedValue: Value {
 		get {
 			self._value.value
 		}
@@ -61,7 +61,7 @@ import SwiftUI
 		}
 	}
 
-	public var projectedValue: Binding<Value> {
+	internal var projectedValue: Binding<Value> {
 		Binding(
 			get: { self.wrappedValue },
 			set: { self.wrappedValue = $0 }
@@ -69,8 +69,7 @@ import SwiftUI
 	}
 }
 
-@usableFromInline
-class Storage<Value>: NSObject, ObservableObject {
+private class Storage<Value>: NSObject, ObservableObject {
 	@Published var value: Value
 	private let defaultValue: Value
 	private let store: UserDefaults
@@ -102,7 +101,7 @@ class Storage<Value>: NSObject, ObservableObject {
 	}
 }
 
-public extension Preference where Value == Bool {
+internal extension Preference where Value == Bool {
 	/// Creates a property that can read and write to a boolean user default.
 	///
 	/// - Parameters:
@@ -123,7 +122,7 @@ public extension Preference where Value == Bool {
 	}
 }
 
-public extension Preference where Value == Int {
+internal extension Preference where Value == Int {
 	/// Creates a property that can read and write to an integer user default.
 	///
 	/// - Parameters:
@@ -144,7 +143,7 @@ public extension Preference where Value == Int {
 	}
 }
 
-public extension Preference where Value == Double {
+internal extension Preference where Value == Double {
 	/// Creates a property that can read and write to a double user default.
 	///
 	/// - Parameters:
@@ -165,7 +164,7 @@ public extension Preference where Value == Double {
 	}
 }
 
-public extension Preference where Value == String {
+internal extension Preference where Value == String {
 	/// Creates a property that can read and write to a string user default.
 	///
 	/// - Parameters:
@@ -186,7 +185,7 @@ public extension Preference where Value == String {
 	}
 }
 
-public extension Preference where Value == URL {
+internal extension Preference where Value == URL {
 	/// Creates a property that can read and write to a url user default.
 	///
 	/// - Parameters:
@@ -207,7 +206,7 @@ public extension Preference where Value == URL {
 	}
 }
 
-public extension Preference where Value == Data {
+internal extension Preference where Value == Data {
 	/// Creates a property that can read and write to a user default as data.
 	///
 	/// Avoid storing large data blobs in user defaults, such as image data,
@@ -233,7 +232,7 @@ public extension Preference where Value == Data {
 	}
 }
 
-public extension Preference where Value: RawRepresentable, Value.RawValue == Int {
+internal extension Preference where Value: RawRepresentable, Value.RawValue == Int {
 	/// Creates a property that can read and write to an integer user default,
 	/// transforming that to `RawRepresentable` data type.
 	///
@@ -256,7 +255,7 @@ public extension Preference where Value: RawRepresentable, Value.RawValue == Int
 	}
 }
 
-public extension Preference where Value: RawRepresentable, Value.RawValue == String {
+internal extension Preference where Value: RawRepresentable, Value.RawValue == String {
 	/// Creates a property that can read and write to a string user default,
 	/// transforming that to `RawRepresentable` data type.
 	///

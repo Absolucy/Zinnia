@@ -151,6 +151,8 @@ __attribute__((constructor)) static void init() {
 			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
 		hook(objc_getClass("CSQuickActionsViewController"), @selector(viewDidLoad),
 			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
+		hook(objc_getClass("SBFLockScreenDateViewController"), @selector(viewDidLoad),
+			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
 		hook(objc_getClass("CSQuickActionsButton"), @selector(initWithFrame:),
 			 (void*)&hook_VariousUIViews_initWithFrame, (void**)&orig_VariousUIViews_initWithFrame);
 		hook(objc_getClass("CSQuickActionsButton"), @selector(layoutSubviews),

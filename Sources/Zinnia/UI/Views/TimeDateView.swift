@@ -1,24 +1,25 @@
 #if !THEOS_SWIFT
 	import NomaePreferences
 #endif
+import Combine
 import SwiftUI
 
-struct TimeDateView: View {
-	@Preference("dateFormat", identifier: ZinniaPreferences.identifier) var dateFormat = "MM/dd/yyyy"
-	@Preference("timeFormat", identifier: ZinniaPreferences.identifier) var timeFormat = "hh:mm a"
-	@Preference("dateTimeNeonMul", identifier: ZinniaPreferences.identifier) var dateTimeNeonMul: Double = 1
-	@Preference("dateTimeNeonColor", identifier: ZinniaPreferences.identifier) var dateTimeNeonColor = Color.purple
-	@Preference("dateTimeBgColor", identifier: ZinniaPreferences.identifier) var dateTimeBgColor = Color.black
+internal struct TimeDateView: View {
+	@Preference("dateFormat", identifier: ZinniaPreferences.identifier) private var dateFormat = "MM/dd/yyyy"
+	@Preference("timeFormat", identifier: ZinniaPreferences.identifier) private var timeFormat = "hh:mm a"
+	@Preference("dateTimeNeonMul", identifier: ZinniaPreferences.identifier) private var dateTimeNeonMul: Double = 1
+	@Preference("dateTimeNeonColor", identifier: ZinniaPreferences.identifier) private var dateTimeNeonColor = Color.purple
+	@Preference("dateTimeBgColor", identifier: ZinniaPreferences.identifier) private var dateTimeBgColor = Color.black
 
-	@State var dateText: String = "4/9/2021"
-	@State var timeText: String = "9:41 AM"
+	@State private var dateText: String = "4/9/2021"
+	@State private var timeText: String = "9:41 AM"
 
-	var dateFormatter: DateFormatter
-	var timeFormatter: DateFormatter
+	private var dateFormatter: DateFormatter
+	private var timeFormatter: DateFormatter
 
-	let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+	private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-	init() {
+	internal init() {
 		self.dateFormatter = DateFormatter()
 		self.timeFormatter = DateFormatter()
 		self.dateFormatter.dateFormat = self.dateFormat
@@ -26,13 +27,13 @@ struct TimeDateView: View {
 		self.updateTimeDate()
 	}
 
-	func updateTimeDate() {
+	private func updateTimeDate() {
 		let currentDateTime = Date()
-		self.dateText = self.dateFormatter.string(from: currentDateTime)
+		dateText = self.dateFormatter.string(from: currentDateTime)
 		self.timeText = self.timeFormatter.string(from: currentDateTime)
 	}
 
-	func BuildView() -> some View {
+	private func BuildView() -> some View {
 		VStack {
 			Text(timeText).font(.largeTitle)
 			Text(dateText).font(.callout)
@@ -54,12 +55,20 @@ struct TimeDateView: View {
 			RoundedRectangle(cornerRadius: 16, style: .continuous)
 				.foregroundColor(self.dateTimeBgColor)
 		)
+		.onReceive(Just(self.dateFormat)) { newFormat in
+			dateFormatter.dateFormat = newFormat
+			updateTimeDate()
+		}
+		.onReceive(Just(self.timeFormat)) { newFormat in
+			timeFormatter.dateFormat = newFormat
+			updateTimeDate()
+		}
 		.onReceive(self.timer) { _ in
 			updateTimeDate()
 		}
 	}
 
-	var body: some View {
+	internal var body: some View {
 		BuildView()
 	}
 }

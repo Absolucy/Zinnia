@@ -42,12 +42,8 @@ let package = Package(
 			cxxSettings: [.unsafeFlags(cxxFlags)]
 		),
 		.target(
-			name: "NomaePreferences",
-			swiftSettings: [.unsafeFlags(swiftFlags)]
-		),
-		.target(
 			name: "Zinnia",
-			dependencies: ["ZinniaC", "NomaePreferences"],
+			dependencies: ["ZinniaC"],
 			swiftSettings: [.unsafeFlags(swiftFlags)]
 		),
 	]

@@ -9,10 +9,10 @@
 import SwiftUI
 
 /// The Twitter logo as a SwiftUI `Shape`
-public struct TwitterLogo: Shape {
-	public init() {}
+internal struct TwitterLogo: Shape {
+	internal init() {}
 
-	public func path(in rect: CGRect) -> Path {
+	internal func path(in rect: CGRect) -> Path {
 		var path = Path()
 		let width = rect.size.width
 		let height = rect.size.height

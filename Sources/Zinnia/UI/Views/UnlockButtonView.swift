@@ -6,10 +6,10 @@ import SwiftUI
 import UIKit
 import ZinniaC
 
-struct UnlockButtonView: View {
-	@ObservedObject var globals = ZinniaSharedData.global
-	@State var anim_faceid_alpha = 1.0
-	@State var selected: Int? = nil
+internal struct UnlockButtonView: View {
+	@ObservedObject private var globals = ZinniaSharedData.global
+	@State private var anim_faceid_alpha = 1.0
+	@State private var selected: Int? = nil
 	@State private var flashlight: AVFlashlight? = {
 		if AVFlashlight.hasFlashlight() {
 			return AVFlashlight()
@@ -20,20 +20,21 @@ struct UnlockButtonView: View {
 
 	@State private var autocloseTask: DispatchWorkItem?
 
-	@Preference("unlockBgColor", identifier: ZinniaPreferences.identifier) var unlockBgColor = Color.primary
-	@Preference("unlockNeonMul", identifier: ZinniaPreferences.identifier) var unlockNeonMul: Double = 1
-	@Preference("unlockNeonColor", identifier: ZinniaPreferences.identifier) var unlockNeonColor = Color.purple
-	@Preference("unlockIconColor", identifier: ZinniaPreferences.identifier) var unlockIconColor = Color.accentColor
+	@Preference("unlockBgColor", identifier: ZinniaPreferences.identifier) private var unlockBgColor = Color.primary
+	@Preference("unlockNeonMul", identifier: ZinniaPreferences.identifier) private var unlockNeonMul: Double = 1
+	@Preference("unlockNeonColor", identifier: ZinniaPreferences.identifier) private var unlockNeonColor = Color.purple
+	@Preference("unlockIconColor", identifier: ZinniaPreferences.identifier) private var unlockIconColor = Color
+		.accentColor
 
-	var unlock: () -> Void
-	var camera: () -> Void
+	private var unlock: () -> Void
+	private var camera: () -> Void
 
-	init(unlock: @escaping () -> Void, camera: @escaping () -> Void) {
+	internal init(unlock: @escaping () -> Void, camera: @escaping () -> Void) {
 		self.unlock = unlock
 		self.camera = camera
 	}
 
-	func get_biometric_icon() -> String {
+	private func get_biometric_icon() -> String {
 		let authContext = LAContext()
 		_ = authContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
 		switch authContext.biometryType {
@@ -96,7 +97,7 @@ struct UnlockButtonView: View {
 		return popups
 	}
 
-	var body: some View {
+	internal var body: some View {
 		let popups = self.getPopups()
 		HStack {
 			Spacer()

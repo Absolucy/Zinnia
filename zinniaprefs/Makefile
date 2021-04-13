@@ -1,4 +1,5 @@
 TARGET := iphone:clang:14.4:14.0
+GO_EASY_ON_ME = 1
 
 include $(THEOS)/makefiles/common.mk
 
@@ -6,8 +7,7 @@ BUNDLE_NAME = ZinniaPrefs
 
 ZinniaPrefs_FILES              = $(shell find ../Sources/Zinnia/Prefs -name '*.swift') \
 							 $(shell find ../Sources/Zinnia/UI -name '*.swift') \
-                             $(shell find ../Sources/NomaePreferences -name '*.swift') \
-							 ../Sources/ZinniaC/libpddokdo.m
+                             $(shell find ../Sources/Zinnia/NomaePreferences -name '*.swift')
 ZinniaPrefs_INSTALL_PATH = /Library/PreferenceBundles
 ZinniaPrefs_SWIFTFLAGS = -I../Sources/ZinniaC/include
 ZinniaPrefs_FRAMEWORKS = AVFoundation

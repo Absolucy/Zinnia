@@ -1,18 +1,16 @@
 import Foundation
 import UIKit
 
-class ZinniaSharedData: ObservableObject {
-	static let global = ZinniaSharedData()
-	@Published var associated = false
-	@Published var wifi_strength = 0
-	@Published var lte_strength = 0
-	@Published var unlocked = false
-	@Published var menuOpenProgress: CGFloat = 0.0
-	@Published var draggingMenuOpen = false
+internal class ZinniaSharedData: ObservableObject {
+	internal static let global = ZinniaSharedData()
+	@Published internal var associated = false
+	@Published internal var wifi_strength = 0
+	@Published internal var lte_strength = 0
+	@Published internal var unlocked = false
+	@Published internal var menuOpenProgress: CGFloat = 0.0
+	@Published internal var draggingMenuOpen = false
 
-	init() {}
-
-	init(unlocked: Bool) {
-		self.unlocked = unlocked
+	internal init(unlocked: Bool? = nil) {
+		self.unlocked = unlocked ?? self.unlocked
 	}
 }

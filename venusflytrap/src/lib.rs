@@ -1,6 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
 use ed25519_dalek::{Keypair, PublicKey, Signature, Signer};
-use obfstr::obfstr;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

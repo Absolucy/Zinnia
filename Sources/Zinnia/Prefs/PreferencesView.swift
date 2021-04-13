@@ -41,7 +41,22 @@ struct PreferencesView: View {
 					UnlockPrefs()
 					Divider().padding()
 					PopupPrefs()
-					Divider().padding()
+				}
+				Divider().padding()
+				HStack {
+					TwitterLogo().frame(width: 24, height: 24).padding(.trailing)
+					Button("Tweak by Aspen") {
+						let appURL = URL(string: "twitter://user?screen_name=aspenluxxxy")!
+						let webURL = URL(string: "https://twitter.com/aspenluxxxy")!
+
+						let application = UIApplication.shared
+
+						if application.canOpenURL(appURL as URL) {
+							application.open(appURL as URL)
+						} else {
+							application.open(webURL as URL)
+						}
+					}
 				}
 			}.padding(.horizontal)
 		}

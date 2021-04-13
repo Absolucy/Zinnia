@@ -10,7 +10,7 @@ import UIKit
 
 /// A view controller containing`PSViewController` methods that
 /// PreferenceLoader automatically calls
-@objcMembers open class PreferenceLoaderController: UIViewController {
+@objcMembers internal class PreferenceLoaderController: UIViewController {
 	func setRootController(_: Any?) {}
 	func setParentController(_: Any?) {}
 	func setSpecifier(_: Any?) {}

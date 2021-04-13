@@ -23,19 +23,16 @@ struct StartupData {
 	nonce_xor: [u8; 12],
 	_a3: [u8; 3],
 	udid_nonce: [u8; 12],
-	_a4: [u8; 30],
-	_a5: [u8; 30],
+	_a4: [u8; 60],
 	_udid_size: u64,
-	_a6: [u8; 30],
+	_a5: [u8; 30],
 	#[deku(count = "_udid_size")]
 	udid: Vec<u8>,
 	_model_size: u64,
-	_a7: [u8; 29],
-	_a8: [u8; 29],
-	_a9: [u8; 29],
+	_a6: [u8; 87],
 	#[deku(count = "_model_size")]
 	model: Vec<u8>,
-	_a10: [u8; 29],
+	_a7: [u8; 29],
 	model_nonce: [u8; 12],
 }
 

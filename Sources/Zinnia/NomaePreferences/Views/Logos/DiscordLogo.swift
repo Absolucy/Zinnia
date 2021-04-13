@@ -9,10 +9,10 @@
 import SwiftUI
 
 /// The Discord logo as a SwiftUI `Shape`
-struct DiscordLogo: Shape {
-	public init() {}
+internal struct DiscordLogo: Shape {
+	internal init() {}
 
-	public func path(in rect: CGRect) -> Path {
+	internal func path(in rect: CGRect) -> Path {
 		var path = Path()
 		let width = rect.size.width
 		let height = rect.size.height

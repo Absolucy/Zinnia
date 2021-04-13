@@ -9,10 +9,10 @@
 import SwiftUI
 
 /// The GitHub logo as a SwiftUI `Shape`
-public struct GitHubLogo: Shape {
-	public init() {}
+internal struct GitHubLogo: Shape {
+	internal init() {}
 
-	public func path(in rect: CGRect) -> Path {
+	internal func path(in rect: CGRect) -> Path {
 		var path = Path()
 		let width = rect.size.width
 		let height = rect.size.height
