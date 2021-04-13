@@ -530,6 +530,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
+name = "libaiwass"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "ed25519-dalek",
+ "serde",
+ "uuid",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1276,15 +1286,12 @@ version = "0.1.0"
 dependencies = [
  "base64",
  "chacha20poly1305",
- "chrono",
  "deku",
- "ed25519-dalek",
+ "libaiwass",
  "obfstr",
  "reqwest",
- "serde",
  "serde_json",
  "tokio",
- "uuid",
 ]
 
 [[package]]

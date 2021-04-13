@@ -3,14 +3,14 @@ use chacha20poly1305::{
 	ChaCha20Poly1305, Key, Nonce,
 };
 use deku::prelude::*;
+use libaiwass::{AuthStatus, AuthorizationRequest, AuthorizationTicket};
 use obfstr::obfstr;
 use std::{
 	io::{Read, Write},
 	time::Duration,
 };
-use venusflytrap::{AuthStatus, AuthorizationRequest, AuthorizationTicket};
 
-const DRM_URL: &str = "https://aiwass.aspenuwu.me/authorize";
+const DRM_URL: &str = "https://aiwass.aspenuwu.me/v1/authorize";
 const TWEAK_NAME: &str = "Zinnia";
 
 #[derive(DekuRead)]

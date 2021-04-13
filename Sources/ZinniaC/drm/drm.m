@@ -241,7 +241,7 @@ NSString* model() {
 }
 
 NSString* tweakName() {
-	return @"ZINNIA";
+	return @"me.aspenuwu.zinnia";
 }
 
 NSData* pubkey() {
