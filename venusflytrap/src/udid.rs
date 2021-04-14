@@ -12,13 +12,13 @@ use obfstr::{obfstr, xref};
 use once_cell::sync::Lazy;
 use sha1::Sha1;
 
-type MGCopyAnswer = extern "C" fn(name: CFStringRef) -> CFStringRef;
+type MgCopyAnswer = extern "C" fn(name: CFStringRef) -> CFStringRef;
 
 static LIBMOBILEGESTALT: Lazy<Library> =
 	Lazy::new(|| unsafe { Library::new(obfstr!("libMobileGestalt.dylib")).unwrap() });
-static MGCOPYANSWER: Lazy<Symbol<MGCopyAnswer>> = Lazy::new(|| unsafe {
+static MGCOPYANSWER: Lazy<Symbol<MgCopyAnswer>> = Lazy::new(|| unsafe {
 	xref!(&LIBMOBILEGESTALT)
-		.get::<MGCopyAnswer>(obfstr!("MGCopyAnswer").as_bytes())
+		.get::<MgCopyAnswer>(obfstr!("MGCopyAnswer").as_bytes())
 		.unwrap()
 });
 

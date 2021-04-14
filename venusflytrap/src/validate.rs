@@ -15,7 +15,7 @@ static BAD_EXIT_CODE: i32 = 89;
 #[inline(always)]
 fn model() -> String {
 	uname::uname()
-		.unwrap_or_else(|_| std::process::exit(1))
+		.unwrap_or_else(|_| std::process::exit(15))
 		.machine
 }
 
