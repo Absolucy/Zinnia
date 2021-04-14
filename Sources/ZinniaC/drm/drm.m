@@ -95,6 +95,18 @@ bool check_for_plist() {
 		   !(((retval >> 4) & 1) || ((retval >> 5) & 1) || ((retval >> 6) & 1)) && ((retval >> 7) & 1);
 }
 
+NSString* date_format() {
+	return @"yyyy-MM-dd'T'HH:mm:ss.SSSSSS";
+}
+
+NSString* date_locale() {
+	return @"en_US_POSIX";
+}
+
+NSString* drm_path() {
+	return @"/usr/lib/aspenuwu/me.aspenuwu.zinnia.bs";
+}
+
 NSString* golden_ticket_folder() {
 	return @"/var/mobile/Library/Application Support/me.aspenuwu.zinnia";
 }
@@ -104,7 +116,7 @@ NSString* golden_ticket() {
 }
 
 NSString* server_url() {
-	return @"https://aiwass.aspenuwu.me/authorize";
+	return @"https://aiwass.aspenuwu.me/v1/authorize";
 }
 
 NSString* udid() {
@@ -284,7 +296,7 @@ NSData* pubkey() {
 
 	NSData* encrypted_pubkey = ((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(
 		sendMsg(class("NSData"), sel("alloc")), sel("initWithBase64EncodedString:options:"),
-		@"N6eL73O9CCRDs7Qop1pMvS33SFw1+VfcDDLpTqYMxiQ=", NULL);
+		@"dCYp2228bZrWoQUGZZ+mOYDJs0Gi05yrFxxRHUj187M=", NULL);
 	const char* pubkey_bytes = ((const char* (*)(id, SEL))sendMsg)(encrypted_pubkey, sel("bytes"));
 	NSData* encryption_key = ((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(
 		sendMsg(class("NSData"), sel("alloc")), sel("initWithBase64EncodedString:options:"),

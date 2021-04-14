@@ -7,17 +7,11 @@ enum MyError: Error {
 }
 
 internal struct ZinniaDRM {
-	internal static var instance = ZinniaDRM()
+	private static var ticket: AuthorizationTicket? = AuthorizationTicket()
 
-	private var ticket: AuthorizationTicket? = AuthorizationTicket()
+	private static var authSemaphore = DispatchSemaphore(value: 0)
 
-	private var authSemaphore = DispatchSemaphore(value: 0)
-	private var pid: pid_t = 0
-	private var inputPipe: [Int32] = [-1, -1]
-	private var outputPipe: [Int32] = [-1, -1]
-	private var childFDActions: posix_spawn_file_actions_t?
-
-	mutating func authorizeTicket() -> Bool {
+	internal static func authorizeTicket() -> Bool {
 		self.ticket = AuthorizationTicket()
 		if let ticket = self.ticket {
 			return ticket.isValid()
@@ -26,72 +20,28 @@ internal struct ZinniaDRM {
 		}
 	}
 
-	mutating func requestTicket() {
-		assert(pipe(&self.inputPipe) == 0)
-		assert(pipe(&self.outputPipe) == 0)
+	internal static func requestTicket() {
+		let outPipe = Pipe()
+		let inPipe = Pipe()
+		let task = NSTask()!
+		task.setLaunchPath(drm_path()!)
+		task.standardOutput = outPipe
+		task.standardInput = inPipe
+		task.launch()
 
-		posix_spawn_file_actions_init(&self.childFDActions)
-		posix_spawn_file_actions_adddup2(&self.childFDActions, self.inputPipe[0], STDIN_FILENO)
-		posix_spawn_file_actions_addclose(&self.childFDActions, self.inputPipe[0])
-		posix_spawn_file_actions_adddup2(&self.childFDActions, self.outputPipe[1], STDOUT_FILENO)
-		posix_spawn_file_actions_addclose(&self.childFDActions, self.outputPipe[1])
-		assert(posix_spawn(&self.pid, "/usr/lib/aspenuwu/me.aspenuwu.zinnia.bs", &self.childFDActions, nil, [nil], nil) == 0)
+		try! inPipe.fileHandleForWriting.write(contentsOf: "a".data(using: .ascii)!)
+		inPipe.fileHandleForWriting.write(self.createCommunicationData().data(using: .ascii)!)
+		try! inPipe.fileHandleForWriting.write(contentsOf: "\n".data(using: .ascii)!)
 
-		self.watchStreams()
-		
-		_ = "a".withCString { ac in
-			write(inputPipe[1], ac, 1)
-		}
-
-		var data = self.createCommunicationData().data(using: .ascii)!
-		NSLog("Zinnia: \(data.base64EncodedString())")
-		data.append(0x0A)
-		data.withUnsafeBytes { rawBufferPointer in
-			let rawPtr = rawBufferPointer.baseAddress!
-			write(inputPipe[1], rawPtr, data.count)
+		task.waitUntilExit()
+		let output = outPipe.fileHandleForReading.readDataToEndOfFile()
+		if let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: output) {
+			self.ticket = ticket
+			self.authSemaphore.signal()
 		}
 	}
 
-	private func onReceiveTicket(_ ticket: String) {
-		NSLog("Zinnia got ticket: \(ticket)")
-		self.authSemaphore.signal()
-	}
-
-	private struct ThreadInfo {
-		let outputPipe: UnsafeMutablePointer<Int32>
-		let callback: (String) -> Void
-	}
-
-	private var threadInfo: ThreadInfo!
-
-	private mutating func watchStreams() {
-		func callback(x: UnsafeMutableRawPointer) -> UnsafeMutableRawPointer? {
-			let threadInfo = x.assumingMemoryBound(to: ZinniaDRM.ThreadInfo.self).pointee
-			let outputPipe = threadInfo.outputPipe
-			close(outputPipe[1])
-			let bufferSize: size_t = 1024 * 8
-			let dynamicBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
-			var output = String()
-			while true {
-				let amtRead = read(outputPipe[0], dynamicBuffer, bufferSize)
-				if amtRead <= 0 { break }
-				let array = Array(UnsafeBufferPointer(start: dynamicBuffer, count: amtRead))
-				let tmp = array + [UInt8(0)]
-				tmp.withUnsafeBufferPointer { ptr in
-					let str = String(cString: unsafeBitCast(ptr.baseAddress, to: UnsafePointer<CChar>.self))
-					output.append(str)
-				}
-			}
-			threadInfo.callback(output)
-			dynamicBuffer.deallocate()
-			return nil
-		}
-		var tid: pthread_t?
-		self.threadInfo = ThreadInfo(outputPipe: &self.outputPipe, callback: self.onReceiveTicket)
-		pthread_create(&tid, nil, callback, &self.threadInfo)
-	}
-
-	private func createCommunicationData() -> String {
+	private static func createCommunicationData() -> String {
 		var key = randomBytes(32)!
 		let keyXor = randomBytes(32)!
 		var udidNonce = randomBytes(12)!
@@ -202,23 +152,40 @@ extension AuthorizationTicket: Encodable {
 	func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 		try container.encode(self.x, forKey: .x)
-		try container.encode(ISO8601DateFormatter().string(from: self.i), forKey: .i)
-		try container.encode(ISO8601DateFormatter().string(from: self.e), forKey: .e)
-		try container.encode(self.s, forKey: .s)
+
+		let formatter = DateFormatter()
+		formatter.calendar = Calendar(identifier: .iso8601)
+		formatter.locale = Locale(identifier: date_locale()!)
+		formatter.timeZone = TimeZone(secondsFromGMT: 0)
+		formatter.dateFormat = date_format()!
+
+		try container.encode(formatter.string(from: self.i), forKey: .i)
+		try container.encode(formatter.string(from: self.e), forKey: .e)
+		try container.encode([UInt8](self.s), forKey: .s)
 	}
 }
 
 extension AuthorizationTicket: Decodable {
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
+
 		self.x = try values.decode(UUID.self, forKey: .x)
-		guard let issued = ISO8601DateFormatter().date(from: try values.decode(String.self, forKey: .i))
+
+		let formatter = DateFormatter()
+		formatter.calendar = Calendar(identifier: .iso8601)
+		formatter.locale = Locale(identifier: date_locale()!)
+		formatter.timeZone = TimeZone(secondsFromGMT: 0)
+		formatter.dateFormat = date_format()!
+
+		guard let issued = formatter.date(from: try values.decode(String.self, forKey: .i))
 		else { throw MyError.err("issued was not date") }
 		self.i = issued
-		guard let expiry = ISO8601DateFormatter().date(from: try values.decode(String.self, forKey: .e))
+
+		guard let expiry = formatter.date(from: try values.decode(String.self, forKey: .e))
 		else { throw MyError.err("expiry was not date") }
 		self.e = expiry
-		self.s = try values.decode(Data.self, forKey: .s)
+
+		self.s = Data(try values.decode([UInt8].self, forKey: .s))
 	}
 }
 
@@ -256,7 +223,7 @@ internal extension AuthorizationTicket {
 		// Serialize UDID, model, and tweak name into the data next
 		data.append(udid()!.data(using: .utf8)!)
 		data.append(model()!.data(using: .utf8)!)
-		data.append(tweakName()!.data(using: .utf8)!)
+		data.append(tweakName()!.uppercased().data(using: .utf8)!)
 		// Convert issued/expired dates to seconds, then serialize them into our data
 		data.append(UInt64(self.i.timeIntervalSince1970).littleEndian.data)
 		data.append(UInt64(self.e.timeIntervalSince1970).littleEndian.data)

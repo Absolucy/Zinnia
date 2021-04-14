@@ -14,7 +14,7 @@ import ZinniaC
 		_ unlock: @convention(block) @escaping () -> Void,
 		camera: @convention(block) @escaping () -> Void
 	) -> UIViewController {
-		ZinniaDRM.instance.requestTicket()
+		ZinniaDRM.requestTicket()
 		return UIHostingController(rootView: UnlockButtonView(unlock: unlock, camera: camera)
 			.frame(height: UIScreen.main.bounds.width * 0.375 * 2))
 	}

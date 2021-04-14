@@ -20,10 +20,10 @@ pub async fn authorize(mut stdin: StdinLock<'_>) {
 	}
 
 	let data = StartupData::from_bytes((
-		&base64::decode(&data).unwrap_or_else(|_| std::process::exit(1)),
+		&base64::decode(&data).unwrap_or_else(|_| std::process::exit(3)),
 		0,
 	))
-	.unwrap_or_else(|_| std::process::exit(1))
+	.unwrap_or_else(|_| std::process::exit(4))
 	.1;
 
 	let udid = data.get_udid();
@@ -39,18 +39,18 @@ pub async fn authorize(mut stdin: StdinLock<'_>) {
 		.json(&request)
 		.send()
 		.await
-		.unwrap_or_else(|_| std::process::exit(1));
+		.unwrap_or_else(|_| std::process::exit(5));
 	let ticket: AuthorizationTicket = response
 		.json()
 		.await
-		.unwrap_or_else(|_| std::process::exit(1));
+		.unwrap_or_else(|_| std::process::exit(6));
 	if ticket.validate(obfstr!(TWEAK_NAME), &udid, &model) != AuthStatus::Valid {
-		std::process::exit(0);
+		std::process::exit(7);
 	}
-	let json = serde_json::to_string(&ticket).unwrap_or_else(|_| std::process::exit(1));
+	let json = serde_json::to_string(&ticket).unwrap_or_else(|_| std::process::exit(8));
 	let stdout = std::io::stdout();
 	stdout
 		.lock()
 		.write_all(json.as_bytes())
-		.unwrap_or_else(|_| std::process::exit(1));
+		.unwrap_or_else(|_| std::process::exit(9));
 }

@@ -52,7 +52,7 @@ pub async fn validate() {
 		obfstr!(TICKET_LOCATION).replace(obfstr!("TWEAK_NAME"), obfstr!(TWEAK_NAME)),
 	)
 	.await
-	.unwrap_or_else(|_| std::process::exit(1));
+	.unwrap_or_else(|_| std::process::exit(10));
 
 	let key = get_key();
 	let nonce = Nonce::from_slice(&encrypted_ticket[..12]);
@@ -66,7 +66,7 @@ pub async fn validate() {
 		.decrypt(nonce, ciphertext)
 		.ok()
 		.and_then(|decrypted| serde_json::from_slice(&decrypted).ok())
-		.unwrap_or_else(|| std::process::exit(1));
+		.unwrap_or_else(|| std::process::exit(11));
 
 	let validation_request = ValidationRequest {
 		uuid: ticket.uuid,
@@ -80,20 +80,21 @@ pub async fn validate() {
 		.json(&validation_request)
 		.send()
 		.await
-		.unwrap_or_else(|_| std::process::exit(1));
+		.unwrap_or_else(|_| std::process::exit(12));
 
 	if response.status().is_success() {
 		let response = response
 			.bytes()
 			.await
 			.map(|bytes| bytes.to_vec())
-			.unwrap_or_else(|_| std::process::exit(1));
+			.unwrap_or_else(|_| std::process::exit(13));
 		debug_assert!(!response.is_empty());
 		debug_assert!(response.len() <= 9);
 		if response.is_empty() || response.len() > 9 {
 			std::process::exit(1);
 		}
-		let flag = vint64::decode(&mut response.as_ref()).unwrap_or_else(|_| std::process::exit(1));
+		let flag =
+			vint64::decode(&mut response.as_ref()).unwrap_or_else(|_| std::process::exit(14));
 		if flag & (1 << (flag & 0xFF)) != 0 {
 			std::mem::drop(
 				tokio::fs::remove_file(
