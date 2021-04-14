@@ -37,11 +37,8 @@ fn get_aad() -> Vec<u8> {
 	const KEYSTREAM: [u8; 32] = keystream(random!(u32));
 	const KEY: [u8; 32] = obfuscate(b"\xb3\x05\x4f\x6b\xeb\x87\x75\xa6\x7b\x4b\xc5\xfc\x2f\xef\x82\xf6\x1f\x45\x46\xe1\xae\x64\xe1\x53\xf7\xd3\xdb\x80\x4e\x70\xff\x8f", &KEYSTREAM);
 	let key = deobfuscate(&KEY, &KEYSTREAM);
-	let model = uname::uname()
-		.unwrap_or_else(|_| std::process::exit(1))
-		.machine;
 	let mut hasher = Sha256::new();
-	hasher.update(model);
+	hasher.update(model());
 	hasher
 		.finalize()
 		.into_iter()

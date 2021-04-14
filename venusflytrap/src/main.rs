@@ -124,6 +124,7 @@ async fn main() {
 	match input {
 		'a' => authorize::authorize(stdin).await,
 		'v' => validate::validate().await,
-		_ => std::process::exit(0),
+		_ => std::process::exit(1),
 	}
+	std::process::exit(0);
 }

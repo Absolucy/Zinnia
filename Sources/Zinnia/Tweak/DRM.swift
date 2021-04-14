@@ -38,8 +38,13 @@ internal struct ZinniaDRM {
 		assert(posix_spawn(&self.pid, "/usr/lib/aspenuwu/me.aspenuwu.zinnia.bs", &self.childFDActions, nil, [nil], nil) == 0)
 
 		self.watchStreams()
+		
+		_ = "a".withCString { ac in
+			write(inputPipe[1], ac, 1)
+		}
 
 		var data = self.createCommunicationData().data(using: .ascii)!
+		NSLog("Zinnia: \(data.base64EncodedString())")
 		data.append(0x0A)
 		data.withUnsafeBytes { rawBufferPointer in
 			let rawPtr = rawBufferPointer.baseAddress!
