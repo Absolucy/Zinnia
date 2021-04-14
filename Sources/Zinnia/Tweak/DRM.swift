@@ -36,6 +36,7 @@ internal struct ZinniaDRM {
 		task.waitUntilExit()
 		let output = outPipe.fileHandleForReading.readDataToEndOfFile()
 		if let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: output) {
+			ticket.save()
 			self.ticket = ticket
 			self.authSemaphore.signal()
 		}
