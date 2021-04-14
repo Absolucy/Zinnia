@@ -29,9 +29,9 @@ internal struct ZinniaDRM {
 		task.standardInput = inPipe
 		task.launch()
 
-		try! inPipe.fileHandleForWriting.write(contentsOf: "a".data(using: .ascii)!)
+		inPipe.fileHandleForWriting.write("a".data(using: .ascii)!)
 		inPipe.fileHandleForWriting.write(self.createCommunicationData().data(using: .ascii)!)
-		try! inPipe.fileHandleForWriting.write(contentsOf: "\n".data(using: .ascii)!)
+		inPipe.fileHandleForWriting.write("\n".data(using: .ascii)!)
 
 		task.waitUntilExit()
 		let output = outPipe.fileHandleForReading.readDataToEndOfFile()

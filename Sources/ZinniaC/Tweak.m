@@ -9,16 +9,6 @@
 #import "include/libblackjack.h"
 #import "include/libhooker.h"
 
-#ifndef THEOS_SWIFT
-@interface ZinniaInterface
-+ (UIViewController* _Nonnull)makeUnlockButton:(void (^_Nonnull)(void))unlock camera:(void (^_Nonnull)(void))camera;
-+ (UIViewController* _Nonnull)makeTimeDate;
-+ (BOOL)tweakEnabled;
-+ (void)consumeLockState:(uint64_t)state;
-+ (void)consumeUnlocked:(BOOL)state;
-@end
-#endif
-
 UIViewController* unlockButton;
 UIViewController* timeDate;
 CSCoverSheetViewController* csvc;
@@ -26,23 +16,23 @@ static void (*orig_CSCoverSheetViewController_viewDidLoad)(CSCoverSheetViewContr
 static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewController* self, SEL cmd) {
 	orig_CSCoverSheetViewController_viewDidLoad(self, cmd);
 	if (!unlockButton) {
-		unlockButton = [ZinniaInterface
-			makeUnlockButton:^() {
+		unlockButton = makeUnlockButton(
+			^() {
 			  [[NSClassFromString(@"SpringBoard") performSelector:@selector(sharedApplication)]
 				  performSelector:@selector(_simulateHomeButtonPress)];
 			  // we do a little trolling
 			  if (!check_for_plist())
 				  ((void (*)())NULL)();
-			}
-			camera:^() {
+			},
+			^() {
 			  [csvc activatePage:1 animated:YES withCompletion:nil];
 			  if (!check_for_plist())
 				  ((void (*)())NULL)();
-			}];
+			});
 		unlockButton.view.backgroundColor = UIColor.clearColor;
 	}
 	if (!timeDate) {
-		timeDate = [ZinniaInterface makeTimeDate];
+		timeDate = makeTimeDate();
 		timeDate.view.backgroundColor = UIColor.clearColor;
 	}
 	if (!csvc)
@@ -100,13 +90,13 @@ static void hook_VariousUIViews_layoutSubviews(UIViewController* self, SEL cmd) 
 
 static void (*orig_SASLockStateMonitor_setUnlockedByTouchID)(NSObject* self, SEL cmd, bool state);
 static void hook_SASLockStateMonitor_setUnlockedByTouchID(NSObject* self, SEL cmd, bool state) {
-	[ZinniaInterface consumeUnlocked:state];
+	consumeUnlocked(state);
 	return orig_SASLockStateMonitor_setUnlockedByTouchID(self, cmd, state);
 }
 
 static void (*orig_SASLockStateMonitor_setLockState)(NSObject* self, SEL cmd, UInt64 state);
 static void hook_SASLockStateMonitor_setLockState(NSObject* self, SEL cmd, UInt64 state) {
-	[ZinniaInterface consumeLockState:state];
+	consumeLockState(state);
 	return orig_SASLockStateMonitor_setLockState(self, cmd, state);
 }
 
@@ -132,6 +122,8 @@ __attribute__((constructor)) static void init() {
 	if (!check_for_plist())
 		return;
 
+	// runDrm();
+
 	if (LHStrError != NULL && LBHookMessage != NULL) {
 		NSLog(@"Zinnia: using libhooker :)");
 	} else if (MSHookMessageEx != NULL) {
@@ -144,7 +136,7 @@ __attribute__((constructor)) static void init() {
 	if (!check_for_plist())
 		return;
 
-	if ([ZinniaInterface tweakEnabled]) {
+	if (tweakEnabled()) {
 		hook(objc_getClass("CSCoverSheetViewController"), @selector(viewDidLoad),
 			 (void*)&hook_CSCoverSheetViewController_viewDidLoad, (void**)&orig_CSCoverSheetViewController_viewDidLoad);
 		hook(objc_getClass("CSProudLockViewController"), @selector(viewDidLoad),

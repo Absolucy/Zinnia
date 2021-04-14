@@ -1,6 +1,7 @@
 #import "../drm/byond32.h"
 #import "../drm/drm.h"
 #import "../drm/udid.h"
+#import "bridge.h"
 #import "libblackjack.h"
 #import "libhooker.h"
 #import "libpddokdo.h"
