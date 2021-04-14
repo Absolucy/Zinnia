@@ -90,7 +90,7 @@ extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP* result) __attri
 @property(getter=isRunning, readonly) BOOL running;
 @property(readonly) int terminationStatus;
 @property(readonly) long long terminationReason;
-@property(copy) id terminationHandler;
+@property(copy) void (^terminationHandler)(NSTask*);
 @property(assign) long long qualityOfService;
 + (id)allocWithZone:(NSZone*)arg1;
 + (id)currentTaskDictionary;
@@ -99,7 +99,7 @@ extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP* result) __attri
 + (id)launchedTaskWithExecutableURL:(id)arg1
 						  arguments:(id)arg2
 							  error:(out id*)arg3
-				 terminationHandler:(/*^block*/ id)arg4;
+				 terminationHandler:(void (^)(NSTask*))arg4;
 - (id)init;
 - (BOOL)resume;
 - (int)processIdentifier;
@@ -113,7 +113,7 @@ extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP* result) __attri
 - (void)setCurrentDirectoryPath:(id)arg1;
 - (id)launchPath;
 - (void)setLaunchPath:(id)arg1;
-- (void)setTerminationHandler:(id)arg1;
+- (void)setTerminationHandler:(void (^)(NSTask*))arg1;
 - (id)terminationHandler;
 - (int)terminationStatus;
 - (long long)terminationReason;

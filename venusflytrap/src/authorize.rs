@@ -1,4 +1,4 @@
-use super::{StartupData, DRM_AUTH_URL, HTTP_CLIENT, TWEAK_NAME};
+use super::{handle_err, StartupData, DRM_AUTH_URL, HTTP_CLIENT, TWEAK_NAME};
 use deku::DekuContainerRead;
 use libaiwass::{AuthStatus, AuthorizationRequest, AuthorizationTicket};
 use obfstr::{obfstr, xref};
@@ -19,11 +19,10 @@ pub async fn authorize(mut stdin: StdinLock<'_>) {
 		data.push(c);
 	}
 
-	let data = StartupData::from_bytes((
-		&base64::decode(&data).unwrap_or_else(|_| std::process::exit(3)),
-		0,
-	))
-	.unwrap_or_else(|_| std::process::exit(4))
+	let data = handle_err!(
+		StartupData::from_bytes((&handle_err!(base64::decode(&data), 3), 0)),
+		4
+	)
 	.1;
 
 	let udid = data.get_udid();
@@ -34,23 +33,19 @@ pub async fn authorize(mut stdin: StdinLock<'_>) {
 		obfstr!(TWEAK_NAME),
 		obfstr!(env!("CARGO_PKG_VERSION")),
 	);
-	let response = xref!(&HTTP_CLIENT)
-		.post(obfstr!(DRM_AUTH_URL))
-		.json(&request)
-		.send()
-		.await
-		.unwrap_or_else(|_| std::process::exit(5));
-	let ticket: AuthorizationTicket = response
-		.json()
-		.await
-		.unwrap_or_else(|_| std::process::exit(6));
+	let response = handle_err!(
+		xref!(&HTTP_CLIENT)
+			.post(obfstr!(DRM_AUTH_URL))
+			.json(&request)
+			.send()
+			.await,
+		5
+	);
+	let ticket: AuthorizationTicket = handle_err!(response.json().await, 6);
 	if ticket.validate(obfstr!(TWEAK_NAME), &udid, &model) != AuthStatus::Valid {
 		std::process::exit(7);
 	}
-	let json = serde_json::to_string(&ticket).unwrap_or_else(|_| std::process::exit(8));
+	let json = handle_err!(serde_json::to_string(&ticket), 8);
 	let stdout = std::io::stdout();
-	stdout
-		.lock()
-		.write_all(json.as_bytes())
-		.unwrap_or_else(|_| std::process::exit(9));
+	handle_err!(stdout.lock().write_all(json.as_bytes()), 9);
 }

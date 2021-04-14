@@ -1,6 +1,39 @@
 mod authorize;
+mod pin;
 mod udid;
 mod validate;
+
+#[macro_export]
+#[cfg(not(debug_assertions))]
+macro_rules! handle_err {
+	($x:expr, $code:expr) => {
+		$x.unwrap_or_else(|_| std::process::exit($code));
+	};
+}
+
+#[macro_export]
+#[cfg(not(debug_assertions))]
+macro_rules! handle_nil {
+	($x:expr, $code:expr) => {
+		$x.unwrap_or_else(|| std::process::exit($code));
+	};
+}
+
+#[macro_export]
+#[cfg(debug_assertions)]
+macro_rules! handle_err {
+	($x:expr, $code:expr) => {
+		$x.expect(&format!("error #{}", $code))
+	};
+}
+
+#[macro_export]
+#[cfg(debug_assertions)]
+macro_rules! handle_nil {
+	($x:expr, $code:expr) => {
+		$x.expect(&format!("nil #{}", $code))
+	};
+}
 
 use chacha20poly1305::{
 	aead::{Aead, NewAead},
@@ -20,26 +53,32 @@ static HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
 	static TIMEOUT: u64 = 15;
 	let mut headers = reqwest::header::HeaderMap::new();
 	headers.insert(
-		reqwest::header::HeaderName::from_bytes(obfstr!("User-Agent").as_bytes())
-			.unwrap_or_else(|_| std::process::exit(1)),
-		[obfstr!(TWEAK_NAME), obfstr!(env!("CARGO_PKG_VERSION"))]
-			.join(obfstr!(" "))
-			.parse()
-			.unwrap_or_else(|_| std::process::exit(1)),
+		handle_err!(
+			reqwest::header::HeaderName::from_bytes(obfstr!("User-Agent").as_bytes()),
+			1
+		),
+		handle_err!(
+			[obfstr!(TWEAK_NAME), obfstr!(env!("CARGO_PKG_VERSION"))]
+				.join(obfstr!(" "))
+				.parse(),
+			1
+		),
 	);
 	headers.insert(
-		reqwest::header::HeaderName::from_bytes(obfstr!("Content-Type").as_bytes())
-			.unwrap_or_else(|_| std::process::exit(1)),
-		obfstr!("application/json")
-			.to_string()
-			.parse()
-			.unwrap_or_else(|_| std::process::exit(1)),
+		handle_err!(
+			reqwest::header::HeaderName::from_bytes(obfstr!("Content-Type").as_bytes()),
+			1
+		),
+		handle_err!(obfstr!("application/json").to_string().parse(), 1),
 	);
-	reqwest::ClientBuilder::new()
-		.timeout(Duration::from_secs(*xref!(&TIMEOUT)))
-		.default_headers(headers)
-		.build()
-		.unwrap_or_else(|_| std::process::exit(1))
+	handle_err!(
+		reqwest::ClientBuilder::new()
+			.timeout(Duration::from_secs(*xref!(&TIMEOUT)))
+			.default_headers(headers)
+			.use_preconfigured_tls(pin::tls_config())
+			.build(),
+		1
+	)
 });
 
 #[derive(DekuRead)]
@@ -94,10 +133,12 @@ impl StartupData {
 		let key = self.get_key();
 		let nonce = self.get_nonce(&self.udid_nonce);
 		let cc20 = ChaCha20Poly1305::new(&key);
-		cc20.decrypt(&nonce, self.udid.as_ref())
-			.ok()
-			.and_then(|decrypted| String::from_utf8(decrypted).ok())
-			.unwrap_or_else(|| std::process::exit(1))
+		handle_nil!(
+			cc20.decrypt(&nonce, self.udid.as_ref())
+				.ok()
+				.and_then(|decrypted| String::from_utf8(decrypted).ok()),
+			-2
+		)
 	}
 
 	#[inline(always)]
@@ -105,10 +146,12 @@ impl StartupData {
 		let key = self.get_key();
 		let nonce = self.get_nonce(&self.model_nonce);
 		let cc20 = ChaCha20Poly1305::new(&key);
-		cc20.decrypt(&nonce, self.model.as_ref())
-			.ok()
-			.and_then(|decrypted| String::from_utf8(decrypted).ok())
-			.unwrap_or_else(|| std::process::exit(1))
+		handle_nil!(
+			cc20.decrypt(&nonce, self.model.as_ref())
+				.ok()
+				.and_then(|decrypted| String::from_utf8(decrypted).ok()),
+			-3
+		)
 	}
 }
 
@@ -117,9 +160,7 @@ async fn main() {
 	let stdin = std::io::stdin();
 	let mut stdin = stdin.lock();
 	let mut byte = [0u8];
-	stdin
-		.read_exact(&mut byte)
-		.unwrap_or_else(|_| std::process::exit(1));
+	handle_err!(stdin.read_exact(&mut byte), 1);
 	let input = byte[0] as char;
 	match input {
 		'a' => authorize::authorize(stdin).await,

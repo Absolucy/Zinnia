@@ -16,10 +16,9 @@ Zinnia_FILES              =	$(shell find Sources/Zinnia/Tweak -name '*.swift') \
 Zinnia_SWIFTFLAGS         = -ISources/ZinniaC/include
 ifdef FINALPACKAGE
 Zinnia_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
-ADDITIONAL_SWIFTFLAGS     = -Xlinker -x
 Zinnia_LDFLAGS            = -Xlinker -x -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 else
-Zinnia_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT
+Zinnia_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT -DDEBUG
 Zinnia_LDFLAGS            = -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 endif
 Zinnia_FRAMEWORKS         = AVFoundation

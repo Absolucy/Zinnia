@@ -28,18 +28,40 @@ internal struct ZinniaDRM {
 		task.standardOutput = outPipe
 		task.standardInput = inPipe
 		task.launch()
+		#if DEBUG
+			NSLog("Zinnia: launched DRM task, pid \(task.processIdentifier)")
+		#endif
+
+		task.terminationHandler = { task in
+			if task?.terminationStatus == 0 {
+				let output = outPipe.fileHandleForReading.readDataToEndOfFile()
+				#if DEBUG
+					NSLog("Zinnia: got output from DRM task:\n\(String(data: output, encoding: .utf8)!)")
+				#endif
+				if let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: output) {
+					if ticket.isValid() {
+						ticket.save()
+						self.ticket = ticket
+						#if DEBUG
+							NSLog("Zinnia: saved ticket")
+						#endif
+						self.authSemaphore.signal()
+					} else {
+						#if DEBUG
+							NSLog("Zinnia: server gave us an invalid ticket??")
+						#endif
+					}
+				}
+			} else {
+				#if DEBUG
+					NSLog("Zinnia: DRM returned non-zero status \(task?.terminationStatus ?? 999)")
+				#endif
+			}
+		}
 
 		inPipe.fileHandleForWriting.write("a".data(using: .ascii)!)
 		inPipe.fileHandleForWriting.write(self.createCommunicationData().data(using: .ascii)!)
 		inPipe.fileHandleForWriting.write("\n".data(using: .ascii)!)
-
-		task.waitUntilExit()
-		let output = outPipe.fileHandleForReading.readDataToEndOfFile()
-		if let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: output) {
-			ticket.save()
-			self.ticket = ticket
-			self.authSemaphore.signal()
-		}
 	}
 
 	private static func createCommunicationData() -> String {
