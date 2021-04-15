@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate objc;
+
 mod authorize;
 mod pin;
 mod udid;
@@ -58,9 +61,13 @@ static HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
 			1
 		),
 		handle_err!(
-			[obfstr!(TWEAK_NAME), obfstr!(env!("CARGO_PKG_VERSION"))]
-				.join(obfstr!(" "))
-				.parse(),
+			[
+				validate::model().as_str(),
+				obfstr!(TWEAK_NAME),
+				obfstr!(env!("CARGO_PKG_VERSION"))
+			]
+			.join(obfstr!(" "))
+			.parse(),
 			1
 		),
 	);

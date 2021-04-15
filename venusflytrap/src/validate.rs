@@ -15,7 +15,7 @@ use sha2::{Digest, Sha256};
 static BAD_EXIT_CODE: i32 = 89;
 
 #[inline(always)]
-fn model() -> String {
+pub fn model() -> String {
 	handle_err!(uname::uname(), 15).machine
 }
 
