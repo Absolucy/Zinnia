@@ -1,0 +1,4 @@
+#!/bin/sh
+chown root:wheel /Library/LaunchDaemons/me.aspenuwu.zinnia.bs.plist
+chmod 644 /Library/LaunchDaemons/me.aspenuwu.zinnia.bs.plist
+launchctl load /Library/LaunchDaemons/me.aspenuwu.zinnia.bs.plist 2> /dev/null

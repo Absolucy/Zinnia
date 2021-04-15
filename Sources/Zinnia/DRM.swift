@@ -81,7 +81,7 @@ internal struct ZinniaDRM {
 				#else
 					UIAlertView(
 						title: dont_panic_message(),
-						message: drm_down(),
+						message: drm_down_message(),
 						delegate: nil,
 						cancelButtonTitle: continue_without_message()
 					)
@@ -114,6 +114,8 @@ internal struct ZinniaDRM {
 							let sbreload = NSTask()!
 							sbreload.setLaunchPath(sbreload_path()!)
 							sbreload.launch()
+							// just in case sbreload screws up somehow
+							alert.dismiss(withClickedButtonIndex: 0, animated: false)
 							sbreload.waitUntilExit()
 						}
 					} else {
@@ -149,7 +151,7 @@ internal struct ZinniaDRM {
 					#else
 						UIAlertView(
 							title: dont_panic_message(),
-							message: drm_down(),
+							message: drm_down_message(),
 							delegate: nil,
 							cancelButtonTitle: continue_without_message()
 						)

@@ -41,6 +41,7 @@ use chacha20poly1305::{
 	ChaCha20Poly1305, Key, Nonce,
 };
 use deku::prelude::*;
+use obfstr::obfstr;
 use std::io::Read;
 
 const DRM_AUTH_URL: &str = "https://aiwass.aspenuwu.me/v1/authorize";
@@ -124,11 +125,25 @@ impl StartupData {
 
 #[tokio::main]
 async fn main() {
+	let input = std::env::args()
+		.collect::<Vec<String>>()
+		.get(1)
+		.and_then(|s| s.chars().next())
+		.filter(|c| {
+			c.is_ascii_alphabetic()
+				&& obfstr!("______________________________a___v___________________________________")
+					.contains(*c)
+		});
 	let stdin = std::io::stdin();
 	let mut stdin = stdin.lock();
-	let mut byte = [0u8];
-	handle_err!(stdin.read_exact(&mut byte), 1);
-	let input = byte[0] as char;
+	let input = match input {
+		Some(arg) => arg,
+		None => {
+			let mut byte = [0u8];
+			handle_err!(stdin.read_exact(&mut byte), 1);
+			byte[0] as char
+		}
+	};
 	match input {
 		'a' => authorize::authorize(stdin).await,
 		'v' => validate::validate().await,
