@@ -5,11 +5,15 @@ import SwiftUI
 
 internal struct LockScreenView: View {
 	internal var body: some View {
-		VStack {
-			TimeDateView()
-				.padding(.vertical, 30)
-			Spacer().allowsHitTesting(false)
-			UnlockButtonView(unlock: {}, camera: {})
+		if !ZinniaDRM.ticketAuthorized() {
+			EmptyView()
+		} else {
+			VStack {
+				TimeDateView()
+					.padding(.vertical, 30)
+				Spacer().allowsHitTesting(false)
+				UnlockButtonView(unlock: {}, camera: {})
+			}
 		}
 	}
 }

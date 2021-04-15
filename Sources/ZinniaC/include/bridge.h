@@ -4,5 +4,6 @@
 UIViewController* makeUnlockButton(void (^)(), void (^)());
 UIViewController* makeTimeDate();
 bool tweakEnabled();
+bool isValidated();
 void consumeLockState(uint64_t);
 void consumeUnlocked(bool);

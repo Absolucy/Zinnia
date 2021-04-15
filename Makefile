@@ -9,10 +9,10 @@ TWEAK_NAME = Zinnia
 TARGET_CC =  /opt/apple-llvm-hikari/bin/clang
 TARGET_CXX = /opt/apple-llvm-hikari/bin/clang++
 
-Zinnia_FILES              =	$(shell find Sources/Zinnia/Tweak -name '*.swift') \
+Zinnia_FILES              =	Sources/Zinnia/Tweak.swift Sources/Zinnia/DRM.swift \
 							 $(shell find Sources/Zinnia/UI -name '*.swift') \
 							 $(shell find Sources/Zinnia/NomaePreferences -name '*.swift') \
-                             $(shell find Sources/ZinniaC -name '*.m' -o -name "*.x" -o -name '*.c' -o -name '*.mm' -o -name '*.cpp')
+                             $(shell find Sources/ZinniaC -name '*.m' -o -name '*.c')
 Zinnia_SWIFTFLAGS         = -ISources/ZinniaC/include
 ifdef FINALPACKAGE
 Zinnia_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf

@@ -5,11 +5,22 @@ include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = ZinniaPrefs
 
-ZinniaPrefs_FILES              = $(shell find ../Sources/Zinnia/Prefs -name '*.swift') \
+TARGET_CC =  /opt/apple-llvm-hikari/bin/clang
+TARGET_CXX = /opt/apple-llvm-hikari/bin/clang++
+
+ZinniaPrefs_FILES              = ../Sources/Zinnia/DRM.swift \
+								$(shell find ../Sources/Zinnia/Prefs -name '*.swift') \
 							 $(shell find ../Sources/Zinnia/UI -name '*.swift') \
+							 $(shell find ../Sources/ZinniaC/drm -name '*.m' -o -name '*.c') \
                              $(shell find ../Sources/Zinnia/NomaePreferences -name '*.swift')
 ZinniaPrefs_INSTALL_PATH = /Library/PreferenceBundles
 ZinniaPrefs_SWIFTFLAGS = -I../Sources/ZinniaC/include
+ifdef FINALPACKAGE
+ZinniaPrefs_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
+ZinniaPrefs_LDFLAGS            = -Xlinker -x
+else
+ZinniaPrefs_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT -DDEBUG
+endif
 ZinniaPrefs_FRAMEWORKS = AVFoundation
 ZinniaPrefs_CFLAGS = -fobjc-arc
 

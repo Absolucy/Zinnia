@@ -24,34 +24,38 @@ struct LockPopup: View {
 	}
 
 	var body: some View {
-		Button(action: unlock, label: {
-			Circle()
-				.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
-				.foregroundColor(self.globals.unlocked ? lockBgColorUnlocked : lockBgColorLocked)
-				.modifier(
-					NeonEffect(
-						base: Circle(),
-						color: self.globals.unlocked ? lockNeonColorUnlocked : lockNeonColorLocked,
-						brightness: 0.1,
-						innerSize: 1.5 *
-							(self.globals.unlocked ? lockNeonMulUnlocked : lockNeonMulLocked),
-						middleSize: 3 *
-							(self.globals.unlocked ? lockNeonMulUnlocked : lockNeonMulLocked),
-						outerSize: 5 *
-							(self.globals.unlocked ? lockNeonMulUnlocked : lockNeonMulLocked),
-						innerBlur: 3,
-						blur: 6
+		if !ZinniaDRM.ticketAuthorized() {
+			EmptyView()
+		} else {
+			Button(action: unlock, label: {
+				Circle()
+					.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
+					.foregroundColor(self.globals.unlocked ? lockBgColorUnlocked : lockBgColorLocked)
+					.modifier(
+						NeonEffect(
+							base: Circle(),
+							color: self.globals.unlocked ? lockNeonColorUnlocked : lockNeonColorLocked,
+							brightness: 0.1,
+							innerSize: 1.5 *
+								(self.globals.unlocked ? lockNeonMulUnlocked : lockNeonMulLocked),
+							middleSize: 3 *
+								(self.globals.unlocked ? lockNeonMulUnlocked : lockNeonMulLocked),
+							outerSize: 5 *
+								(self.globals.unlocked ? lockNeonMulUnlocked : lockNeonMulLocked),
+							innerBlur: 3,
+							blur: 6
+						)
 					)
-				)
-				.overlay(
-					Image(systemName: self.globals.unlocked ? "lock.open" : "lock")
-						.resizable()
-						.aspectRatio(contentMode: .fit)
-						.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
-						.foregroundColor(self.globals.unlocked ? lockIconColorUnlocked : lockIconColorLocked)
-						.padding()
-						.allowsHitTesting(false)
-				)
-		}).padding()
+					.overlay(
+						Image(systemName: self.globals.unlocked ? "lock.open" : "lock")
+							.resizable()
+							.aspectRatio(contentMode: .fit)
+							.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
+							.foregroundColor(self.globals.unlocked ? lockIconColorUnlocked : lockIconColorLocked)
+							.padding()
+							.allowsHitTesting(false)
+					)
+			}).padding()
+		}
 	}
 }

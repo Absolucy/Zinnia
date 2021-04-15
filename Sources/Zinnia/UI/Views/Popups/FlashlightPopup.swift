@@ -40,32 +40,36 @@ struct FlashlightPopup: View {
 	}
 
 	var body: some View {
-		Button(action: action, label: {
-			Circle()
-				.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
-				.foregroundColor(flashlightBgColor)
-				.modifier(
-					NeonEffect(
-						base: Circle(),
-						color: flashlightNeonColor,
-						brightness: 0.1,
-						innerSize: 1.5 * flashlightNeonMul,
-						middleSize: 3 * flashlightNeonMul,
-						outerSize: 5 * flashlightNeonMul,
-						innerBlur: 3,
-						blur: 6
+		if !ZinniaDRM.ticketAuthorized() {
+			EmptyView()
+		} else {
+			Button(action: action, label: {
+				Circle()
+					.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
+					.foregroundColor(flashlightBgColor)
+					.modifier(
+						NeonEffect(
+							base: Circle(),
+							color: flashlightNeonColor,
+							brightness: 0.1,
+							innerSize: 1.5 * flashlightNeonMul,
+							middleSize: 3 * flashlightNeonMul,
+							outerSize: 5 * flashlightNeonMul,
+							innerBlur: 3,
+							blur: 6
+						)
 					)
-				)
-				.overlay(
-					Image(systemName: flashlight?.flashlightLevel ?? 0 > 0 ? "flashlight.on.fill" : "flashlight.off.fill")
-						.resizable()
-						.aspectRatio(contentMode: .fit)
-						.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
-						.foregroundColor(flashlightIconColor)
-						.opacity(flashlight?.flashlightLevel ?? 0 > 0 ? 1 : 0.5)
-						.padding()
-						.allowsHitTesting(false)
-				)
-		}).padding()
+					.overlay(
+						Image(systemName: flashlight?.flashlightLevel ?? 0 > 0 ? "flashlight.on.fill" : "flashlight.off.fill")
+							.resizable()
+							.aspectRatio(contentMode: .fit)
+							.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
+							.foregroundColor(flashlightIconColor)
+							.opacity(flashlight?.flashlightLevel ?? 0 > 0 ? 1 : 0.5)
+							.padding()
+							.allowsHitTesting(false)
+					)
+			}).padding()
+		}
 	}
 }

@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate objc;
-
 pub(crate) mod authorize;
 pub(crate) mod http;
 pub(crate) mod pin;

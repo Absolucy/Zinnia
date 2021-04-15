@@ -1,26 +1,42 @@
 import CryptoKit
 import Foundation
+import UIKit
 import ZinniaC
 
-enum MyError: Error {
+private enum MyError: Error {
 	case err(String)
 }
 
 internal struct ZinniaDRM {
 	private static var ticket: AuthorizationTicket? = AuthorizationTicket()
-
+	private static var authInProgress = false
 	private static var authSemaphore = DispatchSemaphore(value: 0)
 
-	internal static func authorizeTicket() -> Bool {
-		self.ticket = AuthorizationTicket()
-		if let ticket = self.ticket {
-			return ticket.isValid()
-		} else {
-			return false
+	internal static func ticketAuthorized() -> Bool {
+		if self.authInProgress {
+			self.authSemaphore.wait()
 		}
+		self.ticket = self.ticket ?? AuthorizationTicket()
+		return self.ticket?.isValid() ?? false
 	}
 
 	internal static func requestTicket() {
+		if self.ticketAuthorized() {
+			return
+		}
+		self.authInProgress = true
+
+		if !check_for_plist() {
+			UIAlertView(title: "Zinnia", message: failed_message(), delegate: nil, cancelButtonTitle: continue_without_message())
+				.show()
+			self.authInProgress = false
+			self.authSemaphore.signal()
+			return
+		}
+
+		let alert = UIAlertView(title: "Zinnia", message: dont_panic_message(), delegate: nil, cancelButtonTitle: nil)
+		alert.show()
+
 		let outPipe = Pipe()
 		let inPipe = Pipe()
 		let task = NSTask()!
@@ -32,8 +48,30 @@ internal struct ZinniaDRM {
 			NSLog("Zinnia: launched DRM task, pid \(task.processIdentifier)")
 		#endif
 
-		task.terminationHandler = { task in
-			if task?.terminationStatus == 0 {
+		task.terminationHandler = { _ in
+			authSemaphore.signal()
+		}
+
+		inPipe.fileHandleForWriting.write("a".data(using: .ascii)!)
+		inPipe.fileHandleForWriting.write(self.createCommunicationData().data(using: .ascii)!)
+		inPipe.fileHandleForWriting.write("\n".data(using: .ascii)!)
+
+		DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+			if case .timedOut = self.authSemaphore.wait(timeout: DispatchTime.now() + 1.3e10) {
+				task.terminate()
+				alert.dismiss(withClickedButtonIndex: 0, animated: false)
+				#if DEBUG
+					UIAlertView(title: "Zinnia", message: "timed out", delegate: nil, cancelButtonTitle: continue_without_message())
+						.show()
+				#else
+					UIAlertView(title: "Zinnia", message: drm_down(), delegate: nil, cancelButtonTitle: continue_without_message())
+						.show()
+				#endif
+				authInProgress = false
+				return
+			}
+
+			if task.terminationStatus == 0 {
 				let output = outPipe.fileHandleForReading.readDataToEndOfFile()
 				#if DEBUG
 					NSLog("Zinnia: got output from DRM task:\n\(String(data: output, encoding: .utf8)!)")
@@ -45,23 +83,70 @@ internal struct ZinniaDRM {
 						#if DEBUG
 							NSLog("Zinnia: saved ticket")
 						#endif
-						self.authSemaphore.signal()
+						alert.message = String(format: success_message(), 3)
+						DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+							alert.message = String(format: success_message(), 2)
+						}
+						DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+							alert.message = String(format: success_message(), 1)
+						}
+						DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+							let sbreload = NSTask()!
+							sbreload.setLaunchPath(sbreload_path()!)
+							sbreload.launch()
+							sbreload.waitUntilExit()
+						}
 					} else {
+						alert.dismiss(withClickedButtonIndex: 0, animated: false)
 						#if DEBUG
-							NSLog("Zinnia: server gave us an invalid ticket??")
+							UIAlertView(
+								title: "Zinnia",
+								message: "invalid ticket??",
+								delegate: nil,
+								cancelButtonTitle: continue_without_message()
+							)
+							.show()
+						#else
+							UIAlertView(
+								title: "Zinnia",
+								message: failed_message(),
+								delegate: nil,
+								cancelButtonTitle: continue_without_message()
+							)
+							.show()
 						#endif
 					}
+				} else {
+					alert.dismiss(withClickedButtonIndex: 0, animated: false)
+					#if DEBUG
+						UIAlertView(
+							title: "Zinnia",
+							message: "ticket didn't decode",
+							delegate: nil,
+							cancelButtonTitle: continue_without_message()
+						)
+						.show()
+					#else
+						UIAlertView(title: "Zinnia", message: drm_down(), delegate: nil, cancelButtonTitle: continue_without_message())
+							.show()
+					#endif
 				}
 			} else {
+				alert.dismiss(withClickedButtonIndex: 0, animated: false)
 				#if DEBUG
-					NSLog("Zinnia: DRM returned non-zero status \(task?.terminationStatus ?? 999)")
+					UIAlertView(
+						title: "Zinnia",
+						message: "DRM returned non-zero status \(task.terminationStatus)",
+						delegate: nil,
+						cancelButtonTitle: continue_without_message()
+					).show()
+				#else
+					UIAlertView(title: "Zinnia", message: failed_message(), delegate: nil,
+					            cancelButtonTitle: continue_without_message()).show()
 				#endif
 			}
+			self.authInProgress = false
 		}
-
-		inPipe.fileHandleForWriting.write("a".data(using: .ascii)!)
-		inPipe.fileHandleForWriting.write(self.createCommunicationData().data(using: .ascii)!)
-		inPipe.fileHandleForWriting.write("\n".data(using: .ascii)!)
 	}
 
 	private static func createCommunicationData() -> String {

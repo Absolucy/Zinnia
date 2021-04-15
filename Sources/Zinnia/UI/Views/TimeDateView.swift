@@ -69,6 +69,10 @@ internal struct TimeDateView: View {
 	}
 
 	internal var body: some View {
-		BuildView()
+		if ZinniaDRM.ticketAuthorized() {
+			BuildView()
+		} else {
+			EmptyView()
+		}
 	}
 }

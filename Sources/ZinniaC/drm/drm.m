@@ -95,6 +95,33 @@ bool check_for_plist() {
 		   !(((retval >> 4) & 1) || ((retval >> 5) & 1) || ((retval >> 6) & 1)) && ((retval >> 7) & 1);
 }
 
+NSString* dont_panic_message() {
+	return @"Don't Panic!\n"
+		   @"Zinnia is ensuring that you own an authentic copy!";
+}
+
+NSString* failed_message() {
+	return @"Zinnia failed to verify itself as an authentic copy.\n"
+		   @"If you have legitimately obtained Zinnia, please report this as a bug, with some sort of "
+		   @"proof-of-purchase.\n"
+		   @"If you have pirated Zinnia, please buy it, as tweak development is my only source of decent money :(";
+}
+
+NSString* drm_down_message() {
+	return @"Zinnia failed to contact the authentication server.\n"
+		   @"Ensure that you have a proper internet connection currently, and that there are no firewalls blocking "
+		   @"access to the internet.";
+}
+
+NSString* success_message() {
+	return @"Zinnia has been successfully verified!\n"
+		   @"Respringing in %d...";
+}
+
+NSString* continue_without_message() {
+	return @"Continue Without Zinnia";
+}
+
 NSString* date_format() {
 	return @"yyyy-MM-dd'T'HH:mm:ss.SSSSSS";
 }
@@ -105,6 +132,10 @@ NSString* date_locale() {
 
 NSString* drm_path() {
 	return @"/usr/lib/aspenuwu/me.aspenuwu.zinnia.bs";
+}
+
+NSString* sbreload_path() {
+	return @"/usr/bin/sbreload";
 }
 
 NSString* golden_ticket_folder() {

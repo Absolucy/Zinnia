@@ -1,6 +1,7 @@
 fn main() {
 	cc::Build::new()
 		.file("udid/udid.c")
+		.file("udid/version.m")
 		.compiler("/opt/apple-llvm-hikari/bin/clang")
 		.include("udid")
 		.static_flag(true)

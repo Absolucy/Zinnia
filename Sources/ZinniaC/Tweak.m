@@ -9,9 +9,15 @@
 #import "include/libblackjack.h"
 #import "include/libhooker.h"
 
+#define VALIDITY_CHECK                                                                                                 \
+	if (!isValidated()) {                                                                                              \
+		return;                                                                                                        \
+	}
+
 UIViewController* unlockButton;
 UIViewController* timeDate;
 CSCoverSheetViewController* csvc;
+
 static void (*orig_CSCoverSheetViewController_viewDidLoad)(CSCoverSheetViewController* self, SEL cmd);
 static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewController* self, SEL cmd) {
 	orig_CSCoverSheetViewController_viewDidLoad(self, cmd);
@@ -71,6 +77,18 @@ static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewControll
 		[timeDate.view.topAnchor constraintEqualToAnchor:self.view.topAnchor]
 	]];
 	[timeDate didMoveToParentViewController:self];
+	[[NSProcessInfo processInfo] operatingSystemVersion];
+}
+
+static bool has_drm_ran = false;
+static void (*orig_CSCoverSheetViewController_finishUIUnlockFromSource)(CSCoverSheetViewController* self, SEL cmd,
+																		int state);
+static void hook_CSCoverSheetViewController_finishUIUnlockFromSource(CSCoverSheetViewController* self, SEL cmd,
+																	 int state) {
+	if (has_drm_ran)
+		return orig_CSCoverSheetViewController_finishUIUnlockFromSource(self, cmd, state);
+	has_drm_ran = true;
+	runDrm();
 }
 
 static bool hook_UIViewController_canShowWhileLocked(UIViewController* self, SEL cmd) {
@@ -119,11 +137,6 @@ void hook(Class cls, SEL sel, void* imp, void** result) {
 }
 
 __attribute__((constructor)) static void init() {
-	if (!check_for_plist())
-		return;
-
-	// runDrm();
-
 	if (LHStrError != NULL && LBHookMessage != NULL) {
 		NSLog(@"Zinnia: using libhooker :)");
 	} else if (MSHookMessageEx != NULL) {
@@ -133,28 +146,41 @@ __attribute__((constructor)) static void init() {
 			  @"continue.");
 	}
 
-	if (!check_for_plist())
-		return;
+	hook(objc_getClass("CSCoverSheetViewController"), @selector(finishUIUnlockFromSource:),
+		 (void*)&hook_CSCoverSheetViewController_finishUIUnlockFromSource,
+		 (void**)&orig_CSCoverSheetViewController_finishUIUnlockFromSource);
+
+	VALIDITY_CHECK
 
 	if (tweakEnabled()) {
+		VALIDITY_CHECK
 		hook(objc_getClass("CSCoverSheetViewController"), @selector(viewDidLoad),
 			 (void*)&hook_CSCoverSheetViewController_viewDidLoad, (void**)&orig_CSCoverSheetViewController_viewDidLoad);
+		VALIDITY_CHECK
 		hook(objc_getClass("CSProudLockViewController"), @selector(viewDidLoad),
 			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
+		VALIDITY_CHECK
 		hook(objc_getClass("CSQuickActionsViewController"), @selector(viewDidLoad),
 			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
+		VALIDITY_CHECK
 		hook(objc_getClass("SBFLockScreenDateViewController"), @selector(viewDidLoad),
 			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
+		VALIDITY_CHECK
 		hook(objc_getClass("CSQuickActionsButton"), @selector(initWithFrame:),
 			 (void*)&hook_VariousUIViews_initWithFrame, (void**)&orig_VariousUIViews_initWithFrame);
+		VALIDITY_CHECK
 		hook(objc_getClass("CSQuickActionsButton"), @selector(layoutSubviews),
 			 (void*)&hook_VariousUIViews_layoutSubviews, NULL);
+		VALIDITY_CHECK
 		hook(objc_getClass("SASLockStateMonitor"), @selector(setUnlockedByTouchID:),
 			 (void*)&hook_SASLockStateMonitor_setUnlockedByTouchID,
 			 (void**)&orig_SASLockStateMonitor_setUnlockedByTouchID);
+		VALIDITY_CHECK
 		hook(objc_getClass("SASLockStateMonitor"), @selector(setLockState:),
 			 (void*)&hook_SASLockStateMonitor_setLockState, (void**)&orig_SASLockStateMonitor_setLockState);
+		VALIDITY_CHECK
 		hook(objc_getClass("UIViewController"), @selector(_canShowWhileLocked),
 			 (void*)&hook_UIViewController_canShowWhileLocked, NULL);
+		VALIDITY_CHECK
 	}
 }

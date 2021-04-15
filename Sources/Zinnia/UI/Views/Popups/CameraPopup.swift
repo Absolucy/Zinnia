@@ -17,31 +17,35 @@ struct CameraPopup: View {
 	}
 
 	var body: some View {
-		Button(action: camera, label: {
-			Circle()
-				.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
-				.foregroundColor(cameraBgColor)
-				.modifier(
-					NeonEffect(
-						base: Circle(),
-						color: cameraNeonColor,
-						brightness: 0.1,
-						innerSize: 1.5 * cameraNeonMul,
-						middleSize: 3 * cameraNeonMul,
-						outerSize: 5 * cameraNeonMul,
-						innerBlur: 3,
-						blur: 6
+		if !ZinniaDRM.ticketAuthorized() {
+			EmptyView()
+		} else {
+			Button(action: camera, label: {
+				Circle()
+					.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
+					.foregroundColor(cameraBgColor)
+					.modifier(
+						NeonEffect(
+							base: Circle(),
+							color: cameraNeonColor,
+							brightness: 0.1,
+							innerSize: 1.5 * cameraNeonMul,
+							middleSize: 3 * cameraNeonMul,
+							outerSize: 5 * cameraNeonMul,
+							innerBlur: 3,
+							blur: 6
+						)
 					)
-				)
-				.overlay(
-					Image(systemName: "camera.fill")
-						.resizable()
-						.aspectRatio(contentMode: .fit)
-						.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
-						.foregroundColor(cameraIconColor)
-						.padding()
-						.allowsHitTesting(false)
-				)
-		}).padding()
+					.overlay(
+						Image(systemName: "camera.fill")
+							.resizable()
+							.aspectRatio(contentMode: .fit)
+							.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
+							.foregroundColor(cameraIconColor)
+							.padding()
+							.allowsHitTesting(false)
+					)
+			}).padding()
+		}
 	}
 }

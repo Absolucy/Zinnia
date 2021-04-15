@@ -99,94 +99,98 @@ internal struct UnlockButtonView: View {
 
 	internal var body: some View {
 		let popups = self.getPopups()
-		HStack {
-			Spacer()
-			ZStack {
-				Circle()
-					.frame(width: UIScreen.main.bounds.width * 0.25, height: UIScreen.main.bounds.width * 0.25)
-					.foregroundColor(self.unlockBgColor)
-					.modifier(
-						NeonEffect(
-							base: Circle(),
-							color: self.unlockNeonColor,
-							brightness: 0.1,
-							innerSize: 1.5 * self.unlockNeonMul,
-							middleSize: 3 * self.unlockNeonMul,
-							outerSize: 5 * self.unlockNeonMul,
-							innerBlur: 3,
-							blur: 6
+		if !ZinniaDRM.ticketAuthorized() {
+			EmptyView()
+		} else {
+			HStack {
+				Spacer()
+				ZStack {
+					Circle()
+						.frame(width: UIScreen.main.bounds.width * 0.25, height: UIScreen.main.bounds.width * 0.25)
+						.foregroundColor(self.unlockBgColor)
+						.modifier(
+							NeonEffect(
+								base: Circle(),
+								color: self.unlockNeonColor,
+								brightness: 0.1,
+								innerSize: 1.5 * self.unlockNeonMul,
+								middleSize: 3 * self.unlockNeonMul,
+								outerSize: 5 * self.unlockNeonMul,
+								innerBlur: 3,
+								blur: 6
+							)
 						)
-					)
-					.overlay(
-						Image(systemName: get_biometric_icon())
-							.foregroundColor(self.unlockIconColor)
-							.opacity(anim_faceid_alpha)
-							.font(.system(size: 60))
-							.padding()
-							.onAppear(perform: {
-								withAnimation(Animation.easeInOut.repeatForever().speed(0.25)) {
-									self.anim_faceid_alpha = 0.0
-								}
-							})
-							.opacity(globals.unlocked ? 0.0 : 1.0)
-							.allowsHitTesting(false)
-					)
-					.padding()
-					.onTapGesture {
-						autoClose()
-						globals.draggingMenuOpen = false
-						withAnimation {
-							globals.menuOpenProgress = globals.menuOpenProgress > 0 ? 0 : 1
-						}
-					}
-					.gesture(
-						DragGesture()
-							.onChanged { gesture in
-								autoClose()
-								globals.draggingMenuOpen = true
-								let radius = (UIScreen.main.bounds.width * 0.3) - (UIScreen.main.bounds.width * 0.15)
-								let offset = gesture.translation
-								withAnimation(Animation.spring()) {
-									globals.menuOpenProgress = min(1.0, max(abs(offset.width), abs(offset.height)) / radius)
-								}
-								var selected: Int?
-								for index in 0 ..< popups.count {
-									let x = self.xOffset(index)
-									let y = self.yOffset(index)
-									if abs(gesture.location.x - (gesture.startLocation.x + x)) <= (UIScreen.main.bounds.width * 0.15),
-									   abs(gesture.location.y - (gesture.startLocation.y + y)) <= (UIScreen.main.bounds.width * 0.15)
-									{
-										selected = index
-										break
+						.overlay(
+							Image(systemName: get_biometric_icon())
+								.foregroundColor(self.unlockIconColor)
+								.opacity(anim_faceid_alpha)
+								.font(.system(size: 60))
+								.padding()
+								.onAppear(perform: {
+									withAnimation(Animation.easeInOut.repeatForever().speed(0.25)) {
+										self.anim_faceid_alpha = 0.0
 									}
-								}
-								self.selected = selected
+								})
+								.opacity(globals.unlocked ? 0.0 : 1.0)
+								.allowsHitTesting(false)
+						)
+						.padding()
+						.onTapGesture {
+							autoClose()
+							globals.draggingMenuOpen = false
+							withAnimation {
+								globals.menuOpenProgress = globals.menuOpenProgress > 0 ? 0 : 1
 							}
-							.onEnded { _ in
-								autocloseTask?.cancel()
-								if let selected = self.selected {
-									popups[selected].1()
+						}
+						.gesture(
+							DragGesture()
+								.onChanged { gesture in
+									autoClose()
+									globals.draggingMenuOpen = true
+									let radius = (UIScreen.main.bounds.width * 0.3) - (UIScreen.main.bounds.width * 0.15)
+									let offset = gesture.translation
+									withAnimation(Animation.spring()) {
+										globals.menuOpenProgress = min(1.0, max(abs(offset.width), abs(offset.height)) / radius)
+									}
+									var selected: Int?
+									for index in 0 ..< popups.count {
+										let x = self.xOffset(index)
+										let y = self.yOffset(index)
+										if abs(gesture.location.x - (gesture.startLocation.x + x)) <= (UIScreen.main.bounds.width * 0.15),
+										   abs(gesture.location.y - (gesture.startLocation.y + y)) <= (UIScreen.main.bounds.width * 0.15)
+										{
+											selected = index
+											break
+										}
+									}
+									self.selected = selected
 								}
-								withAnimation(Animation.spring().delay(1)) {
-									globals.menuOpenProgress = 0
+								.onEnded { _ in
+									autocloseTask?.cancel()
+									if let selected = self.selected {
+										popups[selected].1()
+									}
+									withAnimation(Animation.spring().delay(1)) {
+										globals.menuOpenProgress = 0
+									}
+									self.selected = nil
+									globals.draggingMenuOpen = false
 								}
-								self.selected = nil
-								globals.draggingMenuOpen = false
-							}
-					)
-				ForEach(0 ..< popups.count, id: \.self) { index in
-					popups[index]
-						.0
-						.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
-						.offset(x: self.xOffset(index),
-						        y: self.yOffset(index))
-						.opacity(globals
-							.menuOpenProgress >= 1 ? (globals.draggingMenuOpen ? (self.selected == index ? 1 : 0.5) : 1) :
-							Double(globals.menuOpenProgress))
-						.scaleEffect(globals.menuOpenProgress)
+						)
+					ForEach(0 ..< popups.count, id: \.self) { index in
+						popups[index]
+							.0
+							.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
+							.offset(x: self.xOffset(index),
+							        y: self.yOffset(index))
+							.opacity(globals
+								.menuOpenProgress >= 1 ? (globals.draggingMenuOpen ? (self.selected == index ? 1 : 0.5) : 1) :
+								Double(globals.menuOpenProgress))
+							.scaleEffect(globals.menuOpenProgress)
+					}
 				}
-			}
-			Spacer()
-		}.padding()
+				Spacer()
+			}.padding()
+		}
 	}
 }

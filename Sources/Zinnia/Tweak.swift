@@ -12,6 +12,11 @@ internal func runDrm() {
 	ZinniaDRM.requestTicket()
 }
 
+@_cdecl("isValidated")
+internal func isValidated() -> Bool {
+	ZinniaDRM.ticketAuthorized()
+}
+
 @_cdecl("makeUnlockButton")
 internal func makeUnlockButton(
 	_ unlock: @convention(block) @escaping () -> Void,

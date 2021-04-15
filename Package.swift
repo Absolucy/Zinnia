@@ -18,13 +18,13 @@ let libFlags: [String] = [
 
 let cFlags: [String] = libFlags + [
 	"-Wno-unused-command-line-argument", "-Qunused-arguments",
+	"-Wno-deprecated-declarations",
 ]
 
 let cxxFlags: [String] = [
 ]
 
-let swiftFlags: [String] = libFlags + [
-]
+let swiftFlags: [String] = libFlags + []
 
 let package = Package(
 	name: "Zinnia",

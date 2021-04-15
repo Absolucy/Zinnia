@@ -2,19 +2,23 @@ use super::{handle_err, http, StartupData, DRM_AUTH_URL, TWEAK_NAME};
 use deku::DekuContainerRead;
 use libaiwass::{AnalyticsInfo, AuthStatus, AuthorizationRequest, AuthorizationTicket};
 use obfstr::obfstr;
-use objc::runtime::Object;
-use objc_foundation::{INSString, NSString};
+use semver::Version;
 use std::io::{Read, StdinLock, Write};
 
 #[inline(always)]
-pub fn ios_version() -> String {
-	unsafe {
-		let process_info: &Object = msg_send![class!(NSProcessInfo), processInfo];
-		let version: &NSString = msg_send![process_info, operatingSystemVersionString];
-		let version = version.as_str();
-		version.strip_prefix(obfstr!("Version ")).unwrap_or(version)
+pub fn ios_version() -> Version {
+	#[repr(C)]
+	struct VersionInfo {
+		major: i64,
+		minor: i64,
+		patch: i64,
 	}
-	.to_string()
+	extern "C" {
+		fn get_version_info() -> VersionInfo;
+	}
+
+	let info = unsafe { get_version_info() };
+	Version::new(info.major as u64, info.minor as u64, info.patch as u64)
 }
 
 pub async fn authorize(mut stdin: StdinLock<'_>) {
