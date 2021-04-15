@@ -1,10 +1,11 @@
 #[macro_use]
 extern crate objc;
 
-mod authorize;
-mod pin;
-mod udid;
-mod validate;
+pub(crate) mod authorize;
+pub(crate) mod http;
+pub(crate) mod pin;
+pub(crate) mod udid;
+pub(crate) mod validate;
 
 #[macro_export]
 #[cfg(not(debug_assertions))]
@@ -43,50 +44,12 @@ use chacha20poly1305::{
 	ChaCha20Poly1305, Key, Nonce,
 };
 use deku::prelude::*;
-use obfstr::{obfstr, xref};
-use once_cell::sync::Lazy;
-use std::{io::Read, time::Duration};
+use std::io::Read;
 
 const DRM_AUTH_URL: &str = "https://aiwass.aspenuwu.me/v1/authorize";
 const DRM_VALIDATE_URL: &str = "https://aiwass.aspenuwu.me/v1/authorize";
 const TWEAK_NAME: &str = "me.aspenuwu.zinnia";
 const TICKET_LOCATION: &str = "/var/mobile/Library/Application Support/TWEAK_NAME/.goldenticket";
-
-static HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
-	static TIMEOUT: u64 = 15;
-	let mut headers = reqwest::header::HeaderMap::new();
-	headers.insert(
-		handle_err!(
-			reqwest::header::HeaderName::from_bytes(obfstr!("User-Agent").as_bytes()),
-			1
-		),
-		handle_err!(
-			[
-				validate::model().as_str(),
-				obfstr!(TWEAK_NAME),
-				obfstr!(env!("CARGO_PKG_VERSION"))
-			]
-			.join(obfstr!(" "))
-			.parse(),
-			1
-		),
-	);
-	headers.insert(
-		handle_err!(
-			reqwest::header::HeaderName::from_bytes(obfstr!("Content-Type").as_bytes()),
-			1
-		),
-		handle_err!(obfstr!("application/json").to_string().parse(), 1),
-	);
-	handle_err!(
-		reqwest::ClientBuilder::new()
-			.timeout(Duration::from_secs(*xref!(&TIMEOUT)))
-			.default_headers(headers)
-			.use_preconfigured_tls(pin::tls_config())
-			.build(),
-		1
-	)
-});
 
 #[derive(DekuRead)]
 #[deku(endian = "little", magic = b"\x2A\x2A\x2A\x2A")]

@@ -9,18 +9,20 @@ use core_foundation::{
 };
 use libloading::{Library, Symbol};
 use obfstr::{obfstr, xref};
-use once_cell::sync::Lazy;
 use sha1::Sha1;
+use static_init::dynamic;
 
 type MgCopyAnswer = extern "C" fn(name: CFStringRef) -> CFStringRef;
 
-static LIBMOBILEGESTALT: Lazy<Library> =
-	Lazy::new(|| unsafe { Library::new(obfstr!("libMobileGestalt.dylib")).unwrap() });
-static MGCOPYANSWER: Lazy<Symbol<MgCopyAnswer>> = Lazy::new(|| unsafe {
+#[dynamic]
+static LIBMOBILEGESTALT: Library =
+	unsafe { Library::new(obfstr!("libMobileGestalt.dylib")).unwrap() };
+#[dynamic]
+static MGCOPYANSWER: Symbol<'static, MgCopyAnswer> = unsafe {
 	xref!(&LIBMOBILEGESTALT)
 		.get::<MgCopyAnswer>(obfstr!("MGCopyAnswer").as_bytes())
 		.unwrap()
-});
+};
 
 extern "C" {
 	fn get_ecid(arm64e: bool) -> CFStringRef;

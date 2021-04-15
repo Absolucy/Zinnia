@@ -1,6 +1,4 @@
-use super::{
-	handle_err, udid::get_udid, DRM_VALIDATE_URL, HTTP_CLIENT, TICKET_LOCATION, TWEAK_NAME,
-};
+use super::{handle_err, http, udid::get_udid, DRM_VALIDATE_URL, TICKET_LOCATION, TWEAK_NAME};
 use chacha20poly1305::{
 	aead::{Aead, NewAead, Payload},
 	ChaCha20Poly1305, Key, Nonce,
@@ -80,7 +78,7 @@ pub async fn validate() {
 	};
 
 	let response = handle_err!(
-		xref!(&HTTP_CLIENT)
+		http::client()
 			.post(obfstr!(DRM_VALIDATE_URL))
 			.json(&validation_request)
 			.send()

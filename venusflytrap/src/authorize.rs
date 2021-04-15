@@ -1,7 +1,7 @@
-use super::{handle_err, StartupData, DRM_AUTH_URL, HTTP_CLIENT, TWEAK_NAME};
+use super::{handle_err, http, StartupData, DRM_AUTH_URL, TWEAK_NAME};
 use deku::DekuContainerRead;
 use libaiwass::{AnalyticsInfo, AuthStatus, AuthorizationRequest, AuthorizationTicket};
-use obfstr::{obfstr, xref};
+use obfstr::obfstr;
 use objc::runtime::Object;
 use objc_foundation::{INSString, NSString};
 use std::io::{Read, StdinLock, Write};
@@ -53,7 +53,7 @@ pub async fn authorize(mut stdin: StdinLock<'_>) {
 		info,
 	);
 	let response = handle_err!(
-		xref!(&HTTP_CLIENT)
+		http::client()
 			.post(obfstr!(DRM_AUTH_URL))
 			.json(&request)
 			.send()
