@@ -27,14 +27,24 @@ internal struct ZinniaDRM {
 		self.authInProgress = true
 
 		if !check_for_plist() {
-			UIAlertView(title: "Zinnia", message: failed_message(), delegate: nil, cancelButtonTitle: continue_without_message())
-				.show()
+			UIAlertView(
+				title: dont_panic_message(),
+				message: failed_message(),
+				delegate: nil,
+				cancelButtonTitle: continue_without_message()
+			)
+			.show()
 			self.authInProgress = false
 			self.authSemaphore.signal()
 			return
 		}
 
-		let alert = UIAlertView(title: "Zinnia", message: dont_panic_message(), delegate: nil, cancelButtonTitle: nil)
+		let alert = UIAlertView(
+			title: dont_panic_message(),
+			message: ensuring_message(),
+			delegate: nil,
+			cancelButtonTitle: nil
+		)
 		alert.show()
 
 		let outPipe = Pipe()
@@ -61,11 +71,21 @@ internal struct ZinniaDRM {
 				task.terminate()
 				alert.dismiss(withClickedButtonIndex: 0, animated: false)
 				#if DEBUG
-					UIAlertView(title: "Zinnia", message: "timed out", delegate: nil, cancelButtonTitle: continue_without_message())
-						.show()
+					UIAlertView(
+						title: dont_panic_message(),
+						message: "timed out",
+						delegate: nil,
+						cancelButtonTitle: continue_without_message()
+					)
+					.show()
 				#else
-					UIAlertView(title: "Zinnia", message: drm_down(), delegate: nil, cancelButtonTitle: continue_without_message())
-						.show()
+					UIAlertView(
+						title: dont_panic_message(),
+						message: drm_down(),
+						delegate: nil,
+						cancelButtonTitle: continue_without_message()
+					)
+					.show()
 				#endif
 				authInProgress = false
 				return
@@ -100,7 +120,7 @@ internal struct ZinniaDRM {
 						alert.dismiss(withClickedButtonIndex: 0, animated: false)
 						#if DEBUG
 							UIAlertView(
-								title: "Zinnia",
+								title: dont_panic_message(),
 								message: "invalid ticket??",
 								delegate: nil,
 								cancelButtonTitle: continue_without_message()
@@ -108,7 +128,7 @@ internal struct ZinniaDRM {
 							.show()
 						#else
 							UIAlertView(
-								title: "Zinnia",
+								title: dont_panic_message(),
 								message: failed_message(),
 								delegate: nil,
 								cancelButtonTitle: continue_without_message()
@@ -120,28 +140,33 @@ internal struct ZinniaDRM {
 					alert.dismiss(withClickedButtonIndex: 0, animated: false)
 					#if DEBUG
 						UIAlertView(
-							title: "Zinnia",
+							title: dont_panic_message(),
 							message: "ticket didn't decode",
 							delegate: nil,
 							cancelButtonTitle: continue_without_message()
 						)
 						.show()
 					#else
-						UIAlertView(title: "Zinnia", message: drm_down(), delegate: nil, cancelButtonTitle: continue_without_message())
-							.show()
+						UIAlertView(
+							title: dont_panic_message(),
+							message: drm_down(),
+							delegate: nil,
+							cancelButtonTitle: continue_without_message()
+						)
+						.show()
 					#endif
 				}
 			} else {
 				alert.dismiss(withClickedButtonIndex: 0, animated: false)
 				#if DEBUG
 					UIAlertView(
-						title: "Zinnia",
+						title: dont_panic_message(),
 						message: "DRM returned non-zero status \(task.terminationStatus)",
 						delegate: nil,
 						cancelButtonTitle: continue_without_message()
 					).show()
 				#else
-					UIAlertView(title: "Zinnia", message: failed_message(), delegate: nil,
+					UIAlertView(title: dont_panic_message(), message: failed_message(), delegate: nil,
 					            cancelButtonTitle: continue_without_message()).show()
 				#endif
 			}

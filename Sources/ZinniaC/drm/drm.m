@@ -97,7 +97,11 @@ bool check_for_plist() {
 
 NSString* dont_panic_message() {
 	return @"Don't Panic!\n"
-		   @"Zinnia is ensuring that you own an authentic copy!";
+	@"Zinnia is ensuring that you own an authentic copy!";
+}
+
+NSString* ensuring_message() {
+	return @"Zinnia is ensuring that you own an authentic copy!";
 }
 
 NSString* failed_message() {

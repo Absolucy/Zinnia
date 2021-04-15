@@ -85,10 +85,10 @@ static void (*orig_CSCoverSheetViewController_finishUIUnlockFromSource)(CSCoverS
 																		int state);
 static void hook_CSCoverSheetViewController_finishUIUnlockFromSource(CSCoverSheetViewController* self, SEL cmd,
 																	 int state) {
-	if (has_drm_ran)
-		return orig_CSCoverSheetViewController_finishUIUnlockFromSource(self, cmd, state);
+	if (!has_drm_ran)
+		runDrm();
 	has_drm_ran = true;
-	runDrm();
+	return orig_CSCoverSheetViewController_finishUIUnlockFromSource(self, cmd, state);
 }
 
 static bool hook_UIViewController_canShowWhileLocked(UIViewController* self, SEL cmd) {

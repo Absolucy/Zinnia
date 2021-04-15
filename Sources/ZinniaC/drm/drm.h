@@ -1,6 +1,7 @@
 #include <Foundation/Foundation.h>
 
 bool check_for_plist();
+NSString* ensuring_message();
 NSString* dont_panic_message();
 NSString* failed_message();
 NSString* continue_without_message();
