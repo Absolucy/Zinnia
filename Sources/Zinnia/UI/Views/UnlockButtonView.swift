@@ -47,7 +47,7 @@ internal struct UnlockButtonView: View {
 		}
 	}
 
-	private func autoClose() {
+	private func autoClose(_ timeout: Double = 1) {
 		self.autocloseTask?.cancel()
 		let task = DispatchWorkItem {
 			withAnimation(Animation.spring()) {
@@ -57,19 +57,19 @@ internal struct UnlockButtonView: View {
 			globals.draggingMenuOpen = false
 			self.autocloseTask = nil
 		}
-		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: task)
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + timeout, execute: task)
 		self.autocloseTask = task
 	}
 
 	private func xOffset(_ index: Int) -> CGFloat {
-		let menuRadius = UIScreen.main.bounds.width * 0.3
+		let menuRadius = mulByWidth(radiusMul)
 
 		let slice = CGFloat(2 * .pi / CGFloat(self.getPopups().count + 1))
 		return menuRadius * cos(slice * CGFloat(index))
 	}
 
 	private func yOffset(_ index: Int) -> CGFloat {
-		let menuRadius = UIScreen.main.bounds.width * 0.3
+		let menuRadius = mulByWidth(radiusMul)
 
 		let slice = -CGFloat(2 * .pi / CGFloat(self.getPopups().count + 1))
 		return menuRadius * sin(slice * CGFloat(index))
@@ -106,7 +106,7 @@ internal struct UnlockButtonView: View {
 				Spacer()
 				ZStack {
 					Circle()
-						.frame(width: UIScreen.main.bounds.width * 0.25, height: UIScreen.main.bounds.width * 0.25)
+						.frame(width: mulByWidth(circleMul), height: mulByWidth(circleMul))
 						.foregroundColor(self.unlockBgColor)
 						.modifier(
 							NeonEffect(
@@ -136,7 +136,7 @@ internal struct UnlockButtonView: View {
 						)
 						.padding()
 						.onTapGesture {
-							autoClose()
+							autoClose(2.5)
 							globals.draggingMenuOpen = false
 							withAnimation {
 								globals.menuOpenProgress = globals.menuOpenProgress > 0 ? 0 : 1
@@ -147,7 +147,7 @@ internal struct UnlockButtonView: View {
 								.onChanged { gesture in
 									autoClose()
 									globals.draggingMenuOpen = true
-									let radius = (UIScreen.main.bounds.width * 0.3) - (UIScreen.main.bounds.width * 0.15)
+									let radius = mulByWidth(radiusMul) - mulByWidth(radiusMul / 2)
 									let offset = gesture.translation
 									withAnimation(Animation.spring()) {
 										globals.menuOpenProgress = min(1.0, max(abs(offset.width), abs(offset.height)) / radius)
@@ -156,8 +156,8 @@ internal struct UnlockButtonView: View {
 									for index in 0 ..< popups.count {
 										let x = self.xOffset(index)
 										let y = self.yOffset(index)
-										if abs(gesture.location.x - (gesture.startLocation.x + x)) <= (UIScreen.main.bounds.width * 0.15),
-										   abs(gesture.location.y - (gesture.startLocation.y + y)) <= (UIScreen.main.bounds.width * 0.15)
+										if abs(gesture.location.x - (gesture.startLocation.x + x)) <= mulByWidth(radiusMul / 2),
+										   abs(gesture.location.y - (gesture.startLocation.y + y)) <= mulByWidth(radiusMul / 2)
 										{
 											selected = index
 											break
@@ -180,7 +180,7 @@ internal struct UnlockButtonView: View {
 					ForEach(0 ..< popups.count, id: \.self) { index in
 						popups[index]
 							.0
-							.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
+							.frame(width: mulByWidth(radiusMul / 2), height: mulByWidth(radiusMul / 2))
 							.offset(x: self.xOffset(index),
 							        y: self.yOffset(index))
 							.opacity(globals

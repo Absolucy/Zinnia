@@ -13,11 +13,15 @@ internal struct ZinniaDRM {
 	private static var authSemaphore = DispatchSemaphore(value: 0)
 
 	internal static func ticketAuthorized() -> Bool {
-		if self.authInProgress {
-			self.authSemaphore.wait()
-		}
-		self.ticket = self.ticket ?? AuthorizationTicket()
-		return self.ticket?.isValid() ?? false
+		#if DRM
+			if self.authInProgress {
+				self.authSemaphore.wait()
+			}
+			self.ticket = self.ticket ?? AuthorizationTicket()
+			return self.ticket?.isValid() ?? false
+		#else
+			return true
+		#endif
 	}
 
 	internal static func requestTicket() {
@@ -168,8 +172,13 @@ internal struct ZinniaDRM {
 						cancelButtonTitle: continue_without_message()
 					).show()
 				#else
-					UIAlertView(title: dont_panic_message(), message: failed_message(), delegate: nil,
-					            cancelButtonTitle: continue_without_message()).show()
+					if task.terminationStatus == 7 {
+						UIAlertView(title: dont_panic_message(), message: failed_message(), delegate: nil,
+						            cancelButtonTitle: continue_without_message()).show()
+					} else {
+						UIAlertView(title: dont_panic_message(), message: drm_down_message(), delegate: nil,
+						            cancelButtonTitle: continue_without_message()).show()
+					}
 				#endif
 			}
 			self.authInProgress = false
@@ -182,6 +191,7 @@ internal struct ZinniaDRM {
 		var udidNonce = randomBytes(12)!
 		var modelNonce = randomBytes(12)!
 		let nonceXor = randomBytes(12)!
+		NSLog("Zinnia: udid is \(udid()!)")
 		let udidData = udid()!.data(using: .ascii)!
 		let modelData = model()!.data(using: .ascii)!
 		guard let encryptedUdid = try? ChaChaPoly.seal(

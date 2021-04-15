@@ -6,8 +6,10 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = Zinnia
 
+ifdef FINALPACKAGE
 TARGET_CC =  /opt/apple-llvm-hikari/bin/clang
 TARGET_CXX = /opt/apple-llvm-hikari/bin/clang++
+endif
 
 Zinnia_FILES              =	Sources/Zinnia/Tweak.swift Sources/Zinnia/DRM.swift \
 							 $(shell find Sources/Zinnia/UI -name '*.swift') \
@@ -15,10 +17,10 @@ Zinnia_FILES              =	Sources/Zinnia/Tweak.swift Sources/Zinnia/DRM.swift 
                              $(shell find Sources/ZinniaC -name '*.m' -o -name '*.c')
 Zinnia_SWIFTFLAGS         = -ISources/ZinniaC/include
 ifdef FINALPACKAGE
-Zinnia_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
+Zinnia_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -DDRM -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
 Zinnia_LDFLAGS            = -Xlinker -x -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 else
-Zinnia_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT -DDEBUG
+Zinnia_CFLAGS             = -fobjc-arc -DTHEOS_SWIFT -DDEBUG
 Zinnia_LDFLAGS            = -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 endif
 Zinnia_FRAMEWORKS         = AVFoundation

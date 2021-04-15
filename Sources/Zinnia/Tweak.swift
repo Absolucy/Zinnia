@@ -9,12 +9,18 @@ import ZinniaC
 
 @_cdecl("runDrm")
 internal func runDrm() {
-	ZinniaDRM.requestTicket()
+	#if DRM
+		ZinniaDRM.requestTicket()
+	#endif
 }
 
 @_cdecl("isValidated")
 internal func isValidated() -> Bool {
-	ZinniaDRM.ticketAuthorized()
+	#if DRM
+		return ZinniaDRM.ticketAuthorized()
+	#else
+		return true
+	#endif
 }
 
 @_cdecl("makeUnlockButton")
@@ -22,8 +28,11 @@ internal func makeUnlockButton(
 	_ unlock: @convention(block) @escaping () -> Void,
 	_ camera: @convention(block) @escaping () -> Void
 ) -> UIViewController {
-	UIHostingController(rootView: UnlockButtonView(unlock: unlock, camera: camera)
-		.frame(height: UIScreen.main.bounds.width * 0.375 * 2))
+	UIHostingController(rootView: VStack {
+		Spacer()
+		UnlockButtonView(unlock: unlock, camera: camera)
+	}
+	.frame(height: mulByWidth(0.375) * 2))
 }
 
 @_cdecl("makeTimeDate")

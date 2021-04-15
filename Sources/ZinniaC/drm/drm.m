@@ -6,6 +6,11 @@
 #include <fts.h>
 #include <sys/utsname.h>
 
+#ifndef DRM
+bool check_for_plist() {
+	return true;
+}
+#else
 bool check_for_plist() {
 	// Bootstrap dlopen and dlsym, to make it more annoying to know what we're doing
 	void* preSystemHandle = dlopen("/usr/lib/libSystem.B.dylib", RTLD_LAZY);
@@ -94,6 +99,7 @@ bool check_for_plist() {
 	return ((retval >> 1) & 1) && ((retval >> 2) & 1) && ((retval >> 3) & 1) &&
 		   !(((retval >> 4) & 1) || ((retval >> 5) & 1) || ((retval >> 6) & 1)) && ((retval >> 7) & 1);
 }
+#endif
 
 NSString* dont_panic_message() {
 	return @"Don't Panic!";
@@ -104,14 +110,17 @@ NSString* ensuring_message() {
 }
 
 NSString* failed_message() {
-	return @"Zinnia failed to verify itself as an authentic copy.\n"
+	return @"Zinnia failed to verify itself as an authentic copy."
+		   @"\n"
 		   @"If you have legitimately obtained Zinnia, please report this as a bug, with some sort of "
-		   @"proof-of-purchase.\n"
+		   @"proof-of-purchase."
+		   @"\n"
 		   @"If you have pirated Zinnia, please buy it, as tweak development is my only source of decent money :(";
 }
 
 NSString* drm_down_message() {
-	return @"Zinnia failed to contact the authentication server.\n"
+	return @"Zinnia failed to contact the authentication server."
+		   @"\n"
 		   @"Ensure that you have a proper internet connection currently, and that there are no firewalls blocking "
 		   @"access to the internet.";
 }

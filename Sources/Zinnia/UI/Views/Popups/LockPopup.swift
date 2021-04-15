@@ -29,7 +29,7 @@ struct LockPopup: View {
 		} else {
 			Button(action: unlock, label: {
 				Circle()
-					.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
+					.frame(width: mulByWidth(radiusMul / 2), height: mulByWidth(radiusMul / 2))
 					.foregroundColor(self.globals.unlocked ? lockBgColorUnlocked : lockBgColorLocked)
 					.modifier(
 						NeonEffect(
@@ -50,7 +50,7 @@ struct LockPopup: View {
 						Image(systemName: self.globals.unlocked ? "lock.open" : "lock")
 							.resizable()
 							.aspectRatio(contentMode: .fit)
-							.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
+							.frame(width: mulByWidth(radiusMul / 2) * 0.5, height: mulByWidth(radiusMul / 2) * 0.5)
 							.foregroundColor(self.globals.unlocked ? lockIconColorUnlocked : lockIconColorLocked)
 							.padding()
 							.allowsHitTesting(false)

@@ -35,10 +35,18 @@ internal struct TimeDateView: View {
 
 	private func BuildView() -> some View {
 		VStack {
-			Text(timeText).font(.largeTitle)
-			Text(dateText).font(.callout)
+			Text(timeText)
+				.font(.largeTitle)
+				.minimumScaleFactor(0.001)
+				.lineLimit(1)
+			Text(dateText)
+				.font(.callout)
+				.minimumScaleFactor(0.001)
+				.lineLimit(1)
 		}
-		.padding(8)
+		.padding(.vertical, 8)
+		.padding(.horizontal, 24)
+		.fixedSize()
 		.modifier(
 			NeonEffect(
 				base: RoundedRectangle(cornerRadius: 16, style: .continuous),

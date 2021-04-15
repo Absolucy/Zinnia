@@ -24,7 +24,9 @@ let cFlags: [String] = libFlags + [
 let cxxFlags: [String] = [
 ]
 
-let swiftFlags: [String] = libFlags + []
+let swiftFlags: [String] = libFlags + [
+	"-DDRM",
+]
 
 let package = Package(
 	name: "Zinnia",

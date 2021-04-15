@@ -22,7 +22,7 @@ struct CameraPopup: View {
 		} else {
 			Button(action: camera, label: {
 				Circle()
-					.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
+					.frame(width: mulByWidth(radiusMul / 2), height: mulByWidth(radiusMul / 2))
 					.foregroundColor(cameraBgColor)
 					.modifier(
 						NeonEffect(
@@ -40,7 +40,7 @@ struct CameraPopup: View {
 						Image(systemName: "camera.fill")
 							.resizable()
 							.aspectRatio(contentMode: .fit)
-							.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
+							.frame(width: mulByWidth(radiusMul / 2) * 0.5, height: mulByWidth(radiusMul / 2) * 0.5)
 							.foregroundColor(cameraIconColor)
 							.padding()
 							.allowsHitTesting(false)

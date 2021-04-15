@@ -45,7 +45,7 @@ struct FlashlightPopup: View {
 		} else {
 			Button(action: action, label: {
 				Circle()
-					.frame(width: UIScreen.main.bounds.width * 0.15, height: UIScreen.main.bounds.width * 0.15)
+					.frame(width: mulByWidth(radiusMul / 2), height: mulByWidth(radiusMul / 2))
 					.foregroundColor(flashlightBgColor)
 					.modifier(
 						NeonEffect(
@@ -63,7 +63,7 @@ struct FlashlightPopup: View {
 						Image(systemName: flashlight?.flashlightLevel ?? 0 > 0 ? "flashlight.on.fill" : "flashlight.off.fill")
 							.resizable()
 							.aspectRatio(contentMode: .fit)
-							.frame(width: UIScreen.main.bounds.width * 0.15 * 0.5, height: UIScreen.main.bounds.width * 0.15 * 0.5)
+							.frame(width: mulByWidth(radiusMul / 2) * 0.5, height: mulByWidth(radiusMul / 2) * 0.5)
 							.foregroundColor(flashlightIconColor)
 							.opacity(flashlight?.flashlightLevel ?? 0 > 0 ? 1 : 0.5)
 							.padding()
