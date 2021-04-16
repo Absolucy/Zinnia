@@ -19,6 +19,7 @@ Zinnia_SWIFTFLAGS         = -ISources/ZinniaC/include
 ifdef FINALPACKAGE
 Zinnia_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -DDRM -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
 Zinnia_LDFLAGS            = -Xlinker -x -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
+ADDITIONAL_SWIFTFLAGS     = -DTHEOS_SWIFT -DDRM
 else
 ifdef DRM
 Zinnia_CFLAGS             = -fobjc-arc -DTHEOS_SWIFT -DDEBUG -DDRM

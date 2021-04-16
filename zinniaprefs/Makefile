@@ -20,11 +20,14 @@ ZinniaPrefs_SWIFTFLAGS = -I../Sources/ZinniaC/include
 ifdef FINALPACKAGE
 ZinniaPrefs_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -DDRM -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
 ZinniaPrefs_LDFLAGS            = -Xlinker -x
+ADDITIONAL_SWIFTFLAGS          = -DTHEOS_SWIFT -DDRM
 else
 ifdef DRM
 ZinniaPrefs_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT -DDEBUG -DDRM
+ADDITIONAL_SWIFTFLAGS          = -DTHEOS_SWIFT -DDRM
 else
 ZinniaPrefs_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT -DDEBUG
+ADDITIONAL_SWIFTFLAGS          = -DTHEOS_SWIFT
 endif
 endif
 ZinniaPrefs_FRAMEWORKS = AVFoundation
