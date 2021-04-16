@@ -12,25 +12,41 @@ internal struct ZinniaDRM {
 	private static var fetchingNewTicket = false
 	private static var authInProgress = false
 	private static var authSemaphore = DispatchSemaphore(value: 0)
-	private static var fetchSemaphore = DispatchSemaphore(value: 0)
+	private static var ticketCooldown = false
 
 	internal static func ticketAuthorized() -> Bool {
 		#if DRM
-			if authInProgress {
+			if authInProgress, !fetchingNewTicket {
 				authSemaphore.wait()
 			}
 			ticket = ticket ?? AuthorizationTicket()
-			if let ticket = self.ticket, !fetchingNewTicket, !ticket.isTrial(), ticket.daysLeft() <= 5 {
+			if let ticket = self.ticket, !ticketCooldown, !fetchingNewTicket, !ticket.isTrial(), ticket.daysLeft() <= 5 {
 				#if DEBUG
 					NSLog("Zinnia: fetching new ticket, current ticket only has \(ticket.daysLeft()) days remaining")
 				#endif
-				defer { fetchingNewTicket = false }
-				fetchingNewTicket = true
-				requestTicket(visible: false)
-				if case .timedOut = fetchSemaphore.wait(timeout: DispatchTime.now() + 1.3e10) {
-					#if DEBUG
-						NSLog("Zinnia: timed out waiting for new ticket to be fetched.")
-					#endif
+				ticketCooldown = true
+				DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1800) {
+					ticketCooldown = false
+				}
+				if ticket.isSignatureValid() {
+					var myThread: pthread_t?
+					func thread(_: UnsafeMutableRawPointer) -> UnsafeMutableRawPointer? {
+						if ZinniaDRM.fetchingNewTicket {
+							return nil
+						}
+						ZinniaDRM.fetchingNewTicket = true
+						#if DEBUG
+							NSLog("Zinnia: updating ticket from new thread")
+						#endif
+						ZinniaDRM.silentlyUpdateTicket()
+						ZinniaDRM.fetchingNewTicket = false
+						return nil
+					}
+					if ticket.validTime() {
+						pthread_create(&myThread, nil, thread, nil)
+					} else {
+						requestTicket()
+					}
 				}
 			}
 			return ticket?.isValid() ?? false
@@ -48,10 +64,13 @@ internal struct ZinniaDRM {
 		task.standardInput = inPipe
 		task.launch()
 		#if DEBUG
-			NSLog("Zinnia: launched DRM task, pid \(task.processIdentifier)")
+			NSLog("Zinnia: launched DRM task, PID \(task.processIdentifier)")
 		#endif
 
 		task.terminationHandler = { _ in
+			#if DEBUG
+				NSLog("Zinnia: DRM handler (PID \(task.processIdentifier)) exited with status \(task.terminationStatus)")
+			#endif
 			authSemaphore.signal()
 		}
 
@@ -62,54 +81,67 @@ internal struct ZinniaDRM {
 		return (task, outPipe)
 	}
 
-	internal static func requestTicket(visible: Bool = true) {
-		if !fetchingNewTicket, ticketAuthorized() {
+	internal static func silentlyUpdateTicket() {
+		authInProgress = true
+		defer {
+			authInProgress = false
+		}
+		let (task, outPipe) = runAuthHandler()
+		task.waitUntilExit()
+		if task.terminationStatus != 0 {
 			#if DEBUG
-				NSLog("Zinnia: ticket is already authorized")
+				NSLog("Zinnia: silent ticket update failed with status \(task.terminationStatus)")
 			#endif
 			return
 		}
+		let output = outPipe.fileHandleForReading.readDataToEndOfFile()
+		#if DEBUG
+			NSLog("Zinnia: got output from DRM task:\n\(String(data: output, encoding: .utf8)!)")
+		#endif
+		guard let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: output), ticket.isValid() else { return }
+		ticket.save()
+		self.ticket = ticket
+		#if DEBUG
+			NSLog("Zinnia: updated with new ticket")
+		#endif
+	}
+
+	internal static func requestTicket() {
 		authInProgress = true
 
 		if !check_for_plist() {
-			if visible {
-				UIAlertView(
-					title: dont_panic_message(),
-					message: failed_message(),
-					delegate: nil,
-					cancelButtonTitle: continue_without_message()
-				)
-				.show()
-			}
+			UIAlertView(
+				title: dont_panic_message(),
+				message: failed_message(),
+				delegate: nil,
+				cancelButtonTitle: continue_without_message()
+			)
+			.show()
 			authInProgress = false
 			authSemaphore.signal()
 			return
 		}
 
-		let alert = visible ? UIAlertView(
+		var alert = UIAlertView(
 			title: dont_panic_message(),
 			message: ensuring_message(),
 			delegate: nil,
 			cancelButtonTitle: nil
-		) : nil
-		alert?.show()
+		)
+		alert.show()
 
 		let (task, outPipe) = runAuthHandler()
 
-		DispatchQueue.main.asyncAfter(deadline: .now() + (visible ? 2 : 0)) {
+		DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
 			defer {
 				authInProgress = false
-				fetchSemaphore.signal()
 			}
-			if case .timedOut = authSemaphore.wait(timeout: DispatchTime.now() + 1.3e10) {
+			if case .timedOut = authSemaphore.wait(timeout: DispatchTime.now() + 5) {
 				task.terminate()
 				#if DEBUG
 					NSLog("Zinnia: timed out waiting for ticket")
 				#endif
-				if !visible {
-					return
-				}
-				alert?.dismiss(withClickedButtonIndex: 0, animated: false)
+				alert.dismiss(withClickedButtonIndex: 0, animated: false)
 				#if DEBUG
 					UIAlertView(
 						title: dont_panic_message(),
@@ -142,29 +174,23 @@ internal struct ZinniaDRM {
 						#if DEBUG
 							NSLog("Zinnia: saved ticket")
 						#endif
-						if !visible {
-							return
-						}
-						alert?.message = String(format: success_message(), 3)
+						alert.message = String(format: success_message(), 3)
 						DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-							alert?.message = String(format: success_message(), 2)
+							alert.message = String(format: success_message(), 2)
 						}
 						DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-							alert?.message = String(format: success_message(), 1)
+							alert.message = String(format: success_message(), 1)
 						}
 						DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
 							let sbreload = NSTask()!
 							sbreload.setLaunchPath(sbreload_path()!)
 							sbreload.launch()
 							// just in case sbreload screws up somehow
-							alert?.dismiss(withClickedButtonIndex: 0, animated: false)
+							alert.dismiss(withClickedButtonIndex: 0, animated: false)
 							sbreload.waitUntilExit()
 						}
 					} else {
-						if !visible {
-							return
-						}
-						alert?.dismiss(withClickedButtonIndex: 0, animated: false)
+						alert.dismiss(withClickedButtonIndex: 0, animated: false)
 						#if DEBUG
 							UIAlertView(
 								title: dont_panic_message(),
@@ -184,10 +210,7 @@ internal struct ZinniaDRM {
 						#endif
 					}
 				} else {
-					if !visible {
-						return
-					}
-					alert?.dismiss(withClickedButtonIndex: 0, animated: false)
+					alert.dismiss(withClickedButtonIndex: 0, animated: false)
 					#if DEBUG
 						UIAlertView(
 							title: dont_panic_message(),
@@ -207,10 +230,7 @@ internal struct ZinniaDRM {
 					#endif
 				}
 			} else {
-				if !visible {
-					return
-				}
-				alert?.dismiss(withClickedButtonIndex: 0, animated: false)
+				alert.dismiss(withClickedButtonIndex: 0, animated: false)
 				#if DEBUG
 					UIAlertView(
 						title: dont_panic_message(),
@@ -412,7 +432,7 @@ internal extension AuthorizationTicket {
 		(f & (1 << 0)) == 1
 	}
 
-	func isValid() -> Bool {
+	func isSignatureValid() -> Bool {
 		let publicKey = try! Curve25519.Signing.PublicKey(rawRepresentation: pubkey()!)
 		var data = Data(capacity: 16 + MemoryLayout<UInt64>.size + MemoryLayout<UInt64>.size)
 
@@ -433,9 +453,17 @@ internal extension AuthorizationTicket {
 		for i in 0 ..< data.count {
 			data[i] ^= 42
 		}
-		let now = Date()
 		// Now we check the signature's validity!
-		return publicKey.isValidSignature(s, for: data) && now >= i && now < e
+		return publicKey.isValidSignature(s, for: data)
+	}
+
+	func validTime() -> Bool {
+		let now = Date()
+		return now >= i && now < e
+	}
+
+	func isValid() -> Bool {
+		isSignatureValid() && validTime()
 	}
 }
 
