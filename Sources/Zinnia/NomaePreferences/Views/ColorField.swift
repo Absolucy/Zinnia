@@ -16,7 +16,7 @@ internal struct ColorField: View {
 
 	internal init(_ title: String, selection: Binding<String>) {
 		self.title = title
-		self._selection = selection
+		_selection = selection
 	}
 
 	internal var body: some View {

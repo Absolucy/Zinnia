@@ -20,17 +20,17 @@ internal struct TimeDateView: View {
 	private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
 	internal init() {
-		self.dateFormatter = DateFormatter()
-		self.timeFormatter = DateFormatter()
-		self.dateFormatter.dateFormat = self.dateFormat
-		self.timeFormatter.dateFormat = self.timeFormat
-		self.updateTimeDate()
+		dateFormatter = DateFormatter()
+		timeFormatter = DateFormatter()
+		dateFormatter.dateFormat = dateFormat
+		timeFormatter.dateFormat = timeFormat
+		updateTimeDate()
 	}
 
 	private func updateTimeDate() {
 		let currentDateTime = Date()
-		dateText = self.dateFormatter.string(from: currentDateTime)
-		self.timeText = self.timeFormatter.string(from: currentDateTime)
+		dateText = dateFormatter.string(from: currentDateTime)
+		timeText = timeFormatter.string(from: currentDateTime)
 	}
 
 	private func BuildView() -> some View {
@@ -50,28 +50,28 @@ internal struct TimeDateView: View {
 		.modifier(
 			NeonEffect(
 				base: RoundedRectangle(cornerRadius: 16, style: .continuous),
-				color: self.dateTimeNeonColor,
+				color: dateTimeNeonColor,
 				brightness: 0.1,
-				innerSize: 1.5 * self.dateTimeNeonMul,
-				middleSize: 3 * self.dateTimeNeonMul,
-				outerSize: 5 * self.dateTimeNeonMul,
+				innerSize: 1.5 * dateTimeNeonMul,
+				middleSize: 3 * dateTimeNeonMul,
+				outerSize: 5 * dateTimeNeonMul,
 				innerBlur: 3,
 				blur: 5
 			)
 		)
 		.background(
 			RoundedRectangle(cornerRadius: 16, style: .continuous)
-				.foregroundColor(self.dateTimeBgColor)
+				.foregroundColor(dateTimeBgColor)
 		)
-		.onReceive(Just(self.dateFormat)) { newFormat in
+		.onReceive(Just(dateFormat)) { newFormat in
 			dateFormatter.dateFormat = newFormat
 			updateTimeDate()
 		}
-		.onReceive(Just(self.timeFormat)) { newFormat in
+		.onReceive(Just(timeFormat)) { newFormat in
 			timeFormatter.dateFormat = newFormat
 			updateTimeDate()
 		}
-		.onReceive(self.timer) { _ in
+		.onReceive(timer) { _ in
 			updateTimeDate()
 		}
 	}

@@ -9,48 +9,37 @@ private enum MyError: Error {
 
 internal struct ZinniaDRM {
 	private static var ticket: AuthorizationTicket? = AuthorizationTicket()
+	private static var fetchingNewTicket = false
 	private static var authInProgress = false
 	private static var authSemaphore = DispatchSemaphore(value: 0)
+	private static var fetchSemaphore = DispatchSemaphore(value: 0)
 
 	internal static func ticketAuthorized() -> Bool {
 		#if DRM
-			if self.authInProgress {
-				self.authSemaphore.wait()
+			if authInProgress {
+				authSemaphore.wait()
 			}
-			self.ticket = self.ticket ?? AuthorizationTicket()
-			return self.ticket?.isValid() ?? false
+			ticket = ticket ?? AuthorizationTicket()
+			if let ticket = self.ticket, !fetchingNewTicket, !ticket.isTrial(), ticket.daysLeft() <= 5 {
+				#if DEBUG
+					NSLog("Zinnia: fetching new ticket, current ticket only has \(ticket.daysLeft()) days remaining")
+				#endif
+				defer { fetchingNewTicket = false }
+				fetchingNewTicket = true
+				requestTicket(visible: false)
+				if case .timedOut = fetchSemaphore.wait(timeout: DispatchTime.now() + 1.3e10) {
+					#if DEBUG
+						NSLog("Zinnia: timed out waiting for new ticket to be fetched.")
+					#endif
+				}
+			}
+			return ticket?.isValid() ?? false
 		#else
 			return true
 		#endif
 	}
 
-	internal static func requestTicket() {
-		if self.ticketAuthorized() {
-			return
-		}
-		self.authInProgress = true
-
-		if !check_for_plist() {
-			UIAlertView(
-				title: dont_panic_message(),
-				message: failed_message(),
-				delegate: nil,
-				cancelButtonTitle: continue_without_message()
-			)
-			.show()
-			self.authInProgress = false
-			self.authSemaphore.signal()
-			return
-		}
-
-		let alert = UIAlertView(
-			title: dont_panic_message(),
-			message: ensuring_message(),
-			delegate: nil,
-			cancelButtonTitle: nil
-		)
-		alert.show()
-
+	internal static func runAuthHandler() -> (NSTask, Pipe) {
 		let outPipe = Pipe()
 		let inPipe = Pipe()
 		let task = NSTask()!
@@ -67,13 +56,60 @@ internal struct ZinniaDRM {
 		}
 
 		inPipe.fileHandleForWriting.write("a".data(using: .ascii)!)
-		inPipe.fileHandleForWriting.write(self.createCommunicationData().data(using: .ascii)!)
+		inPipe.fileHandleForWriting.write(createCommunicationData().data(using: .ascii)!)
 		inPipe.fileHandleForWriting.write("\n".data(using: .ascii)!)
 
-		DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-			if case .timedOut = self.authSemaphore.wait(timeout: DispatchTime.now() + 1.3e10) {
+		return (task, outPipe)
+	}
+
+	internal static func requestTicket(visible: Bool = true) {
+		if !fetchingNewTicket, ticketAuthorized() {
+			#if DEBUG
+				NSLog("Zinnia: ticket is already authorized")
+			#endif
+			return
+		}
+		authInProgress = true
+
+		if !check_for_plist() {
+			if visible {
+				UIAlertView(
+					title: dont_panic_message(),
+					message: failed_message(),
+					delegate: nil,
+					cancelButtonTitle: continue_without_message()
+				)
+				.show()
+			}
+			authInProgress = false
+			authSemaphore.signal()
+			return
+		}
+
+		let alert = visible ? UIAlertView(
+			title: dont_panic_message(),
+			message: ensuring_message(),
+			delegate: nil,
+			cancelButtonTitle: nil
+		) : nil
+		alert?.show()
+
+		let (task, outPipe) = runAuthHandler()
+
+		DispatchQueue.main.asyncAfter(deadline: .now() + (visible ? 2 : 0)) {
+			defer {
+				authInProgress = false
+				fetchSemaphore.signal()
+			}
+			if case .timedOut = authSemaphore.wait(timeout: DispatchTime.now() + 1.3e10) {
 				task.terminate()
-				alert.dismiss(withClickedButtonIndex: 0, animated: false)
+				#if DEBUG
+					NSLog("Zinnia: timed out waiting for ticket")
+				#endif
+				if !visible {
+					return
+				}
+				alert?.dismiss(withClickedButtonIndex: 0, animated: false)
 				#if DEBUG
 					UIAlertView(
 						title: dont_panic_message(),
@@ -91,7 +127,6 @@ internal struct ZinniaDRM {
 					)
 					.show()
 				#endif
-				authInProgress = false
 				return
 			}
 
@@ -107,23 +142,29 @@ internal struct ZinniaDRM {
 						#if DEBUG
 							NSLog("Zinnia: saved ticket")
 						#endif
-						alert.message = String(format: success_message(), 3)
+						if !visible {
+							return
+						}
+						alert?.message = String(format: success_message(), 3)
 						DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-							alert.message = String(format: success_message(), 2)
+							alert?.message = String(format: success_message(), 2)
 						}
 						DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-							alert.message = String(format: success_message(), 1)
+							alert?.message = String(format: success_message(), 1)
 						}
 						DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
 							let sbreload = NSTask()!
 							sbreload.setLaunchPath(sbreload_path()!)
 							sbreload.launch()
 							// just in case sbreload screws up somehow
-							alert.dismiss(withClickedButtonIndex: 0, animated: false)
+							alert?.dismiss(withClickedButtonIndex: 0, animated: false)
 							sbreload.waitUntilExit()
 						}
 					} else {
-						alert.dismiss(withClickedButtonIndex: 0, animated: false)
+						if !visible {
+							return
+						}
+						alert?.dismiss(withClickedButtonIndex: 0, animated: false)
 						#if DEBUG
 							UIAlertView(
 								title: dont_panic_message(),
@@ -143,7 +184,10 @@ internal struct ZinniaDRM {
 						#endif
 					}
 				} else {
-					alert.dismiss(withClickedButtonIndex: 0, animated: false)
+					if !visible {
+						return
+					}
+					alert?.dismiss(withClickedButtonIndex: 0, animated: false)
 					#if DEBUG
 						UIAlertView(
 							title: dont_panic_message(),
@@ -163,7 +207,10 @@ internal struct ZinniaDRM {
 					#endif
 				}
 			} else {
-				alert.dismiss(withClickedButtonIndex: 0, animated: false)
+				if !visible {
+					return
+				}
+				alert?.dismiss(withClickedButtonIndex: 0, animated: false)
 				#if DEBUG
 					UIAlertView(
 						title: dont_panic_message(),
@@ -181,7 +228,6 @@ internal struct ZinniaDRM {
 					}
 				#endif
 			}
-			self.authInProgress = false
 		}
 	}
 
@@ -282,6 +328,8 @@ internal struct AuthorizationTicket {
 	var i: Date
 	// time expired (seconds since unix epoch)
 	var e: Date
+	// bitflags relating to the ticket
+	var f: UInt8
 	// ed25519 signature
 	var s: Data
 
@@ -289,6 +337,7 @@ internal struct AuthorizationTicket {
 		case x
 		case i
 		case e
+		case f
 		case s
 	}
 }
@@ -296,7 +345,7 @@ internal struct AuthorizationTicket {
 extension AuthorizationTicket: Encodable {
 	func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
-		try container.encode(self.x, forKey: .x)
+		try container.encode(x, forKey: .x)
 
 		let formatter = DateFormatter()
 		formatter.calendar = Calendar(identifier: .iso8601)
@@ -304,9 +353,10 @@ extension AuthorizationTicket: Encodable {
 		formatter.timeZone = TimeZone(secondsFromGMT: 0)
 		formatter.dateFormat = date_format()!
 
-		try container.encode(formatter.string(from: self.i), forKey: .i)
-		try container.encode(formatter.string(from: self.e), forKey: .e)
-		try container.encode([UInt8](self.s), forKey: .s)
+		try container.encode(formatter.string(from: i), forKey: .i)
+		try container.encode(formatter.string(from: e), forKey: .e)
+		try container.encode(f, forKey: .f)
+		try container.encode([UInt8](s), forKey: .s)
 	}
 }
 
@@ -314,7 +364,7 @@ extension AuthorizationTicket: Decodable {
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 
-		self.x = try values.decode(UUID.self, forKey: .x)
+		x = try values.decode(UUID.self, forKey: .x)
 
 		let formatter = DateFormatter()
 		formatter.calendar = Calendar(identifier: .iso8601)
@@ -324,13 +374,14 @@ extension AuthorizationTicket: Decodable {
 
 		guard let issued = formatter.date(from: try values.decode(String.self, forKey: .i))
 		else { throw MyError.err("issued was not date") }
-		self.i = issued
+		i = issued
 
 		guard let expiry = formatter.date(from: try values.decode(String.self, forKey: .e))
 		else { throw MyError.err("expiry was not date") }
-		self.e = expiry
+		e = expiry
 
-		self.s = Data(try values.decode([UInt8].self, forKey: .s))
+		f = try values.decode(UInt8.self, forKey: .f)
+		s = Data(try values.decode([UInt8].self, forKey: .s))
 	}
 }
 
@@ -354,7 +405,11 @@ internal extension AuthorizationTicket {
 
 	func daysLeft() -> Int {
 		let now = Date()
-		return Calendar.current.dateComponents([.day], from: now, to: self.e).day ?? 0
+		return Calendar.current.dateComponents([.day], from: now, to: e).day ?? 0
+	}
+
+	func isTrial() -> Bool {
+		(f & (1 << 0)) == 1
 	}
 
 	func isValid() -> Bool {
@@ -362,7 +417,7 @@ internal extension AuthorizationTicket {
 		var data = Data(capacity: 16 + MemoryLayout<UInt64>.size + MemoryLayout<UInt64>.size)
 
 		// Serialize the UUID into our data
-		withUnsafePointer(to: self.x) {
+		withUnsafePointer(to: x) {
 			data.append(Data(bytes: $0, count: MemoryLayout.size(ofValue: x)))
 		}
 		// Serialize UDID, model, and tweak name into the data next
@@ -370,15 +425,17 @@ internal extension AuthorizationTicket {
 		data.append(model()!.data(using: .utf8)!)
 		data.append(tweakName()!.uppercased().data(using: .utf8)!)
 		// Convert issued/expired dates to seconds, then serialize them into our data
-		data.append(UInt64(self.i.timeIntervalSince1970).littleEndian.data)
-		data.append(UInt64(self.e.timeIntervalSince1970).littleEndian.data)
+		data.append(UInt64(i.timeIntervalSince1970).littleEndian.data)
+		data.append(UInt64(e.timeIntervalSince1970).littleEndian.data)
+		// Serialize the bitflag
+		data.append(f.littleEndian.data)
 		// XOR all data by 42
 		for i in 0 ..< data.count {
 			data[i] ^= 42
 		}
 		let now = Date()
 		// Now we check the signature's validity!
-		return publicKey.isValidSignature(self.s, for: data) && now >= self.i && now < self.e
+		return publicKey.isValidSignature(s, for: data) && now >= i && now < e
 	}
 }
 

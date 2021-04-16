@@ -47,13 +47,13 @@ import SwiftUI
 		transform: @escaping (Any?) -> Value?,
 		saveValue: @escaping (Value) -> Void
 	) {
-		self._value = Storage(value: value, store: store, key: key, transform: transform)
+		_value = Storage(value: value, store: store, key: key, transform: transform)
 		self.saveValue = saveValue
 	}
 
 	internal var wrappedValue: Value {
 		get {
-			self._value.value
+			_value.value
 		}
 		nonmutating set {
 			saveValue(newValue)
@@ -78,9 +78,9 @@ private class Storage<Value>: NSObject, ObservableObject {
 
 	init(value: Value, store: UserDefaults, key: String, transform: @escaping (Any?) -> Value?) {
 		self.value = value
-		self.defaultValue = value
+		defaultValue = value
 		self.store = store
-		self.keyPath = key
+		keyPath = key
 		self.transform = transform
 		super.init()
 
@@ -97,7 +97,7 @@ private class Storage<Value>: NSObject, ObservableObject {
 		change: [NSKeyValueChangeKey: Any]?,
 		context _: UnsafeMutableRawPointer?
 	) {
-		self.value = change?[.newKey].flatMap(self.transform) ?? self.defaultValue
+		value = change?[.newKey].flatMap(transform) ?? defaultValue
 	}
 }
 

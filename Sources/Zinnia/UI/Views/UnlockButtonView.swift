@@ -48,7 +48,7 @@ internal struct UnlockButtonView: View {
 	}
 
 	private func autoClose(_ timeout: Double = 1) {
-		self.autocloseTask?.cancel()
+		autocloseTask?.cancel()
 		let task = DispatchWorkItem {
 			withAnimation(Animation.spring()) {
 				globals.menuOpenProgress = 0
@@ -58,20 +58,20 @@ internal struct UnlockButtonView: View {
 			self.autocloseTask = nil
 		}
 		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + timeout, execute: task)
-		self.autocloseTask = task
+		autocloseTask = task
 	}
 
 	private func xOffset(_ index: Int) -> CGFloat {
 		let menuRadius = mulByWidth(radiusMul)
 
-		let slice = CGFloat(2 * .pi / CGFloat(self.getPopups().count + 1))
+		let slice = CGFloat(2 * .pi / CGFloat(getPopups().count + 1))
 		return menuRadius * cos(slice * CGFloat(index))
 	}
 
 	private func yOffset(_ index: Int) -> CGFloat {
 		let menuRadius = mulByWidth(radiusMul)
 
-		let slice = -CGFloat(2 * .pi / CGFloat(self.getPopups().count + 1))
+		let slice = -CGFloat(2 * .pi / CGFloat(getPopups().count + 1))
 		return menuRadius * sin(slice * CGFloat(index))
 	}
 
@@ -88,9 +88,9 @@ internal struct UnlockButtonView: View {
 
 	private func getPopups() -> [(AnyView, () -> Void)] {
 		var popups: [(AnyView, () -> Void)] = []
-		popups.append((AnyView(CameraPopup(camera: self.camera)), self.camera))
-		popups.append((AnyView(LockPopup(unlock: self.unlock)), self.unlock))
-		if case .some = self.flashlight {
+		popups.append((AnyView(CameraPopup(camera: camera)), camera))
+		popups.append((AnyView(LockPopup(unlock: unlock)), unlock))
+		if case .some = flashlight {
 			popups
 				.append((AnyView(FlashlightPopup(flashlight: $flashlight, action: self.toggleFlashlight)), self.toggleFlashlight))
 		}

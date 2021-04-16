@@ -62,10 +62,10 @@ struct QuickGlanceView: View {
 	}
 
 	func WifiView() -> some View {
-		let signal = self.globals.wifi_strength
-		let icon = self.globals.associated ? "wifi" : "wifi.slash"
+		let signal = globals.wifi_strength
+		let icon = globals.associated ? "wifi" : "wifi.slash"
 		var color = Color.red
-		if self.globals.associated {
+		if globals.associated {
 			switch signal {
 			case 1:
 				color = Color.red
@@ -84,10 +84,10 @@ struct QuickGlanceView: View {
 	}
 
 	func MobileDataView() -> some View {
-		let signal = self.globals.lte_strength
-		let icon = self.globals.associated ? "chart.bar.fill" : "chart.bar"
+		let signal = globals.lte_strength
+		let icon = globals.associated ? "chart.bar.fill" : "chart.bar"
 		var color = Color.red
-		if self.globals.associated {
+		if globals.associated {
 			switch signal {
 			case 1:
 				color = Color.red

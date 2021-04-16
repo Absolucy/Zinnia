@@ -20,7 +20,13 @@ ifdef FINALPACKAGE
 Zinnia_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -DDRM -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
 Zinnia_LDFLAGS            = -Xlinker -x -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 else
+ifdef DRM
+Zinnia_CFLAGS             = -fobjc-arc -DTHEOS_SWIFT -DDEBUG -DDRM
+ADDITIONAL_SWIFTFLAGS     = -DTHEOS_SWIFT -DDEBUG -DDRM
+else
 Zinnia_CFLAGS             = -fobjc-arc -DTHEOS_SWIFT -DDEBUG
+ADDITIONAL_SWIFTFLAGS     = -DTHEOS_SWIFT -DDEBUG
+endif
 Zinnia_LDFLAGS            = -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 endif
 Zinnia_FRAMEWORKS         = AVFoundation

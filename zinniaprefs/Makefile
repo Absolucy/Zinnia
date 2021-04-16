@@ -21,7 +21,11 @@ ifdef FINALPACKAGE
 ZinniaPrefs_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -DDRM -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
 ZinniaPrefs_LDFLAGS            = -Xlinker -x
 else
+ifdef DRM
+ZinniaPrefs_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT -DDEBUG -DDRM
+else
 ZinniaPrefs_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT -DDEBUG
+endif
 endif
 ZinniaPrefs_FRAMEWORKS = AVFoundation
 ZinniaPrefs_CFLAGS = -fobjc-arc

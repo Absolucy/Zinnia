@@ -166,6 +166,9 @@ __attribute__((constructor)) static void init() {
 		hook(objc_getClass("SBFLockScreenDateViewController"), @selector(viewDidLoad),
 			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
 		VALIDITY_CHECK
+		hook(objc_getClass("SBFLockScreenDateView"), @selector(layoutSubviews),
+			 (void*)&hook_VariousUIViews_layoutSubviews, NULL);
+		VALIDITY_CHECK
 		hook(objc_getClass("CSQuickActionsButton"), @selector(initWithFrame:),
 			 (void*)&hook_VariousUIViews_initWithFrame, (void**)&orig_VariousUIViews_initWithFrame);
 		VALIDITY_CHECK

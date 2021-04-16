@@ -25,41 +25,41 @@ struct NeonEffect<S: Shape>: ViewModifier {
 			content.blur(radius: CGFloat(blur))
 		}
 		.overlay(
-			self.base
-				.stroke(self.color, lineWidth: CGFloat(self.innerSize))
-				.brightness(self.brightness)
-				.blur(radius: CGFloat(self.innerBlur ?? self.blur))
-				.modifier(let: self.mask) {
+			base
+				.stroke(color, lineWidth: CGFloat(innerSize))
+				.brightness(brightness)
+				.blur(radius: CGFloat(innerBlur ?? blur))
+				.modifier(let: mask) {
 					$0.mask($1)
 				}
 				.allowsHitTesting(false)
 		)
 		.overlay(
-			self.base
-				.stroke(self.color, lineWidth: CGFloat(self.middleSize ?? self.innerSize))
-				.brightness(self.brightness)
-				.modifier(let: self.mask) {
+			base
+				.stroke(color, lineWidth: CGFloat(middleSize ?? innerSize))
+				.brightness(brightness)
+				.modifier(let: mask) {
 					$0.mask($1)
 				}
 				.allowsHitTesting(false)
 		)
 		.background(
-			self.base
-				.stroke(self.color, lineWidth: CGFloat(self.outerSize ?? (self.middleSize ?? self.innerSize)))
-				.brightness(self.brightness)
-				.blur(radius: CGFloat(self.blur))
-				.modifier(let: self.mask) {
+			base
+				.stroke(color, lineWidth: CGFloat(outerSize ?? (middleSize ?? innerSize)))
+				.brightness(brightness)
+				.blur(radius: CGFloat(blur))
+				.modifier(let: mask) {
 					$0.mask($1)
 				}
 				.allowsHitTesting(false)
 		)
 		.background(
-			self.base
-				.stroke(self.color, lineWidth: CGFloat(self.outerSize ?? (self.middleSize ?? self.innerSize)))
-				.brightness(self.brightness)
-				.blur(radius: CGFloat(self.blur))
+			base
+				.stroke(color, lineWidth: CGFloat(outerSize ?? (middleSize ?? innerSize)))
+				.brightness(brightness)
+				.blur(radius: CGFloat(blur))
 				.opacity(0.2)
-				.modifier(let: self.mask) {
+				.modifier(let: mask) {
 					$0.mask($1)
 				}
 				.allowsHitTesting(false)

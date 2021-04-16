@@ -10,6 +10,9 @@ import ZinniaC
 @_cdecl("runDrm")
 internal func runDrm() {
 	#if DRM
+		#if DEBUG
+			NSLog("Zinnia: running DRM...")
+		#endif
 		ZinniaDRM.requestTicket()
 	#endif
 }

@@ -14,12 +14,12 @@ import ZinniaC
 
 		@objc func setFlashlightLevel(_ arg1: Float, withError _: Any?) -> Bool {
 			print("dummy flashlight set to \(arg1) power")
-			self.flashlightLevel = arg1
+			flashlightLevel = arg1
 			return true
 		}
 
 		@objc func turnPowerOff() {
-			self.flashlightLevel = 0
+			flashlightLevel = 0
 		}
 	}
 #endif
@@ -35,7 +35,7 @@ struct FlashlightPopup: View {
 		.accentColor
 
 	init(flashlight: Binding<AVFlashlight?> = .constant(nil), action: @escaping () -> Void) {
-		self._flashlight = flashlight
+		_flashlight = flashlight
 		self.action = action
 	}
 
