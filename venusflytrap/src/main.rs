@@ -1,4 +1,6 @@
 pub(crate) mod authorize;
+#[allow(dead_code)]
+pub(crate) mod crc;
 pub(crate) mod http;
 pub(crate) mod pin;
 pub(crate) mod udid;

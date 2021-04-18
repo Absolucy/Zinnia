@@ -1,0 +1,8 @@
+Package display name: Zinnia
+Price: $1.99 (maybe $2.49)
+iOS compatibility: 14.0 - 14.4 (will likely work on 14.5 once checkra1n works there)
+Support email address: support@aspenuwu.me
+Description: [description.md]
+Icon: [icon.png]
+Screenshots:
+Featured banner: [banner.png]

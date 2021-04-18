@@ -133,7 +133,8 @@ internal struct UnlockButtonView: View {
 								})
 								.opacity(globals.unlocked ? 0.0 : 1.0)
 						)
-						.padding()
+						.padding([.top, .leading, .trailing])
+						.padding(.bottom, 9)
 						.onTapGesture {
 							autoClose(2.5)
 							globals.draggingMenuOpen = false
