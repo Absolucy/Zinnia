@@ -31,7 +31,7 @@ endif
 Zinnia_LDFLAGS            = -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 endif
 Zinnia_FRAMEWORKS         = AVFoundation
-Zinnia_PRIVATE_FRAMEWORKS = CoreTelephony CoverSheet
+Zinnia_PRIVATE_FRAMEWORKS = AppSupport CoreTelephony CoverSheet
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 SUBPROJECTS += zinniaprefs

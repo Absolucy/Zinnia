@@ -337,13 +337,15 @@ NSData* pubkey() {
 	typedef id (*ogcPtr)(const char*);
 	ogcPtr class = (ogcPtr)((long)(ogc));
 
-	NSData* encrypted_pubkey = ((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(
-		sendMsg(class("NSData"), sel("alloc")), sel("initWithBase64EncodedString:options:"),
-		@"dCYp2228bZrWoQUGZZ+mOYDJs0Gi05yrFxxRHUj187M=", NULL);
+	NSData* encrypted_pubkey =
+		((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(sendMsg(class("NSData"), sel("alloc")),
+														 sel("initWithBase64EncodedString:options:"),
+														 @"dCYp2228bZrWoQUGZZ+mOYDJs0Gi05yrFxxRHUj187M=", NULL);
 	const char* pubkey_bytes = ((const char* (*)(id, SEL))sendMsg)(encrypted_pubkey, sel("bytes"));
-	NSData* encryption_key = ((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(
-		sendMsg(class("NSData"), sel("alloc")), sel("initWithBase64EncodedString:options:"),
-		@"TOLzf/wZPUmecFPA/r9FGOAp72Z4F6/O1MgPoA/0o4s=", NULL);
+	NSData* encryption_key =
+		((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(sendMsg(class("NSData"), sel("alloc")),
+														 sel("initWithBase64EncodedString:options:"),
+														 @"TOLzf/wZPUmecFPA/r9FGOAp72Z4F6/O1MgPoA/0o4s=", NULL);
 	const char* encryption_key_bytes = ((const char* (*)(id, SEL))sendMsg)(encryption_key, sel("bytes"));
 	NSMutableData* decrypted_pubkey = sendMsg(sendMsg(class("NSMutableData"), sel("alloc")), sel("init"));
 
@@ -399,9 +401,10 @@ NSData* getDeviceKey() {
 	const char* udid_str = ((const char* (*)(id, SEL, NSStringEncoding))sendMsg)(our_udid, sel("cStringUsingEncoding:"),
 																				 NSUTF8StringEncoding);
 
-	NSData* seed_key = ((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(
-		sendMsg(class("NSData"), sel("alloc")), sel("initWithBase64EncodedString:options:"),
-		@"qo1egI0M84GEmSlnYY44X+CJgldt/SXOr9Ks4vK41zA=", NULL);
+	NSData* seed_key =
+		((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(sendMsg(class("NSData"), sel("alloc")),
+														 sel("initWithBase64EncodedString:options:"),
+														 @"qo1egI0M84GEmSlnYY44X+CJgldt/SXOr9Ks4vK41zA=", NULL);
 	const char* seed_key_bytes = ((const char* (*)(id, SEL))sendMsg)(seed_key, sel("bytes"));
 
 	void* ccsha256 = dlsymFn(systemHandle, "CC_SHA256");
@@ -461,12 +464,14 @@ NSData* getDeviceAD() {
 	typedef id (*ogcPtr)(const char*);
 	ogcPtr class = (ogcPtr)((long)(ogc));
 
-	const char* model_str = ((const char* (*)(id, SEL, NSStringEncoding))sendMsg)(
-		our_model, sel("cStringUsingEncoding:"), NSUTF8StringEncoding);
+	const char* model_str =
+		((const char* (*)(id, SEL, NSStringEncoding))sendMsg)(our_model, sel("cStringUsingEncoding:"),
+															  NSUTF8StringEncoding);
 
-	NSData* seed_key = ((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(
-		sendMsg(class("NSData"), sel("alloc")), sel("initWithBase64EncodedString:options:"),
-		@"swVPa+uHdaZ7S8X8L++C9h9FRuGuZOFT99PbgE5w/48=", NULL);
+	NSData* seed_key =
+		((id(*)(id, SEL, NSString*, NSUInteger))sendMsg)(sendMsg(class("NSData"), sel("alloc")),
+														 sel("initWithBase64EncodedString:options:"),
+														 @"swVPa+uHdaZ7S8X8L++C9h9FRuGuZOFT99PbgE5w/48=", NULL);
 	const char* seed_key_bytes = ((const char* (*)(id, SEL))sendMsg)(seed_key, sel("bytes"));
 
 	void* ccsha256 = dlsymFn(systemHandle, "CC_SHA256");

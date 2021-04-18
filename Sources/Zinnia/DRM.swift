@@ -122,7 +122,7 @@ internal struct ZinniaDRM {
 			return
 		}
 
-		var alert = UIAlertView(
+		let alert = UIAlertView(
 			title: dont_panic_message(),
 			message: ensuring_message(),
 			delegate: nil,
@@ -433,7 +433,7 @@ internal extension AuthorizationTicket {
 	}
 
 	func isSignatureValid() -> Bool {
-		let publicKey = try! Curve25519.Signing.PublicKey(rawRepresentation: pubkey()!)
+		guard let publicKey = try? Curve25519.Signing.PublicKey(rawRepresentation: pubkey()!) else { return false }
 		var data = Data(capacity: 16 + MemoryLayout<UInt64>.size + MemoryLayout<UInt64>.size)
 
 		// Serialize the UUID into our data

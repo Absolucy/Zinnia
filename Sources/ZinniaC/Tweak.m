@@ -22,27 +22,32 @@ static void (*orig_CSCoverSheetViewController_viewDidLoad)(CSCoverSheetViewContr
 static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewController* self, SEL cmd) {
 	orig_CSCoverSheetViewController_viewDidLoad(self, cmd);
 	if (!unlockButton) {
+		VALIDITY_CHECK
 		unlockButton = makeUnlockButton(
 			^() {
 			  [[NSClassFromString(@"SpringBoard") performSelector:@selector(sharedApplication)]
 				  performSelector:@selector(_simulateHomeButtonPress)];
 			  // we do a little trolling
-			  if (!check_for_plist())
+			  if (!check_for_plist() || !isValidated())
 				  ((void (*)())NULL)();
 			},
 			^() {
 			  [csvc activatePage:1 animated:YES withCompletion:nil];
-			  if (!check_for_plist())
+			  if (!check_for_plist() || !isValidated())
 				  ((void (*)())NULL)();
 			});
 		unlockButton.view.backgroundColor = UIColor.clearColor;
 	}
 	if (!timeDate) {
+		VALIDITY_CHECK
 		timeDate = makeTimeDate();
 		timeDate.view.backgroundColor = UIColor.clearColor;
 	}
-	if (!csvc)
+	if (!csvc) {
+		VALIDITY_CHECK
 		csvc = self;
+	}
+	VALIDITY_CHECK
 
 	for (UIViewController* o in self.childViewControllers) {
 		NSString* className = NSStringFromClass([o class]);
@@ -52,6 +57,7 @@ static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewControll
 			[className rangeOfString:@"ProudLock"].location != NSNotFound ||
 			[className rangeOfString:@"QuickActions"].location != NSNotFound)
 		{
+			VALIDITY_CHECK
 			[o.view removeFromSuperview];
 		}
 	}
@@ -77,7 +83,6 @@ static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewControll
 		[timeDate.view.topAnchor constraintEqualToAnchor:self.view.topAnchor]
 	]];
 	[timeDate didMoveToParentViewController:self];
-	[[NSProcessInfo processInfo] operatingSystemVersion];
 }
 
 static bool has_drm_ran = false;
@@ -98,9 +103,14 @@ static bool hook_UIViewController_canShowWhileLocked(UIViewController* self, SEL
 static void hook_VariousUIViewControllers_viewDidLoad(UIViewController* self, SEL cmd) {
 }
 
-static UIView* (*orig_VariousUIViews_initWithFrame)(UIView* self, SEL cmd, CGRect frame);
-static UIView* hook_VariousUIViews_initWithFrame(UIView* self, SEL cmd, CGRect _frame) {
-	return orig_VariousUIViews_initWithFrame(self, cmd, CGRectMake(0, 0, 0, 0));
+static UIView* (*orig_CSQuickActionsButton_initWithFrame)(UIView* self, SEL cmd, CGRect frame);
+static UIView* hook_CSQuickActionsButton_initWithFrame(UIView* self, SEL cmd, CGRect _frame) {
+	return orig_CSQuickActionsButton_initWithFrame(self, cmd, CGRectMake(0, 0, 0, 0));
+}
+
+static UIView* (*orig_SBFLockScreenDateView_initWithFrame)(UIView* self, SEL cmd, CGRect frame);
+static UIView* hook_SBFLockScreenDateView_initWithFrame(UIView* self, SEL cmd, CGRect _frame) {
+	return orig_SBFLockScreenDateView_initWithFrame(self, cmd, CGRectMake(0, 0, 0, 0));
 }
 
 static void hook_VariousUIViews_layoutSubviews(UIViewController* self, SEL cmd) {
@@ -166,11 +176,14 @@ __attribute__((constructor)) static void init() {
 		hook(objc_getClass("SBFLockScreenDateViewController"), @selector(viewDidLoad),
 			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
 		VALIDITY_CHECK
+		hook(objc_getClass("SBFLockScreenDateView"), @selector(initWithFrame:),
+			 (void*)&hook_SBFLockScreenDateView_initWithFrame, (void**)&orig_SBFLockScreenDateView_initWithFrame);
+		VALIDITY_CHECK
 		hook(objc_getClass("SBFLockScreenDateView"), @selector(layoutSubviews),
 			 (void*)&hook_VariousUIViews_layoutSubviews, NULL);
 		VALIDITY_CHECK
 		hook(objc_getClass("CSQuickActionsButton"), @selector(initWithFrame:),
-			 (void*)&hook_VariousUIViews_initWithFrame, (void**)&orig_VariousUIViews_initWithFrame);
+			 (void*)&hook_CSQuickActionsButton_initWithFrame, (void**)&orig_CSQuickActionsButton_initWithFrame);
 		VALIDITY_CHECK
 		hook(objc_getClass("CSQuickActionsButton"), @selector(layoutSubviews),
 			 (void*)&hook_VariousUIViews_layoutSubviews, NULL);
@@ -187,3 +200,16 @@ __attribute__((constructor)) static void init() {
 		VALIDITY_CHECK
 	}
 }
+
+#if TARGET_OS_SIMULATOR
+enum LIBHOOKER_ERR LBHookMessage(Class objcClass, SEL selector, void* replacement, void* old_ptr) {
+	return LIBHOOKER_OK;
+}
+
+const char* LHStrError(enum LIBHOOKER_ERR err) {
+	return "simulator";
+}
+
+void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP* result) {
+}
+#endif

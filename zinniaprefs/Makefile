@@ -31,6 +31,7 @@ ADDITIONAL_SWIFTFLAGS          = -DTHEOS_SWIFT
 endif
 endif
 ZinniaPrefs_FRAMEWORKS = AVFoundation
+ZinniaPrefs_PRIVATE_FRAMEWORKS = AppSupport
 ZinniaPrefs_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/bundle.mk

@@ -2,7 +2,9 @@ import Foundation
 #if !THEOS_SWIFT
 	import NomaePreferences
 #endif
+import CoreGraphics
 import SwiftUI
+import ZinniaC
 
 struct PreferencesView: View {
 	@Environment(\.colorScheme) var colorScheme
@@ -10,6 +12,14 @@ struct PreferencesView: View {
 	@State var fullPreview = false
 	@State var respringAlert = false
 	@Preference("enabled", identifier: ZinniaPreferences.identifier) var enabled = true
+
+	let lockScreenBg: AnyView = {
+		if let bg = lockScreenWallpaper() {
+			return AnyView(Image(uiImage: bg))
+		} else {
+			return AnyView(Color.primary.colorInvert())
+		}
+	}()
 
 	var body: some View {
 		ScrollView {
@@ -73,7 +83,7 @@ struct PreferencesView: View {
 				}, camera: {})
 			}
 			.preferredColorScheme(self.colorScheme)
-			.background(Color.primary.colorInvert())
+			.background(lockScreenBg)
 		}
 	}
 }
