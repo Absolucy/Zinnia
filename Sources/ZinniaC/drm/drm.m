@@ -112,8 +112,8 @@ NSString* ensuring_message() {
 NSString* failed_message() {
 	return @"Zinnia failed to verify itself as an authentic copy."
 		   @"\n"
-		   @"If you have legitimately obtained Zinnia, please report this as a bug, with some sort of "
-		   @"proof-of-purchase."
+		   @"If you have legitimately obtained Zinnia, try reinstalling or respringing; if that does not work, please "
+		   @"report this as a bug, with some sort of proof-of-purchase."
 		   @"\n"
 		   @"If you have pirated Zinnia, please buy it, as tweak development is my only source of decent money :(";
 }
