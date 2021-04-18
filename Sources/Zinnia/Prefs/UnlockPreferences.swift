@@ -18,7 +18,7 @@ struct UnlockPrefs: View {
 				.border(Color.secondary)
 				.highPriorityGesture(DragGesture())
 				.highPriorityGesture(TapGesture())
-			NeonPrefsStuff(
+			BasicNeonOptions(
 				mul: $unlockNeonMul,
 				color: $unlockNeonColor,
 				bg: $unlockBgColor

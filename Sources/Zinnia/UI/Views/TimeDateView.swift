@@ -5,8 +5,12 @@ import Combine
 import SwiftUI
 
 internal struct TimeDateView: View {
-	@Preference("dateFormat", identifier: ZinniaPreferences.identifier) private var dateFormat = "MM/dd/yyyy"
-	@Preference("timeFormat", identifier: ZinniaPreferences.identifier) private var timeFormat = "hh:mm a"
+	@Preference("dateFormat", identifier: ZinniaPreferences.identifier) var dateFormat = "MM/dd/yyyy"
+	@Preference("dateFont", identifier: ZinniaPreferences.identifier) var dateFont = "San Fransisco"
+	@Preference("dateFontSize", identifier: ZinniaPreferences.identifier) var dateFontSize = 16.0
+	@Preference("timeFormat", identifier: ZinniaPreferences.identifier) var timeFormat = "hh:mm a"
+	@Preference("timeFont", identifier: ZinniaPreferences.identifier) var timeFont = "San Fransisco"
+	@Preference("timeFontSize", identifier: ZinniaPreferences.identifier) var timeFontSize = 34.0
 	@Preference("dateTimeNeonMul", identifier: ZinniaPreferences.identifier) private var dateTimeNeonMul: Double = 1
 	@Preference("dateTimeNeonColor", identifier: ZinniaPreferences.identifier) private var dateTimeNeonColor = Color.purple
 	@Preference("dateTimeBgColor", identifier: ZinniaPreferences.identifier) private var dateTimeBgColor = Color.black
@@ -36,11 +40,11 @@ internal struct TimeDateView: View {
 	private func BuildView() -> some View {
 		VStack {
 			Text(timeText)
-				.font(.largeTitle)
+				.font(.custom(timeFont, size: CGFloat(timeFontSize)))
 				.minimumScaleFactor(0.001)
 				.lineLimit(1)
 			Text(dateText)
-				.font(.callout)
+				.font(.custom(dateFont, size: CGFloat(dateFontSize)))
 				.minimumScaleFactor(0.001)
 				.lineLimit(1)
 		}

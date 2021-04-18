@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NeonPrefsStuff: View {
+struct BasicNeonOptions: View {
 	@Binding var mul: Double
 	@Binding var color: Color
 	@Binding var bg: Color

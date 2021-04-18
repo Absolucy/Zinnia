@@ -132,7 +132,6 @@ internal struct UnlockButtonView: View {
 									}
 								})
 								.opacity(globals.unlocked ? 0.0 : 1.0)
-								.allowsHitTesting(false)
 						)
 						.padding()
 						.onTapGesture {

@@ -29,29 +29,17 @@ struct NeonEffect<S: Shape>: ViewModifier {
 				.stroke(color, lineWidth: CGFloat(innerSize))
 				.brightness(brightness)
 				.blur(radius: CGFloat(innerBlur ?? blur))
-				.modifier(let: mask) {
-					$0.mask($1)
-				}
-				.allowsHitTesting(false)
 		)
 		.overlay(
 			base
 				.stroke(color, lineWidth: CGFloat(middleSize ?? innerSize))
 				.brightness(brightness)
-				.modifier(let: mask) {
-					$0.mask($1)
-				}
-				.allowsHitTesting(false)
 		)
 		.background(
 			base
 				.stroke(color, lineWidth: CGFloat(outerSize ?? (middleSize ?? innerSize)))
 				.brightness(brightness)
 				.blur(radius: CGFloat(blur))
-				.modifier(let: mask) {
-					$0.mask($1)
-				}
-				.allowsHitTesting(false)
 		)
 		.background(
 			base
@@ -59,10 +47,6 @@ struct NeonEffect<S: Shape>: ViewModifier {
 				.brightness(brightness)
 				.blur(radius: CGFloat(blur))
 				.opacity(0.2)
-				.modifier(let: mask) {
-					$0.mask($1)
-				}
-				.allowsHitTesting(false)
 		)
 		.compositingGroup()
 	}

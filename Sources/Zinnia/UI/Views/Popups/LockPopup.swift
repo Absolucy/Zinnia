@@ -53,7 +53,6 @@ struct LockPopup: View {
 							.frame(width: mulByWidth(radiusMul / 2) * 0.5, height: mulByWidth(radiusMul / 2) * 0.5)
 							.foregroundColor(self.globals.unlocked ? lockIconColorUnlocked : lockIconColorLocked)
 							.padding()
-							.allowsHitTesting(false)
 					)
 			}).padding()
 		}

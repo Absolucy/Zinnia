@@ -43,7 +43,6 @@ struct CameraPopup: View {
 							.frame(width: mulByWidth(radiusMul / 2) * 0.5, height: mulByWidth(radiusMul / 2) * 0.5)
 							.foregroundColor(cameraIconColor)
 							.padding()
-							.allowsHitTesting(false)
 					)
 			}).padding()
 		}

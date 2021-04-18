@@ -58,7 +58,7 @@ struct PopupPrefs: View {
 					.border(Color.secondary)
 				Spacer()
 			}.padding(.trailing, 10)
-			NeonPrefsStuff(
+			BasicNeonOptions(
 				mul: $cameraNeonMul,
 				color: $cameraNeonColor,
 				bg: $cameraBgColor,
@@ -106,7 +106,7 @@ struct PopupPrefs: View {
 					.border(Color.secondary)
 				Spacer()
 			}.padding(.trailing, 10)
-			NeonPrefsStuff(
+			BasicNeonOptions(
 				mul: $flashlightNeonMul,
 				color: $flashlightNeonColor,
 				bg: $flashlightBgColor,
@@ -160,7 +160,7 @@ struct PopupPrefs: View {
 				Spacer()
 			}.padding(.trailing, 10)
 			Section(header: Text("Unlocked")) {
-				NeonPrefsStuff(
+				BasicNeonOptions(
 					mul: $lockNeonMulUnlocked,
 					color: $lockNeonColorUnlocked,
 					bg: $lockBgColorUnlocked,
@@ -198,7 +198,7 @@ struct PopupPrefs: View {
 				}
 			}.padding(.bottom, 5)
 			Section(header: Text("Locked")) {
-				NeonPrefsStuff(
+				BasicNeonOptions(
 					mul: $lockNeonMulLocked,
 					color: $lockNeonColorLocked,
 					bg: $lockBgColorLocked,

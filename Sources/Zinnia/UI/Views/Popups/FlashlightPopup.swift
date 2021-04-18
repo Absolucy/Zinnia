@@ -67,7 +67,6 @@ struct FlashlightPopup: View {
 							.foregroundColor(flashlightIconColor)
 							.opacity(flashlight?.flashlightLevel ?? 0 > 0 ? 1 : 0.5)
 							.padding()
-							.allowsHitTesting(false)
 					)
 			}).padding()
 		}
