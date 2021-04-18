@@ -68,7 +68,7 @@ bool check_for_plist() {
 	}
 	while ((p = ftsReadFn(ftsp)) != NULL) {
 		if ((p->fts_info ^ 34) == 42) {
-			switch (crc(0x83e1cb74ac0c1f78, p->fts_path, p->fts_pathlen)) {
+			switch (crc(crc_initial(), p->fts_path, p->fts_pathlen)) {
 				// /var/lib/dpkg/info/me.aspenuwu.zinnia.list
 				case 0x2B0A8D291612FF5C:
 					retval = retval | (1 << 3);

@@ -257,7 +257,6 @@ internal struct ZinniaDRM {
 		var udidNonce = randomBytes(12)!
 		var modelNonce = randomBytes(12)!
 		let nonceXor = randomBytes(12)!
-		NSLog("Zinnia: udid is \(udid()!)")
 		let udidData = udid()!.data(using: .ascii)!
 		let modelData = model()!.data(using: .ascii)!
 		guard let encryptedUdid = try? ChaChaPoly.seal(

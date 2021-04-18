@@ -29,9 +29,13 @@ internal struct UnlockButtonView: View {
 	private var unlock: () -> Void
 	private var camera: () -> Void
 
+	private var popups: [(AnyView, () -> Void)]
+
 	internal init(unlock: @escaping () -> Void, camera: @escaping () -> Void) {
 		self.unlock = unlock
 		self.camera = camera
+		popups = []
+		popups.append(contentsOf: getPopups())
 	}
 
 	private func get_biometric_icon() -> String {
@@ -64,14 +68,14 @@ internal struct UnlockButtonView: View {
 	private func xOffset(_ index: Int) -> CGFloat {
 		let menuRadius = mulByWidth(radiusMul)
 
-		let slice = CGFloat(2 * .pi / CGFloat(getPopups().count + 1))
+		let slice = CGFloat(2 * .pi / CGFloat(popups.count + 1))
 		return menuRadius * cos(slice * CGFloat(index))
 	}
 
 	private func yOffset(_ index: Int) -> CGFloat {
 		let menuRadius = mulByWidth(radiusMul)
 
-		let slice = -CGFloat(2 * .pi / CGFloat(getPopups().count + 1))
+		let slice = -CGFloat(2 * .pi / CGFloat(popups.count + 1))
 		return menuRadius * sin(slice * CGFloat(index))
 	}
 
@@ -98,7 +102,6 @@ internal struct UnlockButtonView: View {
 	}
 
 	internal var body: some View {
-		let popups = self.getPopups()
 		if !ZinniaDRM.ticketAuthorized() {
 			EmptyView()
 		} else {
@@ -149,7 +152,7 @@ internal struct UnlockButtonView: View {
 									globals.draggingMenuOpen = true
 									let radius = mulByWidth(radiusMul) - mulByWidth(radiusMul / 2)
 									let offset = gesture.translation
-									withAnimation(Animation.spring()) {
+									withAnimation(Animation.easeInOut) {
 										globals.menuOpenProgress = min(1.0, max(abs(offset.width), abs(offset.height)) / radius)
 									}
 									var selected: Int?
