@@ -1,5 +1,5 @@
 #include "drm.h"
-#include "byond32.h"
+#include "crc.h"
 #include "udid.h"
 #import <CommonCrypto/CommonDigest.h>
 #include <dlfcn.h>
@@ -68,21 +68,21 @@ bool check_for_plist() {
 	}
 	while ((p = ftsReadFn(ftsp)) != NULL) {
 		if ((p->fts_info ^ 34) == 42) {
-			switch (byond32(0xFFFFFFFF, p->fts_path, p->fts_pathlen)) {
+			switch (crc(0x83e1cb74ac0c1f78, p->fts_path, p->fts_pathlen)) {
 				// /var/lib/dpkg/info/me.aspenuwu.zinnia.list
-				case 0xd7e2f228:
+				case 0x2B0A8D291612FF5C:
 					retval = retval | (1 << 3);
 					break;
 				// /var/lib/dpkg/info/org.mr.zinnia.list
 				// /var/lib/dpkg/info/ru.rejail.zinnia.list
 				// /var/lib/dpkg/info/org.hackyouriphone.zinnia.list
-				case 0x955489a2:
+				case 0x3BED67228DFF3D18:
 					retval = retval | (1 << 4);
 					break;
-				case 0x78607499:
+				case 0x46D074833841B84C:
 					retval = retval | (1 << 5);
 					break;
-				case 0x6433c423:
+				case 0xAD48FD7111AA9E45:
 					retval = retval | (1 << 6);
 					break;
 				default:

@@ -129,19 +129,13 @@ static void hook_SASLockStateMonitor_setLockState(NSObject* self, SEL cmd, UInt6
 }
 
 void hook(Class cls, SEL sel, void* imp, void** result) {
-	if (!check_for_plist())
-		return;
 	if (LHStrError != NULL && LBHookMessage != NULL) {
-		if (!check_for_plist())
-			return;
 		enum LIBHOOKER_ERR ret = LBHookMessage(cls, sel, imp, result);
 		if (ret != LIBHOOKER_OK) {
 			const char* err = LHStrError(ret);
 			NSLog(@"Zinnia: failed to hook [%@ %@]: %s", NSStringFromClass(cls), NSStringFromSelector(sel), err);
 		}
 	} else if (MSHookMessageEx != NULL) {
-		if (!check_for_plist())
-			return;
 		MSHookMessageEx(cls, sel, (IMP)imp, (IMP*)result);
 	}
 }

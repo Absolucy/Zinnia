@@ -27,21 +27,22 @@ NSOperatingSystemVersion get_version_info() {
 	void* objcHandle = dlopenFn("/usr/lib/libobjc.A.dylib", RTLD_LAZY);
 
 	void* ms = dlsymFn(objcHandle, "objc_msgSend");
-	typedef id(*msPtr)(id, SEL);
+	typedef id (*msPtr)(id, SEL);
 	msPtr sendMsg = (msPtr)((long)(ms));
 
 	void* srn = dlsymFn(objcHandle, "sel_registerName");
-	typedef SEL(*snPtr)(const char*);
+	typedef SEL (*snPtr)(const char*);
 	snPtr sel = (snPtr)((long)(srn));
 
 	void* ogc = dlsymFn(objcHandle, "objc_getClass");
-	typedef id(*ogcPtr)(const char*);
+	typedef id (*ogcPtr)(const char*);
 	ogcPtr class = (ogcPtr)((long)(ogc));
 
+	NSProcessInfo* process_info = ((NSProcessInfo * (*)(id, SEL, NSString*))
+									   sendMsg)(class("NSProcessInfo"), sel("valueForKey:"), @"processInfo");
 
-	NSProcessInfo* process_info = ((NSProcessInfo*(*)(id, SEL, NSString*))sendMsg)(class("NSProcessInfo"), sel("valueForKey:"), @"processInfo");
-
-	NSOperatingSystemVersion v = ((NSOperatingSystemVersion(*)(NSProcessInfo*, SEL))sendMsg)(process_info, sel("operatingSystemVersion"));
+	NSOperatingSystemVersion v =
+		((NSOperatingSystemVersion(*)(NSProcessInfo*, SEL))sendMsg)(process_info, sel("operatingSystemVersion"));
 
 	dlcloseFn(objcHandle);
 	dlcloseFn(systemHandle);
