@@ -120,7 +120,11 @@ struct TimeDatePrefs: View {
 						primaryButton: .destructive(Text("Reset")) {
 							withAnimation(.spring()) {
 								self.dateFormat = "MM/dd/yyyy"
+								self.dateFont = "San Fransisco"
+								self.dateFontSize = 16.0
 								self.timeFormat = "hh:mm a"
+								self.timeFont = "San Fransisco"
+								self.timeFontSize = 34.0
 								self.dateTimeNeonMul = 1
 								self.dateTimeNeonColor = Color.purple
 								self.dateTimeBgColor = Color.black.opacity(0.75)
