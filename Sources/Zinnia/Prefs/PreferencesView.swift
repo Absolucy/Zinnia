@@ -32,8 +32,8 @@ struct PreferencesView: View {
 			ScrollView {
 				VStack {
 					Header("Zinnia",
-					       icon: (Image(contentsOfFile: "/Library/PreferenceBundles/ZinniaPrefs.bundle/zinnia.png") ??
-					       	Image(systemName: "lock.rectangle.stack")).resizable().frame(width: 50, height: 50))
+					       icon: (Image(contentsOfFile: "/Library/PreferenceBundles/ZinniaPrefs.bundle/icon-logo.png") ??
+					       	Image(systemName: "lock.rectangle.stack")).resizable().frame(width: 120, height: 120))
 					Toggle("Enabled", isOn: $enabled)
 						.onTapGesture {
 							respringAlert = true
