@@ -71,8 +71,6 @@ static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewControll
 	[self.view addSubview:unlockButton.view];
 	unlockButton.view.translatesAutoresizingMaskIntoConstraints = false;
 	[NSLayoutConstraint activateConstraints:@[
-		//		[unlockButton.view.leftAnchor constraintEqualToAnchor:self.view.leftAnchor],
-		//		[unlockButton.view.rightAnchor constraintEqualToAnchor:self.view.rightAnchor],
 		[unlockButton.view.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
 		[unlockButton.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
 	]];
