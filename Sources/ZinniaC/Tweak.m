@@ -140,7 +140,11 @@ void hook(Class cls, SEL sel, void* imp, void** result) {
 	}
 }
 
+#ifdef DRM
 __attribute__((constructor)) static void init() {
+#else
+void initTweakFunc() {
+#endif
 	if (LHStrError != NULL && LBHookMessage != NULL) {
 		NSLog(@"Zinnia: using libhooker :)");
 	} else if (MSHookMessageEx != NULL) {
