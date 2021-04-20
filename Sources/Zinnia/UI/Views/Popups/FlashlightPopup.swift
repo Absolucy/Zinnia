@@ -25,8 +25,13 @@ import ZinniaC
 #endif
 
 struct FlashlightPopup: View {
-	@Binding var flashlight: AVFlashlight?
-	var action: () -> Void
+	@State private var flashlight: AVFlashlight? = {
+		if AVFlashlight.hasFlashlight() {
+			return AVFlashlight()
+		} else {
+			return nil
+		}
+	}()
 
 	@Preference("flashlightBgColor", identifier: ZinniaPreferences.identifier) var flashlightBgColor = Color.primary
 	@Preference("flashlightNeonColor", identifier: ZinniaPreferences.identifier) var flashlightNeonColor = Color.yellow
@@ -34,16 +39,20 @@ struct FlashlightPopup: View {
 	@Preference("flashlightIconColor", identifier: ZinniaPreferences.identifier) var flashlightIconColor = Color
 		.accentColor
 
-	init(flashlight: Binding<AVFlashlight?> = .constant(nil), action: @escaping () -> Void) {
-		_flashlight = flashlight
-		self.action = action
-	}
-
 	var body: some View {
 		if !ZinniaDRM.ticketAuthorized() {
 			EmptyView()
 		} else {
-			Button(action: action, label: {
+			Button(action: {
+				if let flashlight = self.flashlight {
+					if flashlight.flashlightLevel > 0 {
+						_ = flashlight.setFlashlightLevel(0, withError: nil)
+						flashlight.turnPowerOff()
+					} else {
+						_ = flashlight.setFlashlightLevel(1, withError: nil)
+					}
+				}
+			}, label: {
 				Circle()
 					.frame(width: mulByWidth(radiusMul / 2), height: mulByWidth(radiusMul / 2))
 					.foregroundColor(flashlightBgColor)

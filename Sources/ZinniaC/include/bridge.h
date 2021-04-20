@@ -1,7 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-UIViewController* makeUnlockButton(void (^)(), void (^)());
+UIViewController* makeUnlockButton();
+UIViewController* makeUnlockPopups();
 UIViewController* makeTimeDate();
 bool tweakEnabled();
 bool isValidated();

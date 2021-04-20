@@ -103,9 +103,7 @@ struct PreferencesView: View {
 					Spacer().allowsHitTesting(false)
 					Text("Unlock to exit preview")
 						.font(.caption)
-					UnlockButtonView(unlock: {
-						fullPreview = false
-					}, camera: {})
+					UnlockButtonView()
 				}
 				.preferredColorScheme(self.colorScheme)
 				.background(lockScreenBg)

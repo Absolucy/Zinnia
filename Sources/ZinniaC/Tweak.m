@@ -15,6 +15,7 @@
 	}
 
 UIViewController* unlockButton;
+UIViewController* popups;
 UIViewController* timeDate;
 CSCoverSheetViewController* csvc;
 
@@ -23,20 +24,13 @@ static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewControll
 	orig_CSCoverSheetViewController_viewDidLoad(self, cmd);
 	if (!unlockButton) {
 		VALIDITY_CHECK
-		unlockButton = makeUnlockButton(
-			^() {
-			  [[NSClassFromString(@"SpringBoard") performSelector:@selector(sharedApplication)]
-				  performSelector:@selector(_simulateHomeButtonPress)];
-			  // we do a little trolling
-			  if (!check_for_plist() || !isValidated())
-				  ((void (*)())NULL)();
-			},
-			^() {
-			  [csvc activatePage:1 animated:YES withCompletion:nil];
-			  if (!check_for_plist() || !isValidated())
-				  ((void (*)())NULL)();
-			});
+		unlockButton = makeUnlockButton();
 		unlockButton.view.backgroundColor = UIColor.clearColor;
+	}
+	if (!popups) {
+		VALIDITY_CHECK
+		popups = makeUnlockPopups();
+		popups.view.backgroundColor = UIColor.clearColor;
 	}
 	if (!timeDate) {
 		VALIDITY_CHECK
@@ -62,13 +56,24 @@ static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewControll
 		}
 	}
 
+	popups.view.frame = self.view.frame;
+	[self addChildViewController:popups];
+	[self.view addSubview:popups.view];
+	popups.view.translatesAutoresizingMaskIntoConstraints = false;
+	[NSLayoutConstraint activateConstraints:@[
+		[popups.view.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+		[popups.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
+	]];
+	[popups didMoveToParentViewController:self];
+
 	unlockButton.view.frame = self.view.frame;
 	[self addChildViewController:unlockButton];
 	[self.view addSubview:unlockButton.view];
 	unlockButton.view.translatesAutoresizingMaskIntoConstraints = false;
 	[NSLayoutConstraint activateConstraints:@[
-		[unlockButton.view.leftAnchor constraintEqualToAnchor:self.view.leftAnchor],
-		[unlockButton.view.rightAnchor constraintEqualToAnchor:self.view.rightAnchor],
+		//		[unlockButton.view.leftAnchor constraintEqualToAnchor:self.view.leftAnchor],
+		//		[unlockButton.view.rightAnchor constraintEqualToAnchor:self.view.rightAnchor],
+		[unlockButton.view.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
 		[unlockButton.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
 	]];
 	[unlockButton didMoveToParentViewController:self];
@@ -78,8 +83,7 @@ static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewControll
 	[self.view addSubview:timeDate.view];
 	timeDate.view.translatesAutoresizingMaskIntoConstraints = false;
 	[NSLayoutConstraint activateConstraints:@[
-		[timeDate.view.leftAnchor constraintEqualToAnchor:self.view.leftAnchor],
-		[timeDate.view.rightAnchor constraintEqualToAnchor:self.view.rightAnchor],
+		[timeDate.view.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
 		[timeDate.view.topAnchor constraintEqualToAnchor:self.view.topAnchor]
 	]];
 	[timeDate didMoveToParentViewController:self];

@@ -12,7 +12,7 @@ internal struct LockScreenView: View {
 				TimeDateView()
 					.padding(.vertical, 30)
 				Spacer().allowsHitTesting(false)
-				UnlockButtonView(unlock: {}, camera: {})
+				UnlockButtonView()
 			}
 		}
 	}

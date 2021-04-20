@@ -53,7 +53,7 @@ struct PopupPrefs: View {
 		VStack {
 			HStack {
 				Spacer()
-				CameraPopup(camera: {})
+				CameraPopup(action: {})
 					.padding()
 					.border(Color.secondary)
 				Spacer()
@@ -101,7 +101,7 @@ struct PopupPrefs: View {
 		VStack {
 			HStack {
 				Spacer()
-				FlashlightPopup(action: {})
+				FlashlightPopup()
 					.padding()
 					.border(Color.secondary)
 				Spacer()
@@ -150,9 +150,9 @@ struct PopupPrefs: View {
 			HStack {
 				Spacer()
 				HStack {
-					LockPopup(unlock: {}, globals: ZinniaSharedData(unlocked: true))
+					LockPopup(action: {}, globals: ZinniaSharedData(unlocked: true))
 						.padding(.trailing, 10)
-					LockPopup(unlock: {}, globals: ZinniaSharedData(unlocked: false))
+					LockPopup(action: {}, globals: ZinniaSharedData(unlocked: false))
 						.padding(.leading, 10)
 				}
 				.padding()

@@ -1,5 +1,6 @@
 #import "../drm/drm.h"
 #import "../drm/udid.h"
+#import "../interface/popups.h"
 #import "bridge.h"
 #import "libblackjack.h"
 #import "libhooker.h"
@@ -140,3 +141,5 @@ UIImage* lockScreenWallpaper();
 - (BOOL)isSpawnedProcessDisclaimed;
 - (void)waitUntilExit;
 @end
+
+extern CSCoverSheetViewController* csvc;

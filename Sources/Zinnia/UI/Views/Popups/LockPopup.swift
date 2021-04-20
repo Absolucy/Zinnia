@@ -2,10 +2,12 @@
 	import NomaePreferences
 #endif
 import SwiftUI
+import ZinniaC
 
 struct LockPopup: View {
-	@ObservedObject var globals: ZinniaSharedData
-	var unlock: () -> Void
+	internal var action: () -> Void
+
+	@ObservedObject var globals = ZinniaSharedData.global
 
 	@Preference("lockBgColorUnlocked", identifier: ZinniaPreferences.identifier) var lockBgColorUnlocked = Color.primary
 	@Preference("lockBgColorLocked", identifier: ZinniaPreferences.identifier) var lockBgColorLocked = Color.primary
@@ -18,16 +20,11 @@ struct LockPopup: View {
 	@Preference("lockIconColorLocked", identifier: ZinniaPreferences.identifier) var lockIconColorLocked = Color
 		.accentColor
 
-	init(unlock: @escaping () -> Void, globals: ZinniaSharedData = ZinniaSharedData.global) {
-		self.unlock = unlock
-		self.globals = globals
-	}
-
 	var body: some View {
 		if !ZinniaDRM.ticketAuthorized() {
 			EmptyView()
 		} else {
-			Button(action: unlock, label: {
+			Button(action: action, label: {
 				Circle()
 					.frame(width: mulByWidth(radiusMul / 2), height: mulByWidth(radiusMul / 2))
 					.foregroundColor(self.globals.unlocked ? lockBgColorUnlocked : lockBgColorLocked)

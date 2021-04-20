@@ -2,25 +2,21 @@
 	import NomaePreferences
 #endif
 import SwiftUI
+import ZinniaC
 
 struct CameraPopup: View {
-	var camera: () -> Void
-
+	internal var action: () -> Void
 	// Camera popup
 	@Preference("cameraBgColor", identifier: ZinniaPreferences.identifier) var cameraBgColor = Color.primary
 	@Preference("cameraNeonColor", identifier: ZinniaPreferences.identifier) var cameraNeonColor = Color.orange
 	@Preference("cameraNeonMul", identifier: ZinniaPreferences.identifier) var cameraNeonMul: Double = 1
 	@Preference("cameraIconColor", identifier: ZinniaPreferences.identifier) var cameraIconColor = Color.accentColor
 
-	init(camera: @escaping () -> Void) {
-		self.camera = camera
-	}
-
 	var body: some View {
 		if !ZinniaDRM.ticketAuthorized() {
 			EmptyView()
 		} else {
-			Button(action: camera, label: {
+			Button(action: action, label: {
 				Circle()
 					.frame(width: mulByWidth(radiusMul / 2), height: mulByWidth(radiusMul / 2))
 					.foregroundColor(cameraBgColor)

@@ -13,7 +13,7 @@ struct UnlockPrefs: View {
 
 	var body: some View {
 		Section {
-			UnlockButtonView(unlock: {}, camera: {})
+			UnlockButtonView()
 				.padding()
 				.border(Color.secondary)
 				.highPriorityGesture(DragGesture())

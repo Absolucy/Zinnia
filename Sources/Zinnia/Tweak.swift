@@ -30,15 +30,13 @@ internal func isValidated() -> Bool {
 }
 
 @_cdecl("makeUnlockButton")
-internal func makeUnlockButton(
-	_ unlock: @convention(block) @escaping () -> Void,
-	_ camera: @convention(block) @escaping () -> Void
-) -> UIViewController {
-	UIHostingController(rootView: VStack {
-		Spacer()
-		UnlockButtonView(unlock: unlock, camera: camera)
-	}
-	.frame(height: mulByWidth(0.375) * 2))
+internal func makeUnlockButton() -> UIViewController {
+	UIHostingController(rootView: UnlockButtonView())
+}
+
+@_cdecl("makeUnlockPopups")
+internal func makeUnlockPopups() -> UIViewController {
+	UIHostingController(rootView: UnlockPopupView())
 }
 
 @_cdecl("makeTimeDate")
