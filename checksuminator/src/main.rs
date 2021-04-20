@@ -101,15 +101,13 @@ fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
 	println!("{:#?}", entry);
 	crc_table.push(entry);
 
-	while crc_table.len() < 1024 {
-		crc_table.push(crc_lookup {
-			ckey: rng.gen(),
-			checksum: rng.gen(),
-			size: rng.gen_range(8..256),
-			jkey: rng.gen(),
-			jmp: rng.gen(),
-		});
-	}
+	crc_table.resize_with(1024, || crc_lookup {
+		ckey: rng.gen(),
+		checksum: rng.gen(),
+		size: rng.gen_range(8..256),
+		jkey: rng.gen(),
+		jmp: rng.gen(),
+	});
 
 	crc_table.shuffle(&mut rng);
 
