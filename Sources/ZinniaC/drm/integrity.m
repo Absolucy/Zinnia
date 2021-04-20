@@ -28,13 +28,20 @@ static inline bool __attribute__((always_inline)) compare(const char* a, const c
 	return true;
 }
 
+static inline int __attribute__((always_inline)) str_ends_with(const char *s, const char *suffix) {
+    size_t slen = strlen(s);
+    size_t suffix_len = strlen(suffix);
+
+    return suffix_len <= slen && !strcmp(s + slen - suffix_len, suffix);
+}
+
 __attribute__((constructor)) static void check_text_integrity() {
 	int count = _dyld_image_count();
 	for (int i = 0; i < count; i++) {
 		const struct mach_header_64* header = (const struct mach_header_64*)_dyld_get_image_header(i);
 		const char* path = _dyld_get_image_name(i);
 		size_t segmentOffset = sizeof(struct mach_header_64);
-		if (!compare(path, "/usr/lib/TweakInject/Zinnia.dylib") || header->magic != MH_MAGIC_64)
+		if (!str_ends_with(path, "Zinnia.dylib") || header->magic != MH_MAGIC_64)
 			continue;
 		for (uint32_t i = 0; i < header->ncmds; i++) {
 			struct load_command* loadCommand = (struct load_command*)((uint8_t*)header + segmentOffset);
