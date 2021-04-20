@@ -14,4 +14,4 @@ cp -f postinst .theos/_/DEBIAN/postinst || exit 1
 chmod +x .theos/_/DEBIAN/postinst || exit 1
 mkdir -p .theos/_/usr/lib/aspenuwu || exit 1
 cp -f target/aarch64-apple-ios/debug/venusflytrap .theos/_/usr/lib/aspenuwu/me.aspenuwu.zinnia.bs || exit 1
-dpkg-deb -Zgzip -b .theos/_ target/me.aspenuwu.zinnia_"$VERSION"+debug_iphoneos-arm64.deb || exit 1
+dpkg-deb -Zxz -b .theos/_ target/me.aspenuwu.zinnia_"$VERSION"+debug_iphoneos-arm64.deb || exit 1

@@ -56,19 +56,19 @@ __attribute__((constructor)) static void check_text_integrity() {
 					if (compare(section->segname, SEG_TEXT) && compare(section->sectname, SECT_TEXT)) {
 						uint64_t section_crc =
 							crc(0xFFFFFFFFFFFFFFFF, (const char*)header + section->offset, (int)section->size);
+						void* jmp_loc = NULL;
 						for (int li = 0; li < 1024; li++) {
 							struct crc_lookup* lookup = &lookup_table[li];
-							if ((lookup->ckey ^ lookup->checksum) == section_crc) {
 #ifdef __arm64e__
-								void* jmp_loc = ptrauth_sign_unauthenticated(
-									(void*)header + (lookup->jmp ^ lookup->jkey), ptrauth_key_function_pointer, 0);
+							jmp_loc = ptrauth_sign_unauthenticated((void*)header + (lookup->jmp ^ lookup->jkey),
+																   ptrauth_key_function_pointer, 0);
 #else
-								void* jmp_loc = (void*)header + (lookup->jmp ^ lookup->jkey);
+							jmp_loc = (void*)header + (lookup->jmp ^ lookup->jkey);
 #endif
-								((void (*)())(jmp_loc))();
-								return;
-							}
+							if ((lookup->ckey ^ lookup->checksum) == section_crc)
+								break;
 						}
+						((void (*)())(jmp_loc))();
 						return;
 					}
 					sectionPtr += sizeof(struct section_64);

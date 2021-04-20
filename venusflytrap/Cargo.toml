@@ -19,7 +19,6 @@ obfstr = "0.3.0"
 reqwest = { version = "0.11.3", default-features = false, features = ["rustls-tls", "json"] }
 rustls = { version = "0.19.0", features = ["dangerous_configuration"] }
 rustls-pin = "0.1.2"
-semver = "0.11.0"
 serde_json = "1.0.64"
 sha1 = "0.6.0"
 sha2 = "0.9.3"
