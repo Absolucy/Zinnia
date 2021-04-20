@@ -1,4 +1,4 @@
-use goblin::mach::{symbols::Nlist, MachO};
+use goblin::mach::{symbols::Nlist, Mach, MachO};
 use rand::{prelude::SliceRandom, Rng};
 
 #[derive(Debug)]
@@ -26,9 +26,7 @@ fn crc(initial: u64, data: &[u8]) -> u64 {
 	})
 }
 
-fn main() {
-	let mut binary = std::fs::read("Zinnia.dylib").unwrap();
-	let macho = MachO::parse(&binary, 0).unwrap();
+fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
 	let mut offsets: Vec<(String, Nlist)> = Vec::new();
 	for x in macho.symbols() {
 		let (name, nlist) = x.unwrap();
@@ -125,7 +123,8 @@ fn main() {
 		.into_iter()
 		.find(|(section, _)| section.name().unwrap() == "__fuckmainrepo")
 		.map(|(section, _)| {
-			section.offset as usize..section.offset as usize + section.size as usize
+			offset + section.offset as usize
+				..offset + section.offset as usize + section.size as usize
 		})
 		.expect("failed to find crc table section");
 
@@ -136,6 +135,32 @@ fn main() {
 		)
 	};
 	binary.splice(crc_table_range, bytes.iter().copied());
+}
 
-	std::fs::write("Zinnia.crc.dylib", binary).expect("failed to write");
+fn main() {
+	let x = std::env::args().collect::<Vec<_>>();
+
+	let binary = std::fs::read(&x[1]).unwrap();
+	let mut out_binary = binary.clone();
+	let fat = Mach::parse(&binary).expect("failed to parse mach-o binary");
+	match fat {
+		Mach::Fat(fat) => {
+			for (index, slice) in fat
+				.arches()
+				.expect("failed to get fat arches")
+				.into_iter()
+				.enumerate()
+			{
+				let macho = fat
+					.get(index)
+					.expect("failed to get mach-o binary for fat slice");
+				handle_slice(macho, slice.offset as usize, &mut out_binary);
+			}
+		}
+		Mach::Binary(macho) => {
+			handle_slice(macho, 0, &mut out_binary);
+		}
+	}
+
+	std::fs::write(&x[1], out_binary).expect("failed to write");
 }

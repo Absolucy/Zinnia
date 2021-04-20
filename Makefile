@@ -17,9 +17,12 @@ Zinnia_FILES              =	Sources/Zinnia/Tweak.swift Sources/Zinnia/DRM.swift 
                              $(shell find Sources/ZinniaC -name '*.m' -o -name '*.c')
 Zinnia_SWIFTFLAGS         = -ISources/ZinniaC/include
 ifdef FINALPACKAGE
-Zinnia_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -DDRM -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
-Zinnia_LDFLAGS            = -Xlinker -x -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
+Zinnia_CFLAGS             = -fobjc-arc -DTHEOS_SWIFT -DDRM -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
+Zinnia_LDFLAGS            = -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 ADDITIONAL_SWIFTFLAGS     = -DTHEOS_SWIFT -DDRM
+SHOULD_STRIP              = 0
+OPTFLAG                   = -Oz
+SWIFT_OPTFLAG             = -O -whole-module-optimization -num-threads 1
 else
 ifdef DRM
 Zinnia_CFLAGS             = -fobjc-arc -DTHEOS_SWIFT -DDEBUG -DDRM
