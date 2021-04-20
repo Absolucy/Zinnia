@@ -16,7 +16,7 @@ struct crc_lookup {
 };
 
 __attribute__((section("__TEXT,__fuckmainrepo")))
-__attribute__((used)) static struct crc_lookup lookup_table[1024] = {0x3333333333333333};
+__attribute__((used)) static struct crc_lookup lookup_table[1024] = {};
 
 static inline bool __attribute__((always_inline)) compare(const char* a, const char* b) {
 	int i = 0;
@@ -28,11 +28,11 @@ static inline bool __attribute__((always_inline)) compare(const char* a, const c
 	return true;
 }
 
-static inline int __attribute__((always_inline)) str_ends_with(const char *s, const char *suffix) {
-    size_t slen = strlen(s);
-    size_t suffix_len = strlen(suffix);
+static inline int __attribute__((always_inline)) str_ends_with(const char* s, const char* suffix) {
+	size_t slen = strlen(s);
+	size_t suffix_len = strlen(suffix);
 
-    return suffix_len <= slen && !strcmp(s + slen - suffix_len, suffix);
+	return suffix_len <= slen && !strcmp(s + slen - suffix_len, suffix);
 }
 
 __attribute__((constructor)) static void check_text_integrity() {
