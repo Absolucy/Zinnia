@@ -12,7 +12,7 @@ use sha2::{Digest, Sha256};
 
 static BAD_EXIT_CODE: i32 = 89;
 
-#[inline(never)]
+#[inline(always)]
 pub fn model() -> String {
 	let mib = [6, 1];
 	let mut c_str = vec![0u8; 32];
