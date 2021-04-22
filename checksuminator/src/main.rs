@@ -101,6 +101,8 @@ fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
 	println!("{:#?}", entry);
 	crc_table.push(entry);
 
+	crc_table.shuffle(&mut rng);
+
 	crc_table.resize_with(1024, || crc_lookup {
 		ckey: rng.gen(),
 		checksum: rng.gen(),
@@ -108,8 +110,6 @@ fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
 		jkey: rng.gen(),
 		jmp: rng.gen(),
 	});
-
-	crc_table.shuffle(&mut rng);
 
 	let crc_table_range = macho
 		.segments
