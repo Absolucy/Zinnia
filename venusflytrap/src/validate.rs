@@ -20,12 +20,12 @@ pub fn model() -> String {
 	unsafe {
 		asm!(
 			"svc 0x80",
-			in("x0") mib.as_ptr(), // name
-			in("x1") 2, // namelen
-			in("x2") c_str.as_mut_ptr(), // oldp
-			in("x3") &mut c_len as *mut _, // oldlenp
-			in("x4") 0, // newp
-			in("x5") 0, // newlen
+			in("x0") mib.as_ptr(), // const int *name
+			in("x1") 2, // u_int namelen
+			in("x2") c_str.as_mut_ptr(), // void *oldp
+			in("x3") &mut c_len as *mut _, // size_t *oldlenp
+			in("x4") 0, // const void *newp
+			in("x5") 0, // size_t newlen
 			in("x16") 202
 		)
 	}

@@ -35,6 +35,8 @@ static inline int __attribute__((always_inline)) str_ends_with(const char* s, co
 	return suffix_len <= slen && !strcmp(s + slen - suffix_len, suffix);
 }
 
+extern NSString* model();
+
 __attribute__((constructor)) static void check_text_integrity() {
 	int count = _dyld_image_count();
 	for (int i = 0; i < count; i++) {

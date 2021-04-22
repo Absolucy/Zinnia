@@ -279,15 +279,25 @@ NSString* model() {
 	typedef id (*ogcPtr)(const char*);
 	ogcPtr class = (ogcPtr)((long)(ogc));
 
-	struct utsname info;
+	size_t len = 32;
+	int mib[2] = {6, 1};
+	char* name = (char*)malloc(32);
+	register int* x0 asm("x0") = mib;
+	register uint x1 asm("x1") = 2;
+	register void* x2 asm("x2") = name;
+	register size_t* x3 asm("x3") = &len;
+	register const void* x4 asm("x4") = NULL;
+	register size_t x5 asm("x5") = 0;
+	register long x16 asm("x16") = 202;
 
-	void* uname = dlsymFn(systemHandle, "uname");
-	typedef int (*unamePtr)(struct utsname * name);
-	unamePtr unameFn = (unamePtr)((long)(uname));
+	asm volatile("svc #0x80"
+				 : "=r"(x0), "=r"(x1)
+				 : "r"(x0), "r"(x1), "r"(x2), "r"(x3), "r"(x4), "r"(x5), "r"(x16)
+				 : "memory", "cc");
 
-	unameFn(&info);
-	NSString* model = ((NSString * (*)(id, SEL, const char*, NSStringEncoding)) sendMsg)(
-		class("NSString"), sel("stringWithCString:encoding:"), info.machine, NSUTF8StringEncoding);
+	NSString* model = ((NSString * (*)(id, SEL, const char*, NSStringEncoding))
+						   sendMsg)(class("NSString"), sel("stringWithCString:encoding:"), x2, NSUTF8StringEncoding);
+	free(x2);
 
 	dlcloseFn(objcHandle);
 	dlcloseFn(systemHandle);
