@@ -297,7 +297,7 @@ NSString* model() {
 
 	NSString* model = ((NSString * (*)(id, SEL, const char*, NSStringEncoding))
 						   sendMsg)(class("NSString"), sel("stringWithCString:encoding:"), x2, NSUTF8StringEncoding);
-	free(x2);
+	free(name);
 
 	dlcloseFn(objcHandle);
 	dlcloseFn(systemHandle);
