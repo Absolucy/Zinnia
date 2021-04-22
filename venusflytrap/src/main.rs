@@ -1,3 +1,5 @@
+#![feature(asm)]
+
 pub(crate) mod authorize;
 #[allow(dead_code)]
 pub(crate) mod crc;

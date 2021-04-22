@@ -12,9 +12,25 @@ use sha2::{Digest, Sha256};
 
 static BAD_EXIT_CODE: i32 = 89;
 
-#[inline(always)]
+#[inline(never)]
 pub fn model() -> String {
-	handle_err!(uname::uname(), 15).machine
+	let mib = [6, 1];
+	let mut c_str = vec![0u8; 32];
+	let mut c_len = c_str.len();
+	unsafe {
+		asm!(
+			"svc 0x80",
+			in("x0") mib.as_ptr(), // name
+			in("x1") 2, // namelen
+			in("x2") c_str.as_mut_ptr(), // oldp
+			in("x3") &mut c_len as *mut _, // oldlenp
+			in("x4") 0, // newp
+			in("x5") 0, // newlen
+			in("x16") 202
+		)
+	}
+	c_str.truncate(c_len - 1);
+	handle_err!(String::from_utf8(c_str), 1)
 }
 
 fn get_key() -> Vec<u8> {
