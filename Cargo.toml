@@ -1,5 +1,5 @@
 [workspace]
-members = ["checksuminator", "venusflytrap"]
+members = ["tools/checksuminator", "tools/activator"]
 
 [profile.dev]
 debug = true
