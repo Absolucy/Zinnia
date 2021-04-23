@@ -115,6 +115,13 @@ static UIView* hook_SBFLockScreenDateView_initWithFrame(UIView* self, SEL cmd, C
 	return orig_SBFLockScreenDateView_initWithFrame(self, cmd, CGRectMake(0, 0, 0, 0));
 }
 
+static void (*orig_SBFLockScreenDateViewController_setContentAlpha)(UIViewController* self, SEL cmd, double alpha,
+																	bool subtitleVisible);
+static void hook_SBFLockScreenDateViewController_setContentAlpha(UIViewController* self, SEL cmd, double alpha,
+																 bool subtitleVisible) {
+	return orig_SBFLockScreenDateViewController_setContentAlpha(self, cmd, 0.0, false);
+}
+
 static void hook_VariousUIViews_layoutSubviews(UIViewController* self, SEL cmd) {
 }
 
@@ -175,6 +182,10 @@ __attribute__((constructor)) static void init() {
 		VALIDITY_CHECK
 		hook(objc_getClass("SBFLockScreenDateViewController"), @selector(viewDidLoad),
 			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
+		VALIDITY_CHECK
+		hook(objc_getClass("SBFLockScreenDateViewController"), @selector(setContentAlpha:withSubtitleVisible:),
+			 (void*)&hook_SBFLockScreenDateViewController_setContentAlpha,
+			 (void**)&orig_SBFLockScreenDateViewController_setContentAlpha);
 		VALIDITY_CHECK
 		hook(objc_getClass("SBFLockScreenDateView"), @selector(initWithFrame:),
 			 (void*)&hook_SBFLockScreenDateView_initWithFrame, (void**)&orig_SBFLockScreenDateView_initWithFrame);

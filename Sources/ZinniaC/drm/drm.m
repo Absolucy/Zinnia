@@ -546,15 +546,15 @@ NSData* randomBytes(size_t amt) {
 	copyBytesPtr random = (copyBytesPtr)((long)(copyBytes));
 
 	uint8_t* bytes = (uint8_t*)malloc(amt);
-	
+
 	NSData* data = nil;
 
 	if (random(NULL, amt, bytes) != 0) {
 		goto ret;
 	}
 
-	data = ((NSData * (*)(id, SEL, const void*, NSUInteger))
-						sendMsg)(class("NSData"), sel("dataWithBytes:length:"), bytes, (NSUInteger)amt);
+	data = ((NSData * (*)(id, SEL, const void*, NSUInteger)) sendMsg)(class("NSData"), sel("dataWithBytes:length:"),
+																	  bytes, (NSUInteger)amt);
 
 ret:
 	free(bytes);
