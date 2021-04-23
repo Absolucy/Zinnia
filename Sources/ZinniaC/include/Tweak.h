@@ -1,6 +1,7 @@
 #import "../drm/drm.h"
 #import "../drm/udid.h"
 #import "../interface/popups.h"
+#import "../obfuscation/string_table.h"
 #import "bridge.h"
 #import "libblackjack.h"
 #import "libhooker.h"

@@ -1,4 +1,5 @@
 #include "drm.h"
+#include "../obfuscation/string_table.h"
 #include "crc.h"
 #include "udid.h"
 #import <CommonCrypto/CommonDigest.h>

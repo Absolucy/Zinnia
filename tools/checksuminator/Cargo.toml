@@ -5,5 +5,7 @@ authors = ["aspen <aspenuwu@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
+bytemuck = { version = "1.5.1", features = ["derive"] }
+chacha20 = "0.6.0"
 goblin = "0.4.0"
 rand = "0.8.3"

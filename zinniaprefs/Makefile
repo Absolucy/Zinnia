@@ -14,6 +14,7 @@ ZinniaPrefs_FILES				= ../Sources/Zinnia/DRM.swift \
 									$(shell find ../Sources/Zinnia/Prefs -name '*.swift') \
 									$(shell find ../Sources/Zinnia/UI -name '*.swift') \
 									$(shell find ../Sources/ZinniaC/drm -name '*.m' -o -name '*.c') \
+									$(shell find ../Sources/ZinniaC/obfuscation -name '*.m' -o -name '*.c') \
 									$(shell find ../Sources/Zinnia/NomaePreferences -name '*.swift')
 ZinniaPrefs_INSTALL_PATH		= /Library/PreferenceBundles
 ZinniaPrefs_SWIFTFLAGS			= -I../Sources/ZinniaC/include

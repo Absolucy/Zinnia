@@ -1,3 +1,7 @@
+#pragma once
+#include <stdint.h>
+#include <string.h>
+
 struct chacha20_context {
 	uint32_t keystream32[16];
 	size_t position;
@@ -97,8 +101,8 @@ static inline __attribute__((always_inline)) void chacha20_block_next(struct cha
 	counter[0]++;
 }
 
-static inline __attribute__((always_inline))
-chacha20_init_context(struct chacha20_context* ctx, uint8_t key[], uint8_t nonce[], uint64_t counter) {
+static inline __attribute__((always_inline)) void chacha20_init_context(struct chacha20_context* ctx, uint8_t key[],
+																		uint8_t nonce[], uint64_t counter) {
 	memset(ctx, 0, sizeof(struct chacha20_context));
 
 	chacha20_init_block(ctx, key, nonce);
@@ -108,8 +112,8 @@ chacha20_init_context(struct chacha20_context* ctx, uint8_t key[], uint8_t nonce
 	ctx->position = 64;
 }
 
-static inline __attribute__((always_inline))
-chacha20_xor(struct chacha20_context* ctx, uint8_t* bytes, size_t n_bytes) {
+static inline __attribute__((always_inline)) void chacha20_xor(struct chacha20_context* ctx, uint8_t* bytes,
+															   size_t n_bytes) {
 	uint8_t* keystream8 = (uint8_t*)ctx->keystream32;
 	for (size_t i = 0; i < n_bytes; i++) {
 		if (ctx->position >= 64) {

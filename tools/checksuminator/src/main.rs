@@ -1,9 +1,12 @@
+mod string_table;
+
+use bytemuck::{Pod, Zeroable};
 use goblin::mach::{symbols::Nlist, Mach, MachO};
 use rand::{prelude::SliceRandom, Rng};
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Pod, Zeroable)]
 #[repr(C)]
-struct crc_lookup {
+struct CrcLookup {
 	ckey: u64,
 	checksum: u64,
 	size: u64,
@@ -35,7 +38,7 @@ fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
 		}
 	}
 	offsets.sort_by(|(_, a), (_, b)| a.n_value.cmp(&b.n_value));
-	let mut crc_table: Vec<crc_lookup> = Vec::with_capacity(offsets.len());
+	let mut crc_table: Vec<CrcLookup> = Vec::with_capacity(offsets.len());
 	let mut offsets_iter = offsets.iter().peekable();
 	let mut rng = rand::thread_rng();
 	while let Some((name, symbol)) = offsets_iter.next() {
@@ -61,7 +64,7 @@ fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
 				&binary[symbol.n_value as usize..next_offset],
 			);
 			let ckey = rng.gen();
-			let entry = crc_lookup {
+			let entry = CrcLookup {
 				ckey,
 				checksum: checksum ^ ckey,
 				size: size as u64,
@@ -86,7 +89,7 @@ fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
 	println!("crc of text is 0x{:010x}", text_crc);
 	let ckey = rng.gen();
 	let jkey = rng.gen();
-	let entry = crc_lookup {
+	let entry = CrcLookup {
 		ckey,
 		checksum: text_crc ^ ckey,
 		size: text.size,
@@ -103,7 +106,7 @@ fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
 
 	crc_table.shuffle(&mut rng);
 
-	crc_table.resize_with(1024, || crc_lookup {
+	crc_table.resize_with(1024, || CrcLookup {
 		ckey: rng.gen(),
 		checksum: rng.gen(),
 		size: rng.gen_range(8..256),
@@ -126,13 +129,10 @@ fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
 		})
 		.expect("failed to find crc table section");
 
-	let bytes: &[u8] = unsafe {
-		std::slice::from_raw_parts(
-			crc_table.as_ptr() as *const _,
-			std::mem::size_of::<crc_lookup>() * crc_table.len(),
-		)
-	};
-	binary.splice(crc_table_range, bytes.iter().copied());
+	binary.splice(
+		crc_table_range,
+		bytemuck::cast_slice(&crc_table).iter().copied(),
+	);
 }
 
 fn main() {
