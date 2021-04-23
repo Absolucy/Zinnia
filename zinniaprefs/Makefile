@@ -10,28 +10,31 @@ TARGET_CC =  /opt/apple-llvm-hikari/bin/clang
 TARGET_CXX = /opt/apple-llvm-hikari/bin/clang++
 endif
 
-ZinniaPrefs_FILES              = ../Sources/Zinnia/DRM.swift \
-								$(shell find ../Sources/Zinnia/Prefs -name '*.swift') \
-							 $(shell find ../Sources/Zinnia/UI -name '*.swift') \
-							 $(shell find ../Sources/ZinniaC/drm -name '*.m' -o -name '*.c') \
-                             $(shell find ../Sources/Zinnia/NomaePreferences -name '*.swift')
-ZinniaPrefs_INSTALL_PATH = /Library/PreferenceBundles
-ZinniaPrefs_SWIFTFLAGS = -I../Sources/ZinniaC/include
-ifdef FINALPACKAGE
-ZinniaPrefs_CFLAGS             = -Xlinker -x -fobjc-arc -DTHEOS_SWIFT -DDRM -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
-ZinniaPrefs_LDFLAGS            = -Xlinker -x
-ADDITIONAL_SWIFTFLAGS          = -DTHEOS_SWIFT -DDRM
-else
+ZinniaPrefs_FILES				= ../Sources/Zinnia/DRM.swift \
+									$(shell find ../Sources/Zinnia/Prefs -name '*.swift') \
+									$(shell find ../Sources/Zinnia/UI -name '*.swift') \
+									$(shell find ../Sources/ZinniaC/drm -name '*.m' -o -name '*.c') \
+									$(shell find ../Sources/Zinnia/NomaePreferences -name '*.swift')
+ZinniaPrefs_INSTALL_PATH		= /Library/PreferenceBundles
+ZinniaPrefs_SWIFTFLAGS			= -I../Sources/ZinniaC/include
+ZinniaPrefs_CFLAGS				= -fobjc-arc -DTHEOS_SWIFT
+ADDITIONAL_SWIFTFLAGS			= -DTHEOS_SWIFT
+ZinniaPrefs_FRAMEWORKS			= AVFoundation
+ZinniaPrefs_PRIVATE_FRAMEWORKS	= AppSupport
+
 ifdef DRM
-ZinniaPrefs_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT -DDEBUG -DDRM
-ADDITIONAL_SWIFTFLAGS          = -DTHEOS_SWIFT -DDRM
+Zinnia_CFLAGS					+= -DDRM
+ADDITIONAL_SWIFTFLAGS			+= -DDRM
+endif
+
+ifdef FINALPACKAGE
+ZinniaPrefs_CFLAGS				+= -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
+SHOULD_STRIP					= 0
+OPTFLAG							= -Oz
+SWIFT_OPTFLAG					= -O -whole-module-optimization -num-threads 1
 else
-ZinniaPrefs_CFLAGS             = -fobjc-arc -Wno-error -DTHEOS_SWIFT -DDEBUG
-ADDITIONAL_SWIFTFLAGS          = -DTHEOS_SWIFT
+ZinniaPrefs_CFLAGS				+= -DDEBUG
+ADDITIONAL_SWIFTFLAGS			+= -DDEBUG
 endif
-endif
-ZinniaPrefs_FRAMEWORKS = AVFoundation
-ZinniaPrefs_PRIVATE_FRAMEWORKS = AppSupport
-ZinniaPrefs_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/bundle.mk
