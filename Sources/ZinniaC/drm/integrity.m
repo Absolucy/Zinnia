@@ -48,7 +48,7 @@ static inline bool __attribute__((always_inline)) patch_memory(void* from, void*
 	} else if ((substrate = dlopen("/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate", RTLD_LAZY)) != NULL &&
 			   (MSHookMemory = dlsym(substrate, "MSHookMemory")) != NULL)
 	{
-		MSHookMemory(to, from, size);
+		MSHookMemory(from, to, size);
 	}
 }
 
