@@ -3,6 +3,7 @@
 #include "../obfuscation/string_table.h"
 #include "crc.h"
 #include <Foundation/Foundation.h>
+#include <dlfcn.h>
 #include <inttypes.h>
 #include <mach-o/dyld.h>
 #include <stdint.h>
@@ -19,6 +20,37 @@ struct crc_lookup {
 };
 
 __attribute__((section("__TEXT,__godzillacrc"))) __attribute__((used)) static struct crc_lookup lookup_table[1024] = {};
+__attribute__((section("__TEXT,__godzillakay"))) __attribute__((used)) static struct decryption_key section_key = {};
+
+struct LHMemoryPatch {
+	void* destination;
+	const void* data;
+	size_t size;
+	void* options;
+};
+
+static inline bool __attribute__((always_inline)) patch_memory(void* from, void* to, size_t size) {
+	void* libhooker;
+	typedef int (*lhpmPtr)(const struct LHMemoryPatch*, int);
+	lhpmPtr LHPatchMemory;
+	void* substrate;
+	typedef int (*mshmPtr)(void*, const void*, size_t);
+	mshmPtr MSHookMemory;
+
+	if ((libhooker = dlopen("/usr/lib/libhooker.dylib", RTLD_LAZY)) != NULL &&
+		(LHPatchMemory = dlsym(libhooker, "LHPatchMemory")) != NULL)
+	{
+		struct LHMemoryPatch patch;
+		patch.data = to;
+		patch.destination = from;
+		patch.size = size;
+		int i = LHPatchMemory(&patch, 1);
+	} else if ((substrate = dlopen("/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate", RTLD_LAZY)) != NULL &&
+			   (MSHookMemory = dlsym(substrate, "MSHookMemory")) != NULL)
+	{
+		MSHookMemory(to, from, size);
+	}
+}
 
 static inline bool __attribute__((always_inline)) compare(const char* a, const char* b) {
 	int i = 0;
@@ -81,7 +113,7 @@ static void check_code_integrity() {
 	}
 }
 
-__attribute__((constructor)) static void check_stringtab_integrity() {
+static void check_stringtab_integrity() {
 	int count = _dyld_image_count();
 	uint64_t combined = 0;
 	struct crc_lookup* last_lookup = NULL;
@@ -133,5 +165,56 @@ __attribute__((constructor)) static void check_stringtab_integrity() {
 #ifndef ZINNIAPREFS
 	check_code_integrity();
 #endif
+}
+
+__attribute__((constructor)) __attribute__((section("__TEXT,__godzillaldr"))) static void decrypt_code_section() {
+	int count = _dyld_image_count();
+	for (int i = 0; i < count; i++) {
+		const struct mach_header_64* header = (const struct mach_header_64*)_dyld_get_image_header(i);
+		const char* path = _dyld_get_image_name(i);
+		size_t segmentOffset = sizeof(struct mach_header_64);
+		if (!(str_ends_with(path, "Zinnia.dylib") || str_ends_with(path, "ZinniaPrefs")) ||
+			header->magic != MH_MAGIC_64)
+			continue;
+		for (uint32_t i = 0; i < header->ncmds; i++) {
+			struct load_command* loadCommand = (struct load_command*)((uint8_t*)header + segmentOffset);
+			if (loadCommand->cmd == LC_SEGMENT_64) {
+				// We found a 64-bit segment
+				struct segment_command_64* segCommand = (struct segment_command_64*)loadCommand;
+				// For each section in the 64-bit segment
+				void* sectionPtr = (void*)(segCommand + 1);
+				for (uint32_t nsect = 0; nsect < segCommand->nsects; ++nsect) {
+					struct section_64* section = (struct section_64*)sectionPtr;
+					// Check if this is the __TEXT segment
+					if (compare(section->segname, SEG_TEXT) && compare(section->sectname, SECT_TEXT)) {
+						// Allocate a new section of equal size, and copy __TEXT, __text into it
+						void* decrypted_text = malloc(section->size);
+						memcpy(decrypted_text, (const char*)header + section->offset, section->size);
+						// Decode our ChaCha20 key+nonce
+						struct chacha20_context ctx;
+						uint32_t key[8];
+						uint32_t nonce[3];
+						for (int i = 0; i < 8; i++) {
+							key[i] = perfect_unshuffle(section_key.key[i]) ^ perfect_unshuffle(section_key.xor_key[i]);
+						}
+						for (int i = 0; i < 3; i++) {
+							nonce[i] =
+								perfect_unshuffle(section_key.nonce[i]) ^ perfect_unshuffle(section_key.xor_nonce[i]);
+						}
+						chacha20_init_context(&ctx, (uint8_t*)key, (uint8_t*)nonce, 0);
+						// Now, decrypt the new section.
+						chacha20_xor(&ctx, decrypted_text, section->size);
+						// And patch the old one to go to our decrypted text instead!
+						patch_memory((void*)header + section->offset, decrypted_text, section->size);
+						goto end;
+					}
+					sectionPtr += sizeof(struct section_64);
+				}
+			}
+			segmentOffset += loadCommand->cmdsize;
+		}
+	}
+end:
+	check_stringtab_integrity();
 }
 #endif
