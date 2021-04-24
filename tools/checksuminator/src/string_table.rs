@@ -51,7 +51,7 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
 		.sections()
 		.expect("failed to get sections")
 		.into_iter()
-		.find(|(section, _)| section.name().unwrap() == "__GZTOC")
+		.find(|(section, _)| section.name().unwrap() == "__GODZILLATOC")
 		.map(|(section, _)| {
 			offset + section.offset as usize
 				..offset + section.offset as usize + section.size as usize
@@ -65,7 +65,7 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
 		.sections()
 		.expect("failed to get sections")
 		.into_iter()
-		.find(|(section, _)| section.name().unwrap() == "__GZSTB")
+		.find(|(section, _)| section.name().unwrap() == "__GODZILLASTRTB")
 		.map(|(section, _)| {
 			offset + section.offset as usize
 				..offset + section.offset as usize + section.size as usize

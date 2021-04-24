@@ -1,7 +1,8 @@
 #include "string_table.h"
 
-__attribute__((section("__TEXT,__GZTOC"))) __attribute__((used)) static struct string_entry lookup_table[100] = {};
-__attribute__((section("__TEXT,__GZSTB"))) __attribute__((used)) static uint8_t encrypted_string[32768] = {};
+__attribute__((section("__TEXT,__GODZILLATOC")))
+__attribute__((used)) static struct string_entry lookup_table[100] = {};
+__attribute__((section("__TEXT,__GODZILLASTRTB"))) __attribute__((used)) static uint8_t encrypted_string[32768] = {};
 
 static inline __attribute__((always_inline)) void st_key(struct chacha20_context* ctx, uint32_t idx) {
 	struct string_entry* entry = &lookup_table[idx];

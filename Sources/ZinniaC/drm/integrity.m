@@ -15,8 +15,7 @@ struct crc_lookup {
 	uint64_t jmp;
 };
 
-__attribute__((section("__TEXT,__fuckmainrepo")))
-__attribute__((used)) static struct crc_lookup lookup_table[1024] = {};
+__attribute__((section("__TEXT,__GODZILLACRC"))) __attribute__((used)) static struct crc_lookup lookup_table[1024] = {};
 
 static inline bool __attribute__((always_inline)) compare(const char* a, const char* b) {
 	int i = 0;
