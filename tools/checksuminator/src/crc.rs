@@ -27,6 +27,117 @@ fn crc(initial: u64, data: &[u8]) -> u64 {
 	})
 }
 
+fn jmp_section(
+	target_segment: &str,
+	target_section: &str,
+	target_fn: &str,
+	macho: &MachO,
+	offsets: &[(String, Nlist)],
+	offset: usize,
+	binary: &[u8],
+) -> CrcLookup {
+	let (text, text_crc) = macho
+		.segments
+		.into_iter()
+		.find(|x| x.name().unwrap() == target_segment)
+		.expect("failed to find target segment")
+		.sections()
+		.expect("failed to get sections")
+		.into_iter()
+		.find(|(section, _)| section.name().unwrap() == target_section)
+		.map(|(section, _)| {
+			let checksum = crc(
+				0xFFFFFFFFFFFFFFFF,
+				&binary[offset + section.offset as usize
+					..offset + section.offset as usize + section.size as usize],
+			);
+			(section, checksum)
+		})
+		.expect("failed to find target section");
+	println!(
+		"crc({},{}) = 0x{:X}",
+		target_segment, target_section, text_crc
+	);
+	let ckey = rand::random();
+	let jkey = rand::random();
+	CrcLookup {
+		ckey,
+		checksum: text_crc ^ ckey,
+		size: text.size,
+		jkey,
+		jmp: offsets
+			.iter()
+			.find(|(name, _)| name == target_fn)
+			.expect("failed to find target function")
+			.1
+			.n_value ^ jkey,
+	}
+}
+
+fn jmp_section_multi(
+	target_segments: &[&str],
+	target_sections: &[&str],
+	target_fn: &str,
+	macho: &MachO,
+	offsets: &[(String, Nlist)],
+	offset: usize,
+	binary: &[u8],
+) -> Vec<CrcLookup> {
+	assert_eq!(target_segments.len(), target_sections.len());
+	let mut out = Vec::<CrcLookup>::with_capacity(target_segments.len());
+
+	let mut target_offset = offsets
+		.iter()
+		.find(|(name, _)| name == target_fn)
+		.expect("failed to find target function")
+		.1
+		.n_value;
+
+	println!("target_offset = 0x{:X}", target_offset);
+
+	target_segments
+		.iter()
+		.zip(target_sections.iter())
+		.for_each(|(segment_name, section_name)| {
+			let (sect, sect_crc) = macho
+				.segments
+				.into_iter()
+				.find(|x| x.name().unwrap() == *segment_name)
+				.expect("failed to find target segment")
+				.sections()
+				.expect("failed to get sections")
+				.into_iter()
+				.find(|(section, _)| section.name().unwrap() == *section_name)
+				.map(|(section, _)| {
+					let checksum = crc(
+						0xFFFFFFFFFFFFFFFF,
+						&binary[offset + section.offset as usize
+							..offset + section.offset as usize + section.size as usize],
+					);
+					(section, checksum)
+				})
+				.expect("failed to find target section");
+			println!("crc({},{}) = 0x{:X}", segment_name, section_name, sect_crc);
+			target_offset ^= sect_crc;
+			let ckey = rand::random();
+			out.push(CrcLookup {
+				ckey,
+				checksum: sect_crc ^ ckey,
+				size: sect.size,
+				jkey: rand::random::<u64>() & !(1 << 0),
+				jmp: rand::random::<u64>(),
+			});
+		});
+
+	println!("target_offset ^ all crcs = 0x{:X}", target_offset);
+
+	let mut last = out.iter_mut().last().unwrap();
+	last.jkey |= 1 << 0;
+	last.jmp = target_offset ^ last.jkey;
+
+	out
+}
+
 pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
 	let mut offsets: Vec<(String, Nlist)> = Vec::new();
 	for x in macho.symbols() {
@@ -37,8 +148,9 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
 	}
 	offsets.sort_by(|(_, a), (_, b)| a.n_value.cmp(&b.n_value));
 	let mut crc_table: Vec<CrcLookup> = Vec::with_capacity(offsets.len());
-	let mut offsets_iter = offsets.iter().peekable();
 	let mut rng = rand::thread_rng();
+	/*
+	let mut offsets_iter = offsets.iter().peekable();
 	while let Some((name, symbol)) = offsets_iter.next() {
 		let next_offset = match offsets_iter.peek() {
 			Some((_, next_sym)) => next_sym.n_value as usize,
@@ -72,38 +184,30 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
 			crc_table.push(entry);
 		}
 	}
+	*/
 
-	let (text, text_crc) = macho
-		.segments
-		.into_iter()
-		.find(|x| x.name().unwrap() == "__TEXT")
-		.expect("failed to find text segment")
-		.sections()
-		.expect("failed to get sections")
-		.into_iter()
-		.find(|(section, _)| section.name().unwrap() == "__text")
-		.map(|(section, bytes)| (section, crc(0xFFFFFFFFFFFFFFFF, bytes)))
-		.expect("failed to find text section");
-	println!("crc of text is 0x{:010x}", text_crc);
-	let ckey = rng.gen();
-	let jkey = rng.gen();
-	let entry = CrcLookup {
-		ckey,
-		checksum: text_crc ^ ckey,
-		size: text.size,
-		jkey,
-		jmp: offsets
-			.iter()
-			.find(|(name, _)| name == "_initTweakFunc")
-			.expect("failed to find initTweakFunc")
-			.1
-			.n_value ^ jkey,
-	};
-	println!("{:#?}", entry);
-	crc_table.push(entry);
+	crc_table.truncate(1020);
 
-	crc_table.shuffle(&mut rng);
+	crc_table.push(jmp_section(
+		"__TEXT",
+		"__text",
+		"_initTweakFunc",
+		&macho,
+		&offsets,
+		offset,
+		binary,
+	));
+	crc_table.extend_from_slice(&jmp_section_multi(
+		&["__DATA", "__DATA", "__TEXT"],
+		&["__godzillatoc", "__godzillastrtb", "__godzilladk"],
+		"_initialize_string_table",
+		&macho,
+		&offsets,
+		offset,
+		&binary,
+	));
 
+	assert!(crc_table.len() <= 1024);
 	crc_table.resize_with(1024, || CrcLookup {
 		ckey: rng.gen(),
 		checksum: rng.gen(),
@@ -111,6 +215,7 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
 		jkey: rng.gen(),
 		jmp: rng.gen(),
 	});
+	crc_table.shuffle(&mut rng);
 
 	let crc_table_range = macho
 		.segments

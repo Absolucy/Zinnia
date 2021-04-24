@@ -4,12 +4,14 @@ mod string_table;
 use goblin::mach::{Mach, MachO};
 
 fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>) {
-	crc::handle(&macho, offset, binary);
 	string_table::handle(&macho, offset, binary);
+	crc::handle(&macho, offset, binary);
 }
 
 fn main() {
 	let x = std::env::args().collect::<Vec<_>>();
+
+	println!();
 
 	let binary = std::fs::read(&x[1]).unwrap();
 	let mut out_binary = binary.clone();
@@ -34,4 +36,6 @@ fn main() {
 	}
 
 	std::fs::write(&x[1], out_binary).expect("failed to write");
+
+	println!();
 }

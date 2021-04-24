@@ -18,7 +18,7 @@ let libFlags: [String] = [
 
 let cFlags: [String] = libFlags + [
 	"-Wno-unused-command-line-argument", "-Qunused-arguments",
-	"-Wno-deprecated-declarations",
+	"-Wno-deprecated-declarations", "-DDRM",
 ]
 
 let cxxFlags: [String] = [

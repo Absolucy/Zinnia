@@ -164,6 +164,10 @@ __attribute__((constructor)) static void init() {
 			  @"continue.");
 	}
 
+#if DEBUG
+	NSLog(@"Zinnia string table test: '%s'", st_get(0));
+#endif
+
 	hook(objc_getClass("CSCoverSheetViewController"), @selector(finishUIUnlockFromSource:),
 		 (void*)&hook_CSCoverSheetViewController_finishUIUnlockFromSource,
 		 (void**)&orig_CSCoverSheetViewController_finishUIUnlockFromSource);
