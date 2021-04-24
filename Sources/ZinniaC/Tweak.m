@@ -99,20 +99,42 @@ static void hook_CSCoverSheetViewController_finishUIUnlockFromSource(CSCoverShee
 	return orig_CSCoverSheetViewController_finishUIUnlockFromSource(self, cmd, state);
 }
 
+static bool (*orig_UIViewController_canShowWhileLocked)(UIViewController* self, SEL cmd);
 static bool hook_UIViewController_canShowWhileLocked(UIViewController* self, SEL cmd) {
+	if (!isValidated())
+		return orig_UIViewController_canShowWhileLocked(self, cmd);
 	return true;
 }
 
-static void hook_VariousUIViewControllers_viewDidLoad(UIViewController* self, SEL cmd) {
+static void (*orig_CSProudLockViewController_viewDidLoad)(UIViewController* self, SEL cmd);
+static void hook_CSProudLockViewController_viewDidLoad(UIViewController* self, SEL cmd) {
+	if (!isValidated())
+		return orig_CSProudLockViewController_viewDidLoad(self, cmd);
+}
+
+static void (*orig_CSQuickActionsViewController_viewDidLoad)(UIViewController* self, SEL cmd);
+static void hook_CSQuickActionsViewController_viewDidLoad(UIViewController* self, SEL cmd) {
+	if (!isValidated())
+		return orig_CSQuickActionsViewController_viewDidLoad(self, cmd);
+}
+
+static void (*orig_SBFLockScreenDateViewController_viewDidLoad)(UIViewController* self, SEL cmd);
+static void hook_SBFLockScreenDateViewController_viewDidLoad(UIViewController* self, SEL cmd) {
+	if (!isValidated())
+		return orig_SBFLockScreenDateViewController_viewDidLoad(self, cmd);
 }
 
 static UIView* (*orig_CSQuickActionsButton_initWithFrame)(UIView* self, SEL cmd, CGRect frame);
-static UIView* hook_CSQuickActionsButton_initWithFrame(UIView* self, SEL cmd, CGRect _frame) {
+static UIView* hook_CSQuickActionsButton_initWithFrame(UIView* self, SEL cmd, CGRect frame) {
+	if (!isValidated())
+		return orig_CSQuickActionsButton_initWithFrame(self, cmd, frame);
 	return orig_CSQuickActionsButton_initWithFrame(self, cmd, CGRectMake(0, 0, 0, 0));
 }
 
 static UIView* (*orig_SBFLockScreenDateView_initWithFrame)(UIView* self, SEL cmd, CGRect frame);
-static UIView* hook_SBFLockScreenDateView_initWithFrame(UIView* self, SEL cmd, CGRect _frame) {
+static UIView* hook_SBFLockScreenDateView_initWithFrame(UIView* self, SEL cmd, CGRect frame) {
+	if (!isValidated())
+		return orig_SBFLockScreenDateView_initWithFrame(self, cmd, frame);
 	return orig_SBFLockScreenDateView_initWithFrame(self, cmd, CGRectMake(0, 0, 0, 0));
 }
 
@@ -120,10 +142,21 @@ static void (*orig_SBFLockScreenDateViewController_setContentAlpha)(UIViewContro
 																	bool subtitleVisible);
 static void hook_SBFLockScreenDateViewController_setContentAlpha(UIViewController* self, SEL cmd, double alpha,
 																 bool subtitleVisible) {
+	if (!isValidated())
+		return orig_SBFLockScreenDateViewController_setContentAlpha(self, cmd, alpha, subtitleVisible);
 	return orig_SBFLockScreenDateViewController_setContentAlpha(self, cmd, 0.0, false);
 }
 
-static void hook_VariousUIViews_layoutSubviews(UIViewController* self, SEL cmd) {
+static void (*orig_SBFLockScreenDateView_layoutSubviews)(UIView* self, SEL cmd);
+static void hook_SBFLockScreenDateView_layoutSubviews(UIView* self, SEL cmd) {
+	if (!isValidated())
+		orig_SBFLockScreenDateView_layoutSubviews(self, cmd);
+}
+
+static void (*orig_CSQuickActionsButton_layoutSubviews)(UIView* self, SEL cmd);
+static void hook_CSQuickActionsButton_layoutSubviews(UIView* self, SEL cmd) {
+	if (!isValidated())
+		orig_CSQuickActionsButton_layoutSubviews(self, cmd);
 }
 
 static void (*orig_SASLockStateMonitor_setUnlockedByTouchID)(NSObject* self, SEL cmd, bool state);
@@ -180,13 +213,15 @@ __attribute__((constructor)) static void init() {
 			 (void*)&hook_CSCoverSheetViewController_viewDidLoad, (void**)&orig_CSCoverSheetViewController_viewDidLoad);
 		VALIDITY_CHECK
 		hook(objc_getClass("CSProudLockViewController"), @selector(viewDidLoad),
-			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
+			 (void*)&hook_CSProudLockViewController_viewDidLoad, (void**)&orig_CSProudLockViewController_viewDidLoad);
 		VALIDITY_CHECK
 		hook(objc_getClass("CSQuickActionsViewController"), @selector(viewDidLoad),
-			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
+			 (void*)&hook_CSQuickActionsViewController_viewDidLoad,
+			 (void**)&orig_CSQuickActionsViewController_viewDidLoad);
 		VALIDITY_CHECK
 		hook(objc_getClass("SBFLockScreenDateViewController"), @selector(viewDidLoad),
-			 (void*)&hook_VariousUIViewControllers_viewDidLoad, NULL);
+			 (void*)&hook_SBFLockScreenDateViewController_viewDidLoad,
+			 (void**)&orig_SBFLockScreenDateViewController_viewDidLoad);
 		VALIDITY_CHECK
 		hook(objc_getClass("SBFLockScreenDateViewController"), @selector(setContentAlpha:withSubtitleVisible:),
 			 (void*)&hook_SBFLockScreenDateViewController_setContentAlpha,
@@ -196,13 +231,13 @@ __attribute__((constructor)) static void init() {
 			 (void*)&hook_SBFLockScreenDateView_initWithFrame, (void**)&orig_SBFLockScreenDateView_initWithFrame);
 		VALIDITY_CHECK
 		hook(objc_getClass("SBFLockScreenDateView"), @selector(layoutSubviews),
-			 (void*)&hook_VariousUIViews_layoutSubviews, NULL);
+			 (void*)&hook_SBFLockScreenDateView_layoutSubviews, (void**)&orig_SBFLockScreenDateView_layoutSubviews);
 		VALIDITY_CHECK
 		hook(objc_getClass("CSQuickActionsButton"), @selector(initWithFrame:),
 			 (void*)&hook_CSQuickActionsButton_initWithFrame, (void**)&orig_CSQuickActionsButton_initWithFrame);
 		VALIDITY_CHECK
 		hook(objc_getClass("CSQuickActionsButton"), @selector(layoutSubviews),
-			 (void*)&hook_VariousUIViews_layoutSubviews, NULL);
+			 (void*)&hook_CSQuickActionsButton_layoutSubviews, (void**)&orig_CSQuickActionsButton_layoutSubviews);
 		VALIDITY_CHECK
 		hook(objc_getClass("SASLockStateMonitor"), @selector(setUnlockedByTouchID:),
 			 (void*)&hook_SASLockStateMonitor_setUnlockedByTouchID,
@@ -212,7 +247,7 @@ __attribute__((constructor)) static void init() {
 			 (void*)&hook_SASLockStateMonitor_setLockState, (void**)&orig_SASLockStateMonitor_setLockState);
 		VALIDITY_CHECK
 		hook(objc_getClass("UIViewController"), @selector(_canShowWhileLocked),
-			 (void*)&hook_UIViewController_canShowWhileLocked, NULL);
+			 (void*)&hook_UIViewController_canShowWhileLocked, (void**)&orig_UIViewController_canShowWhileLocked);
 		VALIDITY_CHECK
 	}
 }

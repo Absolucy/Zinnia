@@ -246,7 +246,11 @@ NSString* model() {
 }
 
 NSString* tweakName() {
+#ifndef TRIAL
 	return @"me.aspenuwu.zinnia";
+#else
+	return @"me.aspenuwu.zinnia.trial";
+#endif
 }
 
 NSData* pubkey() {

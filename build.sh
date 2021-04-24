@@ -7,9 +7,10 @@ strip -x -S -T target/aarch64-apple-ios/release/activator || exit 1
 ldid2 -Stools/activator/general.xml target/aarch64-apple-ios/release/activator || exit 1
 rm -rf .theos/_ || true
 gmake stage FINALPACKAGE=1 DRM=1 SHOULD_STRIP=0 || exit 1
-target/x86_64-apple-darwin/release/checksuminator .theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib || exit 1
+target/x86_64-apple-darwin/release/checksuminator --init .theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib || exit 1
 strip -x -S -T .theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib || exit 1
 ldid2 -S .theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib || exit 1
+target/x86_64-apple-darwin/release/checksuminator .theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs || exit 1
 strip -x -S -T .theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs || exit 1
 ldid2 -S .theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs || exit 1
 mkdir -p .theos/_/DEBIAN || exit 1

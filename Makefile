@@ -27,8 +27,13 @@ Zinnia_CFLAGS				+= -DDRM
 ADDITIONAL_SWIFTFLAGS		+= -DDRM
 endif
 
+ifdef TRIAL
+Zinnia_CFLAGS				+= -DTRIAL
+ADDITIONAL_SWIFTFLAGS		+= -DTRIAL
+endif
+
 ifdef FINALPACKAGE
-Zinnia_CFLAGS				+= -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-funcwra -mllvm --enable-subobf
+Zinnia_CFLAGS				+= -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-subobf
 SHOULD_STRIP				= 0
 OPTFLAG						= -Oz
 SWIFT_OPTFLAG				= -O -whole-module-optimization -num-threads 1

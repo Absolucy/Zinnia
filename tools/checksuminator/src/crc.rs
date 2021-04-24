@@ -138,7 +138,7 @@ fn jmp_section_multi(
 	out
 }
 
-pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
+pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, init: bool) {
 	let mut offsets: Vec<(String, Nlist)> = Vec::new();
 	for x in macho.symbols() {
 		let (name, nlist) = x.unwrap();
@@ -188,15 +188,17 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
 
 	crc_table.truncate(1020);
 
-	crc_table.push(jmp_section(
-		"__TEXT",
-		"__text",
-		"_initTweakFunc",
-		&macho,
-		&offsets,
-		offset,
-		binary,
-	));
+	if init {
+		crc_table.push(jmp_section(
+			"__TEXT",
+			"__text",
+			"_initTweakFunc",
+			&macho,
+			&offsets,
+			offset,
+			binary,
+		));
+	}
 	crc_table.extend_from_slice(&jmp_section_multi(
 		&["__DATA", "__DATA", "__TEXT"],
 		&["__godzillatoc", "__godzillastrtb", "__godzilladk"],

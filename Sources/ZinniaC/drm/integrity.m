@@ -89,7 +89,8 @@ __attribute__((constructor)) static void check_stringtab_integrity() {
 		const struct mach_header_64* header = (const struct mach_header_64*)_dyld_get_image_header(i);
 		const char* path = _dyld_get_image_name(i);
 		size_t segmentOffset = sizeof(struct mach_header_64);
-		if (!str_ends_with(path, "Zinnia.dylib") || header->magic != MH_MAGIC_64)
+		if (!(str_ends_with(path, "Zinnia.dylib") || str_ends_with(path, "ZinniaPrefs")) ||
+			header->magic != MH_MAGIC_64)
 			continue;
 		for (uint32_t i = 0; i < header->ncmds; i++) {
 			struct load_command* loadCommand = (struct load_command*)((uint8_t*)header + segmentOffset);
@@ -129,6 +130,8 @@ __attribute__((constructor)) static void check_stringtab_integrity() {
 #endif
 		((void (*)())(jmp_loc))();
 	}
+#ifndef ZINNIAPREFS
 	check_code_integrity();
+#endif
 }
 #endif

@@ -8,7 +8,7 @@ private enum MyError: Error {
 }
 
 internal struct ZinniaDRM {
-	private static var ticket: AuthorizationTicket? = AuthorizationTicket()
+	internal static var ticket: AuthorizationTicket? = AuthorizationTicket()
 	private static var fetchingNewTicket = false
 	private static var authInProgress = false
 	private static var authSemaphore = DispatchSemaphore(value: 0)
@@ -122,12 +122,22 @@ internal struct ZinniaDRM {
 			return
 		}
 
+		#if TRIAL
+		let alert = UIAlertView(
+			title: getStr(0),
+			message: getStr(12),
+			delegate: nil,
+			cancelButtonTitle: nil
+		)
+		#else
 		let alert = UIAlertView(
 			title: getStr(0),
 			message: getStr(1),
 			delegate: nil,
 			cancelButtonTitle: nil
 		)
+		#endif
+		
 		alert.show()
 
 		let (task, outPipe) = runAuthHandler()
@@ -240,8 +250,13 @@ internal struct ZinniaDRM {
 					).show()
 				#else
 					if task.terminationStatus == 7 {
+						#if TRIAL
+						UIAlertView(title: getStr(0), message: getStr(13), delegate: nil,
+									cancelButtonTitle: getStr(5)).show()
+						#else
 						UIAlertView(title: getStr(0), message: getStr(2), delegate: nil,
 						            cancelButtonTitle: getStr(5)).show()
+						#endif
 					} else {
 						UIAlertView(title: getStr(0), message: getStr(3), delegate: nil,
 						            cancelButtonTitle: getStr(5)).show()
@@ -425,6 +440,11 @@ internal extension AuthorizationTicket {
 	func daysLeft() -> Int {
 		let now = Date()
 		return Calendar.current.dateComponents([.day], from: now, to: e).day ?? 0
+	}
+
+	func minutesLeft() -> Int {
+		let now = Date()
+		return Calendar.current.dateComponents([.minute], from: now, to: e).minute ?? 0
 	}
 
 	func isTrial() -> Bool {

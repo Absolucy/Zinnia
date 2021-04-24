@@ -1,3 +1,4 @@
+use crate::Opt;
 use bytemuck::{Pod, Zeroable};
 use chacha20::{
 	cipher::{NewStreamCipher, SyncStreamCipher},
@@ -49,8 +50,8 @@ pub struct StringEntry {
 	keys: DecryptionKey,
 }
 
-pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
-	let strings = std::fs::read_to_string("strings.txt")
+pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, opt: &Opt) {
+	let strings = std::fs::read_to_string(&opt.string)
 		.unwrap()
 		.split("---")
 		.map(|x| x.trim().to_string())

@@ -50,7 +50,10 @@ use std::io::Read;
 
 const DRM_AUTH_URL: &str = "https://aiwass.aspenuwu.me/v1/authorize";
 const DRM_VALIDATE_URL: &str = "https://aiwass.aspenuwu.me/v1/authorize";
+#[cfg(not(feature = "trial"))]
 const TWEAK_NAME: &str = "me.aspenuwu.zinnia";
+#[cfg(feature = "trial")]
+const TWEAK_NAME: &str = "me.aspenuwu.zinnia.trial";
 const TICKET_LOCATION: &str = "/var/mobile/Library/Application Support/TWEAK_NAME/.goldenticket";
 
 #[derive(DekuRead)]

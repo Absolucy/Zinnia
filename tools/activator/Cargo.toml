@@ -30,3 +30,6 @@ webpki-roots = "0.21.1"
 
 [build-dependencies]
 cc = "1.0.67"
+
+[features]
+trial = []

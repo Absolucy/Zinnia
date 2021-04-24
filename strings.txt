@@ -25,3 +25,10 @@ en_US_POSIX
 /var/mobile/Library/Application Support/me.aspenuwu.zinnia
 ---
 /var/mobile/Library/Application Support/me.aspenuwu.zinnia/.goldenticket
+---
+TRIAL VERSION (%d minutes left)
+---
+Zinnia is authorizing your free 60-minute trial!
+---
+Zinnia failed to authorize the free 60-minute trial.
+Either you have already used your device's 60-minute trial before, or the authentication server is having issues.

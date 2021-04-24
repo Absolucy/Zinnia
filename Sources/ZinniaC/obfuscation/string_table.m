@@ -43,6 +43,7 @@ char* st_get(uint32_t idx) {
 		}
 	}
 
+	// if _platform_memmove crashes here, THAT MEANS THE STRING TABLE DID NOT DECRYPT!
 	char* string = (char*)malloc(length);
 	memcpy(string, string_base, length);
 	chacha20_xor(&ctx, (uint8_t*)string, length);
