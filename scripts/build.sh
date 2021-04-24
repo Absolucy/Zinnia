@@ -1,7 +1,7 @@
 #!/bin/bash
 source scripts/env.sh
 RUSTC=/opt/rust-hikari/bin/rustc \
-	RUSTFLAGS="-C llvm-args=--enable-bcfobf -C llvm-args=--enable-splitobf -C llvm-args=--enable-cffobf -C llvm-args=--enable-strcry" \
+	RUSTFLAGS="-C llvm-args=--enable-bcfobf" \
 	/opt/rust-hikari/bin/cargo build --release --target aarch64-apple-ios --package activator || exit 1
 strip -x -S -T target/aarch64-apple-ios/release/activator || exit 1
 ldid2 -Stools/activator/general.xml target/aarch64-apple-ios/release/activator || exit 1

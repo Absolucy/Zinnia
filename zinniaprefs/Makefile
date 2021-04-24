@@ -34,7 +34,7 @@ ADDITIONAL_SWIFTFLAGS			+= -DTRIAL
 endif
 
 ifdef FINALPACKAGE
-ZinniaPrefs_CFLAGS				+= -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-splitobf -mllvm --enable-strcry -mllvm --enable-subobf
+ZinniaPrefs_CFLAGS				+= -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-strcry
 SHOULD_STRIP					= 0
 OPTFLAG							= -Oz
 SWIFT_OPTFLAG					= -O -whole-module-optimization -num-threads 1
