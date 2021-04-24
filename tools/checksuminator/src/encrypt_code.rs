@@ -28,6 +28,8 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>) {
 	)
 	.apply_keystream(section);
 
+	println!("encrypted __TEXT,__text ({} bytes)", section.len());
+
 	section_key.shuffle();
 	let section_key: &[u8] = bytemuck::bytes_of(&section_key);
 
