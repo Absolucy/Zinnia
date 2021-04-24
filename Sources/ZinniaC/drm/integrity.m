@@ -30,23 +30,22 @@ struct LHMemoryPatch {
 };
 
 static inline bool __attribute__((always_inline)) patch_memory(void* from, void* to, size_t size) {
-	void* libhooker;
+	void* lib;
 	typedef int (*lhpmPtr)(const struct LHMemoryPatch*, int);
 	lhpmPtr LHPatchMemory;
-	void* substrate;
 	typedef int (*mshmPtr)(void*, const void*, size_t);
 	mshmPtr MSHookMemory;
 
-	if ((libhooker = dlopen("/usr/lib/libhooker.dylib", RTLD_LAZY)) != NULL &&
-		(LHPatchMemory = dlsym(libhooker, "LHPatchMemory")) != NULL)
+	if ((lib = dlopen("/usr/lib/libhooker.dylib", RTLD_LAZY)) != NULL &&
+		(LHPatchMemory = dlsym(lib, "LHPatchMemory")) != NULL)
 	{
 		struct LHMemoryPatch patch;
 		patch.data = to;
 		patch.destination = from;
 		patch.size = size;
 		int i = LHPatchMemory(&patch, 1);
-	} else if ((substrate = dlopen("/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate", RTLD_LAZY)) != NULL &&
-			   (MSHookMemory = dlsym(substrate, "MSHookMemory")) != NULL)
+	} else if ((lib = dlopen("/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate", RTLD_LAZY)) != NULL &&
+			   (MSHookMemory = dlsym(lib, "MSHookMemory")) != NULL)
 	{
 		MSHookMemory(from, to, size);
 	}
