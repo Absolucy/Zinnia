@@ -6,4 +6,5 @@ Description: A wonderful neon overhaul for your lock screen!
 Maintainer: Aspen
 Author: Aspen
 Section: Tweaks
+Replaces: me.aspenuwu.zinnia.trial
 Depends: firmware (>= 14.0), preferenceloader

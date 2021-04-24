@@ -1,0 +1,11 @@
+Package: me.aspenuwu.zinnia.trial
+Name: Zinnia (Trial)
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: A wonderful neon overhaul for your lock screen! (FREE TRIAL VERSION)
+Maintainer: Aspen
+Author: Aspen
+Section: Tweaks
+Provides: me.aspenuwu.zinnia
+Conflicts: me.aspenuwu.zinnia
+Depends: firmware (>= 14.0), preferenceloader

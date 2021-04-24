@@ -125,7 +125,7 @@ internal struct ZinniaDRM {
 		#if TRIAL
 			let alert = UIAlertView(
 				title: getStr(0),
-				message: getStr(12),
+				message: getStr(13),
 				delegate: nil,
 				cancelButtonTitle: nil
 			)
@@ -251,7 +251,7 @@ internal struct ZinniaDRM {
 				#else
 					if task.terminationStatus == 7 {
 						#if TRIAL
-							UIAlertView(title: getStr(0), message: getStr(13), delegate: nil,
+							UIAlertView(title: getStr(0), message: getStr(14), delegate: nil,
 							            cancelButtonTitle: getStr(5)).show()
 						#else
 							UIAlertView(title: getStr(0), message: getStr(2), delegate: nil,

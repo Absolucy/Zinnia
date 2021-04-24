@@ -70,8 +70,13 @@ bool check_for_plist() {
 	while ((p = ftsReadFn(ftsp)) != NULL) {
 		if ((p->fts_info ^ 34) == 42) {
 			switch (crc(crc_initial(), p->fts_path, p->fts_pathlen)) {
+#ifdef TRIAL
+				// /var/lib/dpkg/info/me.aspenuwu.zinnia.trial.list
+				case 0x72AD52597B45C0C6:
+#else
 				// /var/lib/dpkg/info/me.aspenuwu.zinnia.list
 				case 0x2B0A8D291612FF5C:
+#endif
 					retval = retval | (1 << 3);
 					break;
 				// /var/lib/dpkg/info/org.mr.zinnia.list
@@ -93,7 +98,11 @@ bool check_for_plist() {
 	}
 	ftsCloseFn(ftsp);
 
+#ifdef TRIAL
+	if (accessFn("/var/lib/dpkg/info/me.aspenuwu.zinnia.trial.list", F_OK) == 0) {
+#else
 	if (accessFn("/var/lib/dpkg/info/me.aspenuwu.zinnia.list", F_OK) == 0) {
+#endif
 		retval = retval | (1 << 2);
 	}
 	dlcloseFn(systemHandle);
