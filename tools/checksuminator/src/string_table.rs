@@ -113,7 +113,7 @@ impl StringEntry {
 
 		(
 			Self {
-				length: string.len() as u32,
+				length: perfect_shuffle(string.len() as u32),
 				key: key
 					.iter()
 					.zip(xor_key.iter())

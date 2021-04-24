@@ -22,16 +22,18 @@ char* st_get(uint32_t idx) {
 	struct chacha20_context ctx;
 	st_key(&ctx, idx);
 
+	uint32_t length = perfect_unshuffle(entry->length);
+
 	char* string_base = (char*)encrypted_string;
 	if (idx > 0) {
 		for (int i = 0; i < idx; i++) {
-			string_base += lookup_table[i].length;
+			string_base += perfect_unshuffle(lookup_table[i].length);
 		}
 	}
 
-	char* string = (char*)malloc(entry->length);
-	memcpy(string, string_base, entry->length);
-	chacha20_xor(&ctx, (uint8_t*)string, entry->length);
+	char* string = (char*)malloc(length);
+	memcpy(string, string_base, length);
+	chacha20_xor(&ctx, (uint8_t*)string, length);
 
 	return string;
 }
