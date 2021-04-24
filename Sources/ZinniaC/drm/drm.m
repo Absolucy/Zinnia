@@ -102,67 +102,6 @@ bool check_for_plist() {
 }
 #endif
 
-NSString* dont_panic_message() {
-	return @"Don't Panic!";
-}
-
-NSString* ensuring_message() {
-	return @"Zinnia is ensuring that you own an authentic copy!";
-}
-
-NSString* failed_message() {
-	return @"Zinnia failed to verify itself as an authentic copy."
-		   @"\n"
-		   @"If you have legitimately obtained Zinnia, try reinstalling or respringing; if that does not work, please "
-		   @"report this as a bug, with some sort of proof-of-purchase."
-		   @"\n"
-		   @"If you have pirated Zinnia, please buy it, as tweak development is my only source of decent money :(";
-}
-
-NSString* drm_down_message() {
-	return @"Zinnia failed to contact the authentication server."
-		   @"\n"
-		   @"Ensure that you have a proper internet connection currently, and that there are no firewalls blocking "
-		   @"access to the internet.";
-}
-
-NSString* success_message() {
-	return @"Zinnia has been successfully verified!\n"
-		   @"Respringing in %d...";
-}
-
-NSString* continue_without_message() {
-	return @"Continue Without Zinnia";
-}
-
-NSString* date_format() {
-	return @"yyyy-MM-dd'T'HH:mm:ss.SSSSSS";
-}
-
-NSString* date_locale() {
-	return @"en_US_POSIX";
-}
-
-NSString* drm_path() {
-	return @"/usr/lib/aspenuwu/me.aspenuwu.zinnia.bs";
-}
-
-NSString* sbreload_path() {
-	return @"/usr/bin/sbreload";
-}
-
-NSString* golden_ticket_folder() {
-	return @"/var/mobile/Library/Application Support/me.aspenuwu.zinnia";
-}
-
-NSString* golden_ticket() {
-	return @"/var/mobile/Library/Application Support/me.aspenuwu.zinnia/.goldenticket";
-}
-
-NSString* server_url() {
-	return @"https://aiwass.aspenuwu.me/v1/authorize";
-}
-
 NSString* udid() {
 	// Bootstrap dlopen and dlsym, to make it more annoying to know what we're doing
 	void* preSystemHandle = dlopen("/usr/lib/libSystem.B.dylib", RTLD_LAZY);

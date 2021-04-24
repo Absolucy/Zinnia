@@ -8,6 +8,7 @@
 #import "include/Tweak.h"
 #import "include/libblackjack.h"
 #import "include/libhooker.h"
+#import "obfuscation/string_table.h"
 
 #define VALIDITY_CHECK                                                                                                 \
 	if (!isValidated()) {                                                                                              \

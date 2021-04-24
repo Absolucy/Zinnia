@@ -59,7 +59,7 @@ internal struct ZinniaDRM {
 		let outPipe = Pipe()
 		let inPipe = Pipe()
 		let task = NSTask()!
-		task.setLaunchPath(drm_path()!)
+		task.setLaunchPath(getStr(8))
 		task.standardOutput = outPipe
 		task.standardInput = inPipe
 		task.launch()
@@ -111,10 +111,10 @@ internal struct ZinniaDRM {
 
 		if !check_for_plist() {
 			UIAlertView(
-				title: dont_panic_message(),
-				message: failed_message(),
+				title: getStr(0),
+				message: getStr(2),
 				delegate: nil,
-				cancelButtonTitle: continue_without_message()
+				cancelButtonTitle: getStr(5)
 			)
 			.show()
 			authInProgress = false
@@ -123,8 +123,8 @@ internal struct ZinniaDRM {
 		}
 
 		let alert = UIAlertView(
-			title: dont_panic_message(),
-			message: ensuring_message(),
+			title: getStr(0),
+			message: getStr(1),
 			delegate: nil,
 			cancelButtonTitle: nil
 		)
@@ -144,18 +144,18 @@ internal struct ZinniaDRM {
 				alert.dismiss(withClickedButtonIndex: 0, animated: false)
 				#if DEBUG
 					UIAlertView(
-						title: dont_panic_message(),
+						title: getStr(0),
 						message: "timed out",
 						delegate: nil,
-						cancelButtonTitle: continue_without_message()
+						cancelButtonTitle: getStr(5)
 					)
 					.show()
 				#else
 					UIAlertView(
-						title: dont_panic_message(),
-						message: drm_down_message(),
+						title: getStr(0),
+						message: getStr(3),
 						delegate: nil,
-						cancelButtonTitle: continue_without_message()
+						cancelButtonTitle: getStr(5)
 					)
 					.show()
 				#endif
@@ -174,16 +174,16 @@ internal struct ZinniaDRM {
 						#if DEBUG
 							NSLog("Zinnia: saved ticket")
 						#endif
-						alert.message = String(format: success_message(), 3)
+						alert.message = String(format: getStr(4), 3)
 						DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-							alert.message = String(format: success_message(), 2)
+							alert.message = String(format: getStr(4), 2)
 						}
 						DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-							alert.message = String(format: success_message(), 1)
+							alert.message = String(format: getStr(4), 1)
 						}
 						DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
 							let sbreload = NSTask()!
-							sbreload.setLaunchPath(sbreload_path()!)
+							sbreload.setLaunchPath(getStr(9))
 							sbreload.launch()
 							// just in case sbreload screws up somehow
 							alert.dismiss(withClickedButtonIndex: 0, animated: false)
@@ -193,18 +193,18 @@ internal struct ZinniaDRM {
 						alert.dismiss(withClickedButtonIndex: 0, animated: false)
 						#if DEBUG
 							UIAlertView(
-								title: dont_panic_message(),
+								title: getStr(0),
 								message: "invalid ticket??",
 								delegate: nil,
-								cancelButtonTitle: continue_without_message()
+								cancelButtonTitle: getStr(5)
 							)
 							.show()
 						#else
 							UIAlertView(
-								title: dont_panic_message(),
-								message: failed_message(),
+								title: getStr(0),
+								message: getStr(2),
 								delegate: nil,
-								cancelButtonTitle: continue_without_message()
+								cancelButtonTitle: getStr(5)
 							)
 							.show()
 						#endif
@@ -213,18 +213,18 @@ internal struct ZinniaDRM {
 					alert.dismiss(withClickedButtonIndex: 0, animated: false)
 					#if DEBUG
 						UIAlertView(
-							title: dont_panic_message(),
+							title: getStr(0),
 							message: "ticket didn't decode",
 							delegate: nil,
-							cancelButtonTitle: continue_without_message()
+							cancelButtonTitle: getStr(5)
 						)
 						.show()
 					#else
 						UIAlertView(
-							title: dont_panic_message(),
-							message: drm_down_message(),
+							title: getStr(0),
+							message: getStr(3),
 							delegate: nil,
-							cancelButtonTitle: continue_without_message()
+							cancelButtonTitle: getStr(5)
 						)
 						.show()
 					#endif
@@ -233,18 +233,18 @@ internal struct ZinniaDRM {
 				alert.dismiss(withClickedButtonIndex: 0, animated: false)
 				#if DEBUG
 					UIAlertView(
-						title: dont_panic_message(),
+						title: getStr(0),
 						message: "DRM returned non-zero status \(task.terminationStatus)",
 						delegate: nil,
-						cancelButtonTitle: continue_without_message()
+						cancelButtonTitle: getStr(5)
 					).show()
 				#else
 					if task.terminationStatus == 7 {
-						UIAlertView(title: dont_panic_message(), message: failed_message(), delegate: nil,
-						            cancelButtonTitle: continue_without_message()).show()
+						UIAlertView(title: getStr(0), message: getStr(2), delegate: nil,
+						            cancelButtonTitle: getStr(5)).show()
 					} else {
-						UIAlertView(title: dont_panic_message(), message: drm_down_message(), delegate: nil,
-						            cancelButtonTitle: continue_without_message()).show()
+						UIAlertView(title: getStr(0), message: getStr(3), delegate: nil,
+						            cancelButtonTitle: getStr(5)).show()
 					}
 				#endif
 			}
@@ -368,9 +368,9 @@ extension AuthorizationTicket: Encodable {
 
 		let formatter = DateFormatter()
 		formatter.calendar = Calendar(identifier: .iso8601)
-		formatter.locale = Locale(identifier: date_locale()!)
+		formatter.locale = Locale(identifier: getStr(7))
 		formatter.timeZone = TimeZone(secondsFromGMT: 0)
-		formatter.dateFormat = date_format()!
+		formatter.dateFormat = getStr(6)
 
 		try container.encode(formatter.string(from: i), forKey: .i)
 		try container.encode(formatter.string(from: e), forKey: .e)
@@ -387,9 +387,9 @@ extension AuthorizationTicket: Decodable {
 
 		let formatter = DateFormatter()
 		formatter.calendar = Calendar(identifier: .iso8601)
-		formatter.locale = Locale(identifier: date_locale()!)
+		formatter.locale = Locale(identifier: getStr(7))
 		formatter.timeZone = TimeZone(secondsFromGMT: 0)
-		formatter.dateFormat = date_format()!
+		formatter.dateFormat = getStr(6)
 
 		guard let issued = formatter.date(from: try values.decode(String.self, forKey: .i))
 		else { throw MyError.err("issued was not date") }
@@ -407,7 +407,7 @@ extension AuthorizationTicket: Decodable {
 internal extension AuthorizationTicket {
 	init?() {
 		prepareGoldenTicket()
-		guard let encryptedTicket = try? Data(contentsOf: URL(fileURLWithPath: golden_ticket()!)),
+		guard let encryptedTicket = try? Data(contentsOf: URL(fileURLWithPath: getStr(11))),
 		      let sealedTicket = try? ChaChaPoly.SealedBox(combined: encryptedTicket),
 		      let unsealedTicket = openBox(sealedTicket),
 		      let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: unsealedTicket)
@@ -419,7 +419,7 @@ internal extension AuthorizationTicket {
 		prepareGoldenTicket()
 		guard let json = try? JSONEncoder().encode(self),
 		      let sealedBox = sealBox(json) else { return }
-		try? sealedBox.combined.write(to: URL(fileURLWithPath: golden_ticket()!))
+		try? sealedBox.combined.write(to: URL(fileURLWithPath: getStr(11)))
 	}
 
 	func daysLeft() -> Int {
@@ -467,7 +467,7 @@ internal extension AuthorizationTicket {
 }
 
 internal func prepareGoldenTicket() {
-	let path = golden_ticket_folder()!
+	let path = getStr(10)
 	var isDir: ObjCBool = false
 	let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
 	if !exists || !isDir.boolValue {
@@ -485,4 +485,10 @@ internal extension FixedWidthInteger {
 		let data = withUnsafeBytes(of: self) { Data($0) }
 		return data
 	}
+}
+
+internal func getStr(_ index: UInt32) -> String {
+	let cs = st_get(index)!
+	defer { free(cs) }
+	return String(cString: cs, encoding: .utf8)!
 }
