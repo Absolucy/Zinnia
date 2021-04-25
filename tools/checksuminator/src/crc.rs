@@ -62,9 +62,15 @@ fn jmp_section(
 			(section, hash)
 		})
 		.expect("failed to find target section");
+	println!(
+		"blake3[12]({},{}) = {}",
+		target_segment,
+		target_section,
+		hex::encode(&sect_hash)
+	);
+
 	let ckey: u32 = rand::random();
 	let jkey = rand::random();
-
 	bytemuck::cast_slice_mut::<_, u32>(&mut sect_hash)
 		.iter_mut()
 		.enumerate()
@@ -141,6 +147,12 @@ fn jmp_section_multi(
 				})
 				.expect("failed to find target section");
 			println!("crc({},{}) = 0x{:X}", segment_name, section_name, sect_crc);
+			println!(
+				"blake3[12]({},{}) = {}",
+				segment_name,
+				section_name,
+				hex::encode(&sect_hash)
+			);
 			target_offset ^= sect_crc;
 			let ckey: u32 = rand::random();
 

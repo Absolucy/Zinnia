@@ -258,6 +258,7 @@ dependencies = [
  "bytemuck",
  "chacha20",
  "goblin",
+ "hex",
  "rand 0.8.3",
  "structopt",
 ]
