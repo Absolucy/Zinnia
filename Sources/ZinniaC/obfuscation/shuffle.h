@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stdlib.h>
 
 static inline __attribute__((always_inline)) uint32_t perfect_shuffle(uint32_t x) {
 	x = (x & UINT32_C(0xff0000ff)) | ((x & UINT32_C(0x00ff0000)) >> 8) | ((x & UINT32_C(0x0000ff00)) << 8);
@@ -17,4 +18,11 @@ static inline __attribute__((always_inline)) uint32_t perfect_unshuffle(uint32_t
 	x = (x & UINT32_C(0xff0000ff)) | ((x & UINT32_C(0x00ff0000)) >> 8) | ((x & UINT32_C(0x0000ff00)) << 8);
 
 	return x;
+}
+
+static inline __attribute__((always_inline)) uint8_t* decode_shuffled_key(uint32_t* key, size_t len) {
+	uint32_t* decoded_key = (uint32_t*)malloc(len * sizeof(uint32_t));
+	for (int i = 0; i < len; i++)
+		decoded_key[i] = perfect_unshuffle(key[i]);
+	return (uint8_t*)decoded_key;
 }

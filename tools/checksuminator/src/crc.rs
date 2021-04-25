@@ -1,12 +1,15 @@
+#![allow(clippy::too_many_arguments)]
+use crate::perfect_shuffle;
 use bytemuck::{Pod, Zeroable};
 use goblin::mach::{symbols::Nlist, MachO};
-use rand::{prelude::SliceRandom, Rng};
+use rand::{prelude::SliceRandom, Rng, RngCore};
+use std::convert::TryInto;
 
 #[derive(Debug, Copy, Clone, Pod, Zeroable)]
 #[repr(C)]
 struct CrcLookup {
-	ckey: u64,
-	checksum: u64,
+	ckey: u32,
+	checksum: [u8; 12],
 	size: u64,
 	jkey: u64,
 	jmp: u64,
@@ -34,9 +37,10 @@ fn jmp_section(
 	macho: &MachO,
 	offsets: &[(String, Nlist)],
 	offset: usize,
+	hasher: &mut blake3::Hasher,
 	binary: &[u8],
 ) -> CrcLookup {
-	let (text, text_crc) = macho
+	let (sect, mut sect_hash) = macho
 		.segments
 		.into_iter()
 		.find(|x| x.name().unwrap() == target_segment)
@@ -46,24 +50,33 @@ fn jmp_section(
 		.into_iter()
 		.find(|(section, _)| section.name().unwrap() == target_section)
 		.map(|(section, _)| {
-			let checksum = crc(
-				0xFFFFFFFFFFFFFFFF,
+			hasher.update(
 				&binary[offset + section.offset as usize
 					..offset + section.offset as usize + section.size as usize],
 			);
-			(section, checksum)
+			let hash: [u8; 12] = hasher.finalize().as_bytes()[..12]
+				.to_vec()
+				.try_into()
+				.unwrap();
+			hasher.reset();
+			(section, hash)
 		})
 		.expect("failed to find target section");
-	println!(
-		"crc({},{}) = 0x{:X}",
-		target_segment, target_section, text_crc
-	);
-	let ckey = rand::random();
+	let ckey: u32 = rand::random();
 	let jkey = rand::random();
+
+	bytemuck::cast_slice_mut::<_, u32>(&mut sect_hash)
+		.iter_mut()
+		.enumerate()
+		.for_each(|(idx, byte)| {
+			let mul = (idx + 1) as u32;
+			*byte = perfect_shuffle(*byte ^ ckey.wrapping_mul(mul))
+		});
+
 	CrcLookup {
-		ckey,
-		checksum: text_crc ^ ckey,
-		size: text.size,
+		ckey: perfect_shuffle(ckey),
+		checksum: sect_hash,
+		size: sect.size,
 		jkey,
 		jmp: offsets
 			.iter()
@@ -81,6 +94,7 @@ fn jmp_section_multi(
 	macho: &MachO,
 	offsets: &[(String, Nlist)],
 	offset: usize,
+	hasher: &mut blake3::Hasher,
 	binary: &[u8],
 ) -> Vec<CrcLookup> {
 	assert_eq!(target_segments.len(), target_sections.len());
@@ -99,7 +113,7 @@ fn jmp_section_multi(
 		.iter()
 		.zip(target_sections.iter())
 		.for_each(|(segment_name, section_name)| {
-			let (sect, sect_crc) = macho
+			let (sect, sect_crc, mut sect_hash) = macho
 				.segments
 				.into_iter()
 				.find(|x| x.name().unwrap() == *segment_name)
@@ -114,15 +128,33 @@ fn jmp_section_multi(
 						&binary[offset + section.offset as usize
 							..offset + section.offset as usize + section.size as usize],
 					);
-					(section, checksum)
+					hasher.update(
+						&binary[offset + section.offset as usize
+							..offset + section.offset as usize + section.size as usize],
+					);
+					let hash: [u8; 12] = hasher.finalize().as_bytes()[..12]
+						.to_vec()
+						.try_into()
+						.unwrap();
+					hasher.reset();
+					(section, checksum, hash)
 				})
 				.expect("failed to find target section");
 			println!("crc({},{}) = 0x{:X}", segment_name, section_name, sect_crc);
 			target_offset ^= sect_crc;
-			let ckey = rand::random();
+			let ckey: u32 = rand::random();
+
+			bytemuck::cast_slice_mut::<_, u32>(&mut sect_hash)
+				.iter_mut()
+				.enumerate()
+				.for_each(|(idx, byte)| {
+					let mul = (idx + 1) as u32;
+					*byte = perfect_shuffle(*byte ^ ckey.wrapping_mul(mul))
+				});
+
 			out.push(CrcLookup {
-				ckey,
-				checksum: sect_crc ^ ckey,
+				ckey: perfect_shuffle(ckey),
+				checksum: sect_hash,
 				size: sect.size,
 				jkey: rand::random::<u64>() & !(1 << 0),
 				jmp: rand::random::<u64>(),
@@ -149,6 +181,12 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, init: bool) {
 	offsets.sort_by(|(_, a), (_, b)| a.n_value.cmp(&b.n_value));
 	let mut crc_table: Vec<CrcLookup> = Vec::with_capacity(offsets.len());
 	let mut rng = rand::thread_rng();
+
+	let mut hash_key = [0u8; 32];
+	rng.fill_bytes(&mut hash_key);
+
+	let mut hasher = blake3::Hasher::new_keyed(&hash_key);
+
 	/*
 	let mut offsets_iter = offsets.iter().peekable();
 	while let Some((name, symbol)) = offsets_iter.next() {
@@ -196,6 +234,7 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, init: bool) {
 			&macho,
 			&offsets,
 			offset,
+			&mut hasher,
 			binary,
 		));
 	}
@@ -206,6 +245,7 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, init: bool) {
 		&macho,
 		&offsets,
 		offset,
+		&mut hasher,
 		&binary,
 	));
 
@@ -237,5 +277,29 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, init: bool) {
 	binary.splice(
 		crc_table_range,
 		bytemuck::cast_slice(&crc_table).iter().copied(),
+	);
+
+	let mut hash_key = hash_key.to_vec();
+	hash_key.resize_with(16 * std::mem::size_of::<u32>(), || rng.gen());
+	bytemuck::cast_slice_mut::<_, u32>(&mut hash_key)
+		.iter_mut()
+		.for_each(|byte| *byte = perfect_shuffle(*byte));
+	let blake_key_range = macho
+		.segments
+		.into_iter()
+		.find(|x| x.name().unwrap() == "__TEXT")
+		.expect("failed to find text segment")
+		.sections()
+		.expect("failed to get sections")
+		.into_iter()
+		.find(|(section, _)| section.name().unwrap() == "__godzillahka")
+		.map(|(section, _)| {
+			offset + section.offset as usize
+				..offset + section.offset as usize + section.size as usize
+		})
+		.expect("failed to find blake3 key section");
+	binary.splice(
+		blake_key_range,
+		bytemuck::cast_slice(&hash_key).iter().copied(),
 	);
 }

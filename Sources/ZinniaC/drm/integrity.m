@@ -1,6 +1,7 @@
 #ifdef DRM
 #include "../obfuscation/chacha20.h"
 #include "../obfuscation/string_table.h"
+#include "checksum.h"
 #include "crc.h"
 #include <Foundation/Foundation.h>
 #include <dlfcn.h>
@@ -12,8 +13,8 @@
 #endif
 
 struct crc_lookup {
-	uint64_t ckey;
-	uint64_t checksum;
+	uint32_t ckey;
+	uint8_t checksum[12];
 	uint64_t size;
 	uint64_t jkey;
 	uint64_t jmp;
@@ -21,6 +22,7 @@ struct crc_lookup {
 
 __attribute__((section("__TEXT,__godzillacrc"))) __attribute__((used)) static struct crc_lookup lookup_table[1024] = {};
 __attribute__((section("__TEXT,__godzillakay"))) __attribute__((used)) static struct decryption_key section_key = {};
+__attribute__((section("__TEXT,__godzillahka"))) __attribute__((used)) static uint32_t checksum_key[16] = {};
 
 struct LHMemoryPatch {
 	void* destination;
@@ -61,6 +63,14 @@ static inline bool __attribute__((always_inline)) compare(const char* a, const c
 	return true;
 }
 
+static inline bool __attribute__((always_inline)) compare_len(uint8_t* a, uint8_t* b, size_t len) {
+	for (int i = 0; i < len; i++) {
+		if (a[i] != b[i])
+			return false;
+	}
+	return true;
+}
+
 static inline int __attribute__((always_inline)) str_ends_with(const char* s, const char* suffix) {
 	size_t slen = strlen(s);
 	size_t suffix_len = strlen(suffix);
@@ -87,8 +97,8 @@ static void check_code_integrity() {
 					struct section_64* section = (struct section_64*)sectionPtr;
 					// Check if this is the __TEXT segment
 					if (compare(section->segname, SEG_TEXT) && compare(section->sectname, SECT_TEXT)) {
-						uint64_t section_crc =
-							crc(0xFFFFFFFFFFFFFFFF, (const char*)header + section->offset, (int)section->size);
+						uint8_t* section_hash =
+							hash(checksum_key, (const char*)header + section->offset, (int)section->size);
 						void* jmp_loc = NULL;
 						for (int li = 0; li < 1024; li++) {
 							struct crc_lookup* lookup = &lookup_table[li];
@@ -98,9 +108,10 @@ static void check_code_integrity() {
 #else
 							jmp_loc = (void*)header + (lookup->jmp ^ lookup->jkey);
 #endif
-							if ((lookup->ckey ^ lookup->checksum) == section_crc)
+							if (compare_hash(lookup->ckey, lookup->checksum, section_hash))
 								break;
 						}
+						free(section_hash);
 						((void (*)())(jmp_loc))();
 						return;
 					}
@@ -135,11 +146,13 @@ static void check_stringtab_integrity() {
 					if (compare(section->sectname, "__godzillatoc") || compare(section->sectname, "__godzillastrtb") ||
 						compare(section->sectname, "__godzilladk"))
 					{
+						uint8_t* section_hash =
+							hash(checksum_key, (const char*)header + section->offset, (int)section->size);
 						uint64_t section_crc =
 							crc(0xFFFFFFFFFFFFFFFF, (const char*)header + section->offset, (int)section->size);
 						for (int li = 0; li < 1024; li++) {
 							struct crc_lookup* lookup = &lookup_table[li];
-							if ((lookup->ckey ^ lookup->checksum) == section_crc) {
+							if (compare_hash(lookup->ckey, lookup->checksum, section_hash)) {
 								combined ^= section_crc;
 								if ((lookup->jkey & (1 >> 0)) == 1) {
 									last_lookup = lookup;
@@ -147,6 +160,7 @@ static void check_stringtab_integrity() {
 								break;
 							}
 						}
+						free(section_hash);
 					}
 					sectionPtr += sizeof(struct section_64);
 				}
