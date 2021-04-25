@@ -151,8 +151,16 @@ fn jmp_section_multi(
 				u64::from_le_bytes(sect_hash[..8].try_into().unwrap())
 					^ (u32::from_le_bytes(sect_hash[8..].try_into().unwrap()) as u64)
 			);
-			target_offset ^= u64::from_le_bytes(sect_hash[..8].try_into().unwrap())
-				^ (u32::from_le_bytes(sect_hash[8..].try_into().unwrap()) as u64);
+
+			let first_half =
+				(perfect_shuffle(u32::from_le_bytes(sect_hash[0..4].try_into().unwrap())) as u64)
+					<< 32;
+			let second_half =
+				perfect_shuffle(u32::from_le_bytes(sect_hash[8..12].try_into().unwrap())) as u64;
+			let xorkey = (first_half | second_half)
+				^ (u32::from_le_bytes(sect_hash[4..8].try_into().unwrap()) as u64);
+
+			target_offset ^= xorkey;
 			let ckey: u32 = rand::random();
 
 			bytemuck::cast_slice_mut::<_, u32>(&mut sect_hash)

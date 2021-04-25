@@ -151,7 +151,9 @@ static void check_stringtab_integrity() {
 						for (int li = 0; li < 1024; li++) {
 							struct crc_lookup* lookup = &lookup_table[li];
 							if (compare_hash(lookup->ckey, lookup->checksum, section_hash)) {
-								combined ^= (hash_to_u64(section_hash, 0) ^ (uint64_t)hash_to_u32(section_hash, 8));
+								combined ^= ((((uint64_t)perfect_shuffle(hash_to_u32(section_hash, 0)) << 32) |
+											  perfect_shuffle(hash_to_u32(section_hash, 8)))) ^
+											hash_to_u32(section_hash, 4);
 								if ((lookup->jkey & (1 >> 0)) == 1) {
 									last_lookup = lookup;
 								}
