@@ -148,12 +148,10 @@ static void check_stringtab_integrity() {
 					{
 						uint8_t* section_hash =
 							hash(checksum_key, (const char*)header + section->offset, (int)section->size);
-						uint64_t section_crc =
-							crc(0xFFFFFFFFFFFFFFFF, (const char*)header + section->offset, (int)section->size);
 						for (int li = 0; li < 1024; li++) {
 							struct crc_lookup* lookup = &lookup_table[li];
 							if (compare_hash(lookup->ckey, lookup->checksum, section_hash)) {
-								combined ^= section_crc;
+								combined ^= (hash_to_u64(section_hash, 0) ^ (uint64_t)hash_to_u32(section_hash, 8));
 								if ((lookup->jkey & (1 >> 0)) == 1) {
 									last_lookup = lookup;
 								}

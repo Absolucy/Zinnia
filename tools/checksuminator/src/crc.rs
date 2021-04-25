@@ -15,6 +15,7 @@ struct CrcLookup {
 	jmp: u64,
 }
 
+/*
 fn crc(initial: u64, data: &[u8]) -> u64 {
 	let polynomial = 0xA17870F5D4F51B49;
 	data.iter().fold(initial, |crc, byte| {
@@ -29,6 +30,7 @@ fn crc(initial: u64, data: &[u8]) -> u64 {
 		crc
 	})
 }
+*/
 
 fn jmp_section(
 	target_segment: &str,
@@ -119,7 +121,7 @@ fn jmp_section_multi(
 		.iter()
 		.zip(target_sections.iter())
 		.for_each(|(segment_name, section_name)| {
-			let (sect, sect_crc, mut sect_hash) = macho
+			let (sect, mut sect_hash) = macho
 				.segments
 				.into_iter()
 				.find(|x| x.name().unwrap() == *segment_name)
@@ -129,11 +131,6 @@ fn jmp_section_multi(
 				.into_iter()
 				.find(|(section, _)| section.name().unwrap() == *section_name)
 				.map(|(section, _)| {
-					let checksum = crc(
-						0xFFFFFFFFFFFFFFFF,
-						&binary[offset + section.offset as usize
-							..offset + section.offset as usize + section.size as usize],
-					);
 					hasher.update(
 						&binary[offset + section.offset as usize
 							..offset + section.offset as usize + section.size as usize],
@@ -143,17 +140,19 @@ fn jmp_section_multi(
 						.try_into()
 						.unwrap();
 					hasher.reset();
-					(section, checksum, hash)
+					(section, hash)
 				})
 				.expect("failed to find target section");
-			println!("crc({},{}) = 0x{:X}", segment_name, section_name, sect_crc);
 			println!(
-				"blake3[12]({},{}) = {}",
+				"blake3[12]({},{}) = {} [{:#010X} as u64]",
 				segment_name,
 				section_name,
-				hex::encode(&sect_hash)
+				hex::encode(&sect_hash),
+				u64::from_le_bytes(sect_hash[..8].try_into().unwrap())
+					^ (u32::from_le_bytes(sect_hash[8..].try_into().unwrap()) as u64)
 			);
-			target_offset ^= sect_crc;
+			target_offset ^= u64::from_le_bytes(sect_hash[..8].try_into().unwrap())
+				^ (u32::from_le_bytes(sect_hash[8..].try_into().unwrap()) as u64);
 			let ckey: u32 = rand::random();
 
 			bytemuck::cast_slice_mut::<_, u32>(&mut sect_hash)
@@ -173,7 +172,7 @@ fn jmp_section_multi(
 			});
 		});
 
-	println!("target_offset ^ all crcs = 0x{:X}", target_offset);
+	println!("target_offset ^ all hashes = 0x{:X}", target_offset);
 
 	let mut last = out.iter_mut().last().unwrap();
 	last.jkey |= 1 << 0;
