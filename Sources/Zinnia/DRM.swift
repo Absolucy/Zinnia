@@ -305,7 +305,7 @@ internal struct ZinniaDRM {
 		output.append(keyXor)
 		// key
 		for i in 0 ..< 32 {
-			key[i] = key[i] ^ keyXor[i]
+			key[i] = key[i] ^ (keyXor[i] &* UInt8(i + 1))
 		}
 		output.append(key)
 		// _a2
@@ -316,7 +316,7 @@ internal struct ZinniaDRM {
 		output.append(randomBytes(3)!)
 		// udid_nonce
 		for i in 0 ..< 12 {
-			udidNonce[i] = udidNonce[i] ^ nonceXor[i]
+			udidNonce[i] = udidNonce[i] ^ (nonceXor[i] &* UInt8(i + 1))
 		}
 		output.append(udidNonce)
 		// _a4, _a5
@@ -345,7 +345,7 @@ internal struct ZinniaDRM {
 		output.append(randomBytes(29)!)
 		// model_nonce
 		for i in 0 ..< 12 {
-			modelNonce[i] = modelNonce[i] ^ nonceXor[i]
+			modelNonce[i] = modelNonce[i] ^ (nonceXor[i] &* UInt8(i + 1))
 		}
 		output.append(modelNonce)
 		return output.base64EncodedString()
@@ -479,7 +479,7 @@ internal extension AuthorizationTicket {
 		data.append(f.littleEndian.data)
 		// XOR all data by 42
 		for i in 0 ..< data.count {
-			data[i] ^= 42
+			data[i] ^= (42 &* UInt8(i + 1))
 		}
 		// Now we check the signature's validity!
 		return publicKey.isValidSignature(s, for: data)

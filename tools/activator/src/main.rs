@@ -87,7 +87,8 @@ impl StartupData {
 				.key
 				.iter()
 				.zip(self.key_xor.iter())
-				.map(|(byte, key)| *byte ^ *key)
+				.enumerate()
+				.map(|(idx, (byte, key))| *byte ^ key.wrapping_mul(idx as u8 + 1))
 				.collect::<Vec<u8>>(),
 		)
 	}
@@ -98,7 +99,8 @@ impl StartupData {
 			&nonce
 				.iter()
 				.zip(self.nonce_xor.iter())
-				.map(|(byte, key)| *byte ^ *key)
+				.enumerate()
+				.map(|(idx, (byte, key))| *byte ^ key.wrapping_mul(idx as u8 + 1))
 				.collect::<Vec<u8>>(),
 		)
 	}
