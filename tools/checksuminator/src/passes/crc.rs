@@ -1,19 +1,8 @@
 #![allow(clippy::too_many_arguments)]
-use crate::perfect_shuffle;
-use bytemuck::{Pod, Zeroable};
+use crate::{models::CrcLookup, shuffle::perfect_shuffle};
 use goblin::mach::{symbols::Nlist, MachO};
 use rand::{prelude::SliceRandom, Rng, RngCore};
 use std::convert::TryInto;
-
-#[derive(Debug, Copy, Clone, Pod, Zeroable)]
-#[repr(C)]
-struct CrcLookup {
-	ckey: u32,
-	checksum: [u8; 12],
-	size: u64,
-	jkey: u64,
-	jmp: u64,
-}
 
 /*
 fn crc(initial: u64, data: &[u8]) -> u64 {

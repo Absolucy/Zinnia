@@ -1,4 +1,4 @@
-use crate::DecryptionKey;
+use crate::models::DecryptionKey;
 use chacha20::{
 	cipher::{NewStreamCipher, SyncStreamCipher},
 	ChaCha20, Key, Nonce,

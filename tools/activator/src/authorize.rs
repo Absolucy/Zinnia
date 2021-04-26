@@ -43,18 +43,10 @@ pub async fn authorize(mut stdin: StdinLock<'_>) {
 		5
 	);
 	if response.status() == StatusCode::UNAUTHORIZED {
-		#[cfg(debug_assertions)]
-		eprintln!("response: {:#?}", response);
 		std::process::exit(7);
 	}
 	let ticket: AuthorizationTicket = handle_err!(response.json().await, 6);
 	if ticket.validate(obfstr!(TWEAK_NAME), &udid, &model) != AuthStatus::Valid {
-		#[cfg(debug_assertions)]
-		eprintln!(
-			"ticket: {:#?}: {:?}",
-			ticket,
-			ticket.validate(obfstr!(TWEAK_NAME), &udid, &model)
-		);
 		std::process::exit(7);
 	}
 	let json = handle_err!(serde_json::to_string(&ticket), 8);
