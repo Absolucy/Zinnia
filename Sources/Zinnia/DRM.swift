@@ -58,10 +58,16 @@ internal struct ZinniaDRM {
 	internal static func runAuthHandler() -> (NSTask, Pipe) {
 		let outPipe = Pipe()
 		let inPipe = Pipe()
+		#if DEBUG
+			let errPipe = Pipe()
+		#endif
 		let task = NSTask()!
 		task.setLaunchPath(getStr(8))
 		task.standardOutput = outPipe
 		task.standardInput = inPipe
+		#if DEBUG
+			task.standardError = errPipe
+		#endif
 		task.launch()
 		#if DEBUG
 			NSLog("Zinnia: launched DRM task, PID \(task.processIdentifier)")
@@ -70,6 +76,9 @@ internal struct ZinniaDRM {
 		task.terminationHandler = { _ in
 			#if DEBUG
 				NSLog("Zinnia: DRM handler (PID \(task.processIdentifier)) exited with status \(task.terminationStatus)")
+				NSLog(
+					"Zinnia: DRM handler (PID \(task.processIdentifier)) stderr: \(String(data: errPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)!)"
+				)
 			#endif
 			authSemaphore.signal()
 		}
@@ -172,11 +181,11 @@ internal struct ZinniaDRM {
 				return
 			}
 
+			let output = outPipe.fileHandleForReading.readDataToEndOfFile()
+			#if DEBUG
+				NSLog("Zinnia: got output from DRM task:\n\(String(data: output, encoding: .utf8)!)")
+			#endif
 			if task.terminationStatus == 0 {
-				let output = outPipe.fileHandleForReading.readDataToEndOfFile()
-				#if DEBUG
-					NSLog("Zinnia: got output from DRM task:\n\(String(data: output, encoding: .utf8)!)")
-				#endif
 				if let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: output) {
 					if ticket.isValid() {
 						ticket.save()
@@ -478,7 +487,7 @@ internal extension AuthorizationTicket {
 
 	func validTime() -> Bool {
 		let now = Date()
-		return now >= i && now < e
+		return now >= (i - 300) && now < e
 	}
 
 	func isValid() -> Bool {

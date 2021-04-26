@@ -32,3 +32,6 @@ Zinnia is authorizing your free 60-minute trial!
 ---
 Zinnia failed to authorize the free 60-minute trial.
 Either you have already used your device's 60-minute trial before, or the authentication server is having issues.
+---
+Your free 60-minute trial of Zinnia has expired!
+If you enjoyed using Zinnia, then please purchase the full version from Chariz :)

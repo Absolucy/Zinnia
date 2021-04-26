@@ -13,6 +13,18 @@ internal func runDrm() {
 		if isValidated() {
 			return
 		}
+		#if TRIAL
+			if let ticket = ZinniaDRM.ticket, !ticket.validTime(), ticket.isSignatureValid() {
+				UIAlertView(
+					title: getStr(0),
+					message: getStr(14),
+					delegate: nil,
+					cancelButtonTitle: getStr(5)
+				)
+				.show()
+				return
+			}
+		#endif
 		#if DEBUG
 			NSLog("Zinnia: running DRM...")
 		#endif
