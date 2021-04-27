@@ -1,5 +1,5 @@
 #if !THEOS_SWIFT
-	import NomaePreferences
+	// import NomaePreferences
 #endif
 import SwiftUI
 

@@ -4,7 +4,7 @@ import SwiftUI
 import SystemConfiguration.CaptiveNetwork
 import ZinniaC
 #if !THEOS_SWIFT
-	import NomaePreferences
+	// import NomaePreferences
 #endif
 
 @_cdecl("runDrm")
