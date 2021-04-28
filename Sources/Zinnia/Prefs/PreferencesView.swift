@@ -1,7 +1,4 @@
 import Foundation
-#if !THEOS_SWIFT
-	// import NomaePreferences
-#endif
 import CoreGraphics
 import SwiftUI
 import ZinniaC

@@ -1,6 +1,3 @@
-#if !THEOS_SWIFT
-	// import NomaePreferences
-#endif
 import SwiftUI
 
 extension Bundle: ObservableObject {}
