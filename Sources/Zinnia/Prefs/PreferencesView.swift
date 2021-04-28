@@ -41,11 +41,7 @@ struct PreferencesView: View {
 						.alert(isPresented: $respringAlert) {
 							Alert(
 								title: Text("In order for Zinnia to be enabled/disabled, you need to respring. Would you like to do so now?"),
-								primaryButton: .destructive(Text("Respring")) {
-									let task = NSTask()!
-									task.executableURL = URL(fileURLWithPath: "/usr/bin/sbreload")
-									task.launch()
-								},
+								primaryButton: .destructive(Text("Respring"), action: respring),
 								secondaryButton: .cancel(Text("Later"))
 							)
 						}

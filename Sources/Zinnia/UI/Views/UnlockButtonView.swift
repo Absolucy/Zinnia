@@ -55,11 +55,11 @@ internal struct UnlockButtonView: View {
 
 	private func autoClose(_ timeout: Double = 1) {
 		autocloseTask?.cancel()
-		let task = DispatchWorkItem {
+		let task = DispatchWorkItem(qos: .userInteractive) {
 			withAnimation(Animation.spring()) {
 				globals.menuOpenProgress = 0
 			}
-			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, qos: .userInteractive) {
 				globals.menuIsOpen = false
 			}
 			globals.selected = nil
@@ -72,9 +72,15 @@ internal struct UnlockButtonView: View {
 
 	internal var body: some View {
 		if !ZinniaDRM.ticketAuthorized() {
-			Button(action: zinnia_unlock) {
-				Text("Unlock")
-					.font(.custom("ChalkboardSE-Regular", size: 48))
+			VStack {
+				Button(action: zinnia_unlock) {
+					Text("Unlock")
+						.font(.custom("ChalkboardSE-Regular", size: 48))
+				}.padding(.vertical)
+				Button(action: respring) {
+					Text("Respring")
+						.font(.custom("ChalkboardSE-Regular", size: 48))
+				}.padding(.vertical)
 			}
 		} else {
 			VStack {

@@ -44,13 +44,23 @@ internal func makeUnlockButton() -> UIViewController {
 }
 
 @_cdecl("makeUnlockPopups")
-internal func makeUnlockPopups() -> UIViewController {
-	UIHostingController(rootView: UnlockPopupView())
+internal func makeUnlockPopups() -> UIViewController? {
+	#if DRM
+		if !ZinniaDRM.ticketAuthorized() {
+			return nil
+		}
+	#endif
+	return UIHostingController(rootView: UnlockPopupView())
 }
 
 @_cdecl("makeTimeDate")
-internal func makeTimeDate() -> UIViewController {
-	UIHostingController(rootView: TimeDateView().padding(.top, 64))
+internal func makeTimeDate() -> UIViewController? {
+	#if DRM
+		if !ZinniaDRM.ticketAuthorized() {
+			return nil
+		}
+	#endif
+	return UIHostingController(rootView: TimeDateView().padding(.top, 64))
 }
 
 @_cdecl("tweakEnabled")

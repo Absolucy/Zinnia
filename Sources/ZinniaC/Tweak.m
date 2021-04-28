@@ -23,49 +23,70 @@ CSCoverSheetViewController* csvc;
 static void (*orig_CSCoverSheetViewController_viewDidLoad)(CSCoverSheetViewController* self, SEL cmd);
 static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewController* self, SEL cmd) {
 	orig_CSCoverSheetViewController_viewDidLoad(self, cmd);
+
 	if (!unlockButton) {
-		VALIDITY_CHECK
 		unlockButton = makeUnlockButton();
 		unlockButton.view.backgroundColor = UIColor.clearColor;
 	}
-	if (!popups) {
-		VALIDITY_CHECK
-		popups = makeUnlockPopups();
-		popups.view.backgroundColor = UIColor.clearColor;
-	}
-	if (!timeDate) {
-		VALIDITY_CHECK
-		timeDate = makeTimeDate();
-		timeDate.view.backgroundColor = UIColor.clearColor;
-	}
-	if (!csvc) {
-		VALIDITY_CHECK
-		csvc = self;
-	}
-	VALIDITY_CHECK
-
-	for (UIViewController* o in self.childViewControllers) {
-		NSString* className = NSStringFromClass([o class]);
-		if ([className rangeOfString:@"DateView"].location != NSNotFound ||
-			[className rangeOfString:@"FixedFooter"].location != NSNotFound ||
-			[className rangeOfString:@"TeachableMoments"].location != NSNotFound ||
-			[className rangeOfString:@"ProudLock"].location != NSNotFound ||
-			[className rangeOfString:@"QuickActions"].location != NSNotFound)
-		{
+	if (isValidated()) {
+		if (!popups) {
 			VALIDITY_CHECK
-			[o.view removeFromSuperview];
+			popups = makeUnlockPopups();
+			VALIDITY_CHECK
+			popups.view.backgroundColor = UIColor.clearColor;
+			VALIDITY_CHECK
+		}
+		if (!timeDate) {
+			VALIDITY_CHECK
+			timeDate = makeTimeDate();
+			VALIDITY_CHECK
+			timeDate.view.backgroundColor = UIColor.clearColor;
+			VALIDITY_CHECK
+		}
+	} else {
+		if (popups) {
+			popups.view.frame = CGRectMake(0, 0, 0, 0);
+			[popups.view removeFromSuperview];
+			[popups removeFromParentViewController];
+			[popups didMoveToParentViewController:nil];
+			popups = NULL;
+		}
+		if (timeDate) {
+			timeDate.view.frame = CGRectMake(0, 0, 0, 0);
+			[timeDate.view removeFromSuperview];
+			[timeDate removeFromParentViewController];
+			[timeDate didMoveToParentViewController:nil];
+			timeDate = NULL;
+		}
+	}
+	if (!csvc)
+		csvc = self;
+
+	if (isValidated()) {
+		for (UIViewController* o in self.childViewControllers) {
+			NSString* className = NSStringFromClass([o class]);
+			if ([className rangeOfString:@"DateView"].location != NSNotFound ||
+				[className rangeOfString:@"FixedFooter"].location != NSNotFound ||
+				[className rangeOfString:@"TeachableMoments"].location != NSNotFound ||
+				[className rangeOfString:@"ProudLock"].location != NSNotFound ||
+				[className rangeOfString:@"QuickActions"].location != NSNotFound)
+			{
+				[o.view removeFromSuperview];
+			}
 		}
 	}
 
-	popups.view.frame = self.view.frame;
-	[self addChildViewController:popups];
-	[self.view addSubview:popups.view];
-	popups.view.translatesAutoresizingMaskIntoConstraints = false;
-	[NSLayoutConstraint activateConstraints:@[
-		[popups.view.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-		[popups.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
-	]];
-	[popups didMoveToParentViewController:self];
+	if (isValidated()) {
+		popups.view.frame = self.view.frame;
+		[self addChildViewController:popups];
+		[self.view addSubview:popups.view];
+		popups.view.translatesAutoresizingMaskIntoConstraints = false;
+		[NSLayoutConstraint activateConstraints:@[
+			[popups.view.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+			[popups.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
+		]];
+		[popups didMoveToParentViewController:self];
+	}
 
 	unlockButton.view.frame = self.view.frame;
 	[self addChildViewController:unlockButton];
@@ -77,15 +98,19 @@ static void hook_CSCoverSheetViewController_viewDidLoad(CSCoverSheetViewControll
 	]];
 	[unlockButton didMoveToParentViewController:self];
 
-	timeDate.view.frame = self.view.frame;
-	[self addChildViewController:timeDate];
-	[self.view addSubview:timeDate.view];
-	timeDate.view.translatesAutoresizingMaskIntoConstraints = false;
-	[NSLayoutConstraint activateConstraints:@[
-		[timeDate.view.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-		[timeDate.view.topAnchor constraintEqualToAnchor:self.view.topAnchor]
-	]];
-	[timeDate didMoveToParentViewController:self];
+	VALIDITY_CHECK
+
+	if (isValidated()) {
+		timeDate.view.frame = self.view.frame;
+		[self addChildViewController:timeDate];
+		[self.view addSubview:timeDate.view];
+		timeDate.view.translatesAutoresizingMaskIntoConstraints = false;
+		[NSLayoutConstraint activateConstraints:@[
+			[timeDate.view.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+			[timeDate.view.topAnchor constraintEqualToAnchor:self.view.topAnchor]
+		]];
+		[timeDate didMoveToParentViewController:self];
+	}
 }
 
 static bool has_drm_ran = false;

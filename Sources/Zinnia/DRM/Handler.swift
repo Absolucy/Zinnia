@@ -144,19 +144,14 @@ internal struct ZinniaDRM {
 							NSLog("Zinnia: saved ticket")
 						#endif
 						alert.message = String(format: getStr(4), 3)
-						DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+						DispatchQueue.main.asyncAfter(deadline: .now() + 1, qos: .userInteractive) {
 							alert.message = String(format: getStr(4), 2)
 						}
-						DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+						DispatchQueue.main.asyncAfter(deadline: .now() + 2, qos: .userInteractive) {
 							alert.message = String(format: getStr(4), 1)
 						}
-						DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-							let sbreload = NSTask()!
-							sbreload.setLaunchPath(getStr(9))
-							sbreload.launch()
-							// just in case sbreload screws up somehow
-							alert.dismiss(withClickedButtonIndex: 0, animated: false)
-							sbreload.waitUntilExit()
+						DispatchQueue.main.asyncAfter(deadline: .now() + 3, qos: .userInteractive) {
+							respring()
 						}
 					} else {
 						alert.dismiss(withClickedButtonIndex: 0, animated: false)
@@ -195,6 +190,21 @@ internal func prepareGoldenTicket() {
 		do {
 			try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
 		} catch {}
+	}
+}
+
+internal func respring() {
+	let sbreload = NSTask()!
+	sbreload.setLaunchPath(getStr(9))
+	sbreload.launch()
+	// just in case sbreload screws up somehow
+	DispatchQueue.main.asyncAfter(deadline: .now() + 5, qos: .userInteractive) {
+		let killSpringBoard = NSTask()!
+		killSpringBoard.setLaunchPath(getStr(34))
+		killSpringBoard.arguments = getStr(34).split(separator: " ").map { s in
+			String(s)
+		}
+		killSpringBoard.launch()
 	}
 }
 

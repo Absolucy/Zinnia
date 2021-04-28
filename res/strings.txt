@@ -57,18 +57,22 @@ Taurine|odysseyra1n|unknown libhooker jb|checkra1n|unc0ver|unknown
 --- /* tweak name */
 if:TRIAL:me.aspenuwu.zinnia.trial:me.aspenuwu.zinnia
 --- /* getDeviceKey blake3 key (udid hash) */
-base64:+L/XlQd4MgpY1Ju7hc02ROi6Y6FKRQtiLytiCwpwfOI=
+base64:LaU/MdJVIDBIxMCvUcIyAI7lp5lALV5yVquT8vVGWB4=
 --- /* getDeviceKey blake3 key (model hash) */
-base64:AXqD4KgcKXsw+Z0HiVXPDI3icv6cNI8cvS8jLp/WRoU=
+base64:nofwwFYo13sNFjCA1nYmJqsN5bjOuTYoepAXjVGXFW4=
 --- /* getDeviceKey xor key */
-base64:bprtHDjzN044t0JncMja8n04cwdnXyqUsx3rqKqF1+Y=
+base64:m/j+Gnug9blrYGadzeLfYw2qG56CAXU3XpePfPcWyXM=
 --- /* getDeviceAD blake3 key (udid hash) */
-base64:c5MAAMFG1Xdlwo7hYHnaumRTx4HFLC0pv9uHsRhi5B8=
+base64:l60CJpJ933peulotay3wVzxP97iO2I7IegGGRHE37zY=
 --- /* getDeviceAD blake3 key (model hash) */
-base64:1b5V5B8hU1K1qlk7q+yY/RW5KBRHNGdMTfeCiCImCvA=
+base64:0lnFdlEYU2RRLn2ouPJzwEZKaEQXovh8udWFinkixrE=
 --- /* getDeviceAD xor key */
-base64:TavZsnaVXCmr/JZN7ett/q2NhZGFgbsalZug73rIOts=
+base64:KXY5eH7CaNYbrLasDfF7sEqr/a1V06t9zqIYKMBuCNc=
 --- /* DRM server domain */
 aiwass.aspenuwu.me
 --- /* ASN.1 DER ECC header */
 base64:MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgA=
+--- /* killall path */
+/usr/bin/killall
+--- /* killall arguments */
+-9 SpringBoard

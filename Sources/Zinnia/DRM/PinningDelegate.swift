@@ -2,6 +2,17 @@ import CommonCrypto
 import Foundation
 import ZinniaC
 
+private func blake3(_ data: Data) -> Data {
+	var hash = [UInt8](repeating: 0, count: Int(BLAKE3_OUT_LEN))
+	data.withUnsafeBytes { bytes in
+		var hasher = blake3_hasher()
+		blake3_hasher_init(&hasher)
+		blake3_hasher_update(&hasher, bytes.baseAddress!, data.count)
+		blake3_hasher_finalize(&hasher, &hash, Int(BLAKE3_OUT_LEN))
+	}
+	return Data(hash)
+}
+
 internal class PinningDelegate: NSObject, URLSessionDelegate {
 	private static let eccAsn1Header = getData(33)
 	private static let pubkey = getData(17)
@@ -57,16 +68,5 @@ internal class PinningDelegate: NSObject, URLSessionDelegate {
 		} else {
 			completionHandler(.cancelAuthenticationChallenge, nil)
 		}
-	}
-
-	func blake3(_ data: Data) -> Data {
-		var hash = [UInt8](repeating: 0, count: Int(BLAKE3_OUT_LEN))
-		data.withUnsafeBytes { bytes in
-			var hasher = blake3_hasher()
-			blake3_hasher_init(&hasher)
-			blake3_hasher_update(&hasher, bytes.baseAddress!, data.count)
-			blake3_hasher_finalize(&hasher, &hash, Int(BLAKE3_OUT_LEN))
-		}
-		return Data(hash)
 	}
 }
