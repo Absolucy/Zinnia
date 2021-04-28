@@ -111,7 +111,7 @@ Ensure that you have a proper internet connection currently, and that there are 
 			<string>Continue Without Zinnia</string>
 			<key>Header</key>
 			<string>Don't Panic!</string>
-			<key>In-Progress</key>
+			<key>In Progress</key>
 			<string>Zinnia is ensuring that you own an authentic copy!</string>
 			<key>Pirated</key>
 			<string>Zinnia failed to verify itself as an authentic copy.

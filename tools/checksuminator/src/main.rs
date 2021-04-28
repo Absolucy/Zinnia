@@ -3,6 +3,7 @@ pub(crate) mod passes;
 pub(crate) mod shuffle;
 
 use goblin::mach::{Mach, MachO};
+use plist::Value;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -20,6 +21,33 @@ fn handle_slice(macho: MachO, offset: usize, binary: &mut Vec<u8>, opt: &Opt) {
 	passes::string_table::handle(&macho, offset, binary, opt);
 	passes::crc::handle(&macho, offset, binary, opt.init);
 	passes::encrypt::handle(&macho, offset, binary);
+}
+
+fn parse_plist(stack: Vec<String>, value: Value) {
+	match value {
+		Value::Array(a) => {
+			for (idx, value) in a.into_iter().enumerate() {
+				let mut new_stack = stack.clone();
+				new_stack.push(idx.to_string());
+				parse_plist(new_stack, value);
+			}
+		}
+		Value::Dictionary(dict) => {
+			for (key, value) in dict {
+				let mut new_stack = stack.clone();
+				new_stack.push(key);
+				parse_plist(new_stack, value);
+			}
+		}
+		Value::Boolean(b) => println!("{} = {}", stack.join("->"), b),
+		Value::Data(d) => println!("{} = b'{}'", stack.join("->"), hex::encode(d)),
+		Value::Date(_) => unimplemented!(),
+		Value::Real(_) => unimplemented!(),
+		Value::Integer(i) => println!("{} = {}", stack.join("->"), i),
+		Value::String(s) => println!("{} = \"{}\"", stack.join("->"), s.replace("\n", "\t")),
+		Value::Uid(_) => unimplemented!(),
+		Value::__Nonexhaustive => unimplemented!(),
+	}
 }
 
 fn main() {
