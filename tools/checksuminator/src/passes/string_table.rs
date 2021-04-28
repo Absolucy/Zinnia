@@ -7,6 +7,7 @@ use chacha20::{
 	ChaCha20, Key, Nonce,
 };
 use goblin::mach::MachO;
+use trim_in_place::TrimInPlace;
 
 pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, opt: &Opt) {
 	let strings = std::fs::read_to_string(&opt.string)
@@ -22,11 +23,30 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, opt: &Opt) {
 	assert!(total_len <= 32768);
 	assert!(strings.len() <= 100);
 
-	strings.into_iter().for_each(|string| {
-		let (entry, encrypted) = StringEntry::new(&string);
-		table.push(entry);
-		raw_strings.extend_from_slice(&encrypted);
-	});
+	strings
+		.into_iter()
+		.enumerate()
+		.for_each(|(idx, mut string)| {
+			if let Some((start, end)) = string
+				.find("/*")
+				.and_then(|start| Some((start, string[start..].find("*/")? + start + 2)))
+			{
+				string.replace_range(start..end, "");
+			}
+			string.trim_in_place();
+
+			let mut display_string = string.trim().replace('\n', " ");
+			if display_string.len() > 64 {
+				display_string.truncate(61);
+				display_string.trim_in_place();
+				display_string.push_str("...");
+			}
+			println!("[STRTAB {: >2}] {}", idx, display_string);
+
+			let (entry, encrypted) = StringEntry::new(string);
+			table.push(entry);
+			raw_strings.extend_from_slice(&encrypted);
+		});
 
 	let mut raw_table = bytemuck::cast_slice::<_, u8>(&table).to_vec();
 

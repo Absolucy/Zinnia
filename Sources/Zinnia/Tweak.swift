@@ -3,9 +3,6 @@ import Foundation
 import SwiftUI
 import SystemConfiguration.CaptiveNetwork
 import ZinniaC
-#if !THEOS_SWIFT
-	// import NomaePreferences
-#endif
 
 @_cdecl("runDrm")
 internal func runDrm() {

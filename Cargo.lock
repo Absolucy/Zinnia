@@ -254,6 +254,7 @@ dependencies = [
 name = "checksuminator"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "blake3",
  "bytemuck",
  "chacha20",
@@ -261,6 +262,7 @@ dependencies = [
  "hex",
  "rand 0.8.3",
  "structopt",
+ "trim-in-place",
 ]
 
 [[package]]
@@ -1674,6 +1676,12 @@ checksum = "f50de3927f93d202783f4513cda820ab47ef17f624b03c096e86ef00c67e6b5f"
 dependencies = [
  "lazy_static",
 ]
+
+[[package]]
+name = "trim-in-place"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50ae970a522c697c39de23b630ae81ff124f6291cc591a76c17d45b0ff1d4a88"
 
 [[package]]
 name = "try-lock"

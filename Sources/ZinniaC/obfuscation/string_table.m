@@ -29,6 +29,14 @@ static inline __attribute__((always_inline)) void initialize_keys(struct chacha2
 }
 
 char* st_get(uint32_t idx) {
+	__block char* ret;
+	st_get_bytes(idx, ^(uint8_t* data, size_t _) {
+	  ret = (char*)data;
+	});
+	return ret;
+}
+
+void st_get_bytes(uint32_t idx, void (^callback)(uint8_t*, size_t)) {
 	struct string_entry* entry = &string_table_of_contents[idx];
 	struct chacha20_context ctx;
 
@@ -44,11 +52,11 @@ char* st_get(uint32_t idx) {
 	}
 
 	// if _platform_memmove crashes here, THAT MEANS THE STRING TABLE DID NOT DECRYPT!
-	char* string = (char*)malloc(length);
-	memcpy(string, string_base, length);
-	chacha20_xor(&ctx, (uint8_t*)string, length);
+	uint8_t* bytes = (uint8_t*)malloc(length);
+	memcpy(bytes, string_base, length);
+	chacha20_xor(&ctx, bytes, length);
 
-	return string;
+	callback(bytes, length);
 }
 
 void initialize_string_table() {

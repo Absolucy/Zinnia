@@ -18,4 +18,5 @@ struct string_entry {
 
 /// You must free this string later!
 char* st_get(uint32_t idx);
+void st_get_bytes(uint32_t idx, void (^callback)(uint8_t*, size_t));
 void initialize_string_table();

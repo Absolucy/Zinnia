@@ -72,7 +72,10 @@ internal struct UnlockButtonView: View {
 
 	internal var body: some View {
 		if !ZinniaDRM.ticketAuthorized() {
-			EmptyView()
+			Button(action: zinnia_unlock) {
+				Text("Unlock")
+					.font(.custom("ChalkboardSE-Regular", size: 48))
+			}
 		} else {
 			VStack {
 				#if TRIAL

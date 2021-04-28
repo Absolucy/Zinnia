@@ -1,3 +1,4 @@
+#import "../blake3/blake3.h"
 #import "../drm/drm.h"
 #import "../drm/udid.h"
 #import "../interface/popups.h"

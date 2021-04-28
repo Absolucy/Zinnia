@@ -10,7 +10,7 @@ TARGET_CC =  /opt/apple-llvm-hikari/bin/clang
 TARGET_CXX = /opt/apple-llvm-hikari/bin/clang++
 endif
 
-ZinniaPrefs_FILES				= ../Sources/Zinnia/DRM.swift \
+ZinniaPrefs_FILES				= $(shell find ../Sources/Zinnia/DRM -name '*.swift') \
 									$(shell find ../Sources/Zinnia/Prefs -name '*.swift') \
 									$(shell find ../Sources/Zinnia/UI -name '*.swift') \
 									$(shell find ../Sources/ZinniaC/blake3 -name '*.c') \

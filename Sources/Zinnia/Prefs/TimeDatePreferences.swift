@@ -25,83 +25,91 @@ struct TimeDatePrefs: View {
 	@Binding var dateFontInfo: UIFontDescriptor?
 	@Binding var timeFontInfo: UIFontDescriptor?
 
+	@ViewBuilder private func TimePreferences() -> some View {
+		HStack {
+			Text("Time Format")
+			Spacer()
+			TextField("hh:mm a", text: $timeFormat)
+				.textFieldStyle(RoundedBorderTextFieldStyle())
+			Button(action: {
+				self.timeFormat = "hh:mm a"
+			}) {
+				Image(systemName: "arrow.counterclockwise.circle")
+			}.padding(.leading, 5)
+		}
+		HStack {
+			Text("Time Font")
+			Spacer()
+			Button(timeFont) {
+				timeFontInfo = UIFontDescriptor(name: timeFont, size: CGFloat(timeFontSize))
+				setFont = .time
+			}
+			Button(action: {
+				timeFont = "San Fransisco"
+			}) {
+				Image(systemName: "arrow.counterclockwise.circle")
+			}.padding(.leading, 5)
+		}
+		HStack {
+			Text("Time Font Size")
+			Text(String(format: "%.0fpt", timeFontSize))
+				.font(.system(.caption, design: .monospaced))
+			Spacer()
+			Slider(value: $timeFontSize, in: 10.0 ... 48.0, step: 1)
+			Button(action: {
+				timeFontSize = 34.0
+			}) {
+				Image(systemName: "arrow.counterclockwise.circle")
+			}.padding(.leading, 5)
+		}
+	}
+
+	@ViewBuilder private func DatePreferences() -> some View {
+		HStack {
+			Text("Date Format")
+			Spacer()
+			TextField("MM/dd/yyyy", text: $dateFormat)
+				.textFieldStyle(RoundedBorderTextFieldStyle())
+			Button(action: {
+				self.dateFormat = "MM/dd/yyyy"
+			}) {
+				Image(systemName: "arrow.counterclockwise.circle")
+			}.padding(.leading, 5)
+		}
+		HStack {
+			Text("Date Font")
+			Spacer()
+			Button(dateFont) {
+				dateFontInfo = UIFontDescriptor(name: dateFont, size: CGFloat(dateFontSize))
+				setFont = .date
+			}
+			Button(action: {
+				dateFont = "San Fransisco"
+			}) {
+				Image(systemName: "arrow.counterclockwise.circle")
+			}.padding(.leading, 5)
+		}
+		HStack {
+			Text("Date Font Size")
+			Text(String(format: "%.0fpt", dateFontSize))
+				.font(.system(.caption, design: .monospaced))
+			Spacer()
+			Slider(value: $dateFontSize, in: 10.0 ... 48.0, step: 1)
+			Button(action: {
+				dateFontSize = 16.0
+			}) {
+				Image(systemName: "arrow.counterclockwise.circle")
+			}.padding(.leading, 5)
+		}
+	}
+
 	var body: some View {
 		Section {
 			TimeDateView()
 				.padding()
 				.border(Color.secondary)
-			HStack {
-				Text("Time Format")
-				Spacer()
-				TextField("hh:mm a", text: $timeFormat)
-					.textFieldStyle(RoundedBorderTextFieldStyle())
-				Button(action: {
-					self.timeFormat = "hh:mm a"
-				}) {
-					Image(systemName: "arrow.counterclockwise.circle")
-				}.padding(.leading, 5)
-			}
-			HStack {
-				Text("Time Font")
-				Spacer()
-				Button(timeFont) {
-					timeFontInfo = UIFontDescriptor(name: timeFont, size: CGFloat(timeFontSize))
-					setFont = .time
-				}
-				Button(action: {
-					timeFont = "San Fransisco"
-				}) {
-					Image(systemName: "arrow.counterclockwise.circle")
-				}.padding(.leading, 5)
-			}
-			HStack {
-				Text("Time Font Size")
-				Text(String(format: "%.0fpt", timeFontSize))
-					.font(.system(.caption, design: .monospaced))
-				Spacer()
-				Slider(value: $timeFontSize, in: 10.0 ... 48.0, step: 1)
-				Button(action: {
-					timeFontSize = 34.0
-				}) {
-					Image(systemName: "arrow.counterclockwise.circle")
-				}.padding(.leading, 5)
-			}
-			HStack {
-				Text("Date Format")
-				Spacer()
-				TextField("MM/dd/yyyy", text: $dateFormat)
-					.textFieldStyle(RoundedBorderTextFieldStyle())
-				Button(action: {
-					self.dateFormat = "MM/dd/yyyy"
-				}) {
-					Image(systemName: "arrow.counterclockwise.circle")
-				}.padding(.leading, 5)
-			}
-			HStack {
-				Text("Date Font")
-				Spacer()
-				Button(dateFont) {
-					dateFontInfo = UIFontDescriptor(name: dateFont, size: CGFloat(dateFontSize))
-					setFont = .date
-				}
-				Button(action: {
-					dateFont = "San Fransisco"
-				}) {
-					Image(systemName: "arrow.counterclockwise.circle")
-				}.padding(.leading, 5)
-			}
-			HStack {
-				Text("Date Font Size")
-				Text(String(format: "%.0fpt", dateFontSize))
-					.font(.system(.caption, design: .monospaced))
-				Spacer()
-				Slider(value: $dateFontSize, in: 10.0 ... 48.0, step: 1)
-				Button(action: {
-					dateFontSize = 16.0
-				}) {
-					Image(systemName: "arrow.counterclockwise.circle")
-				}.padding(.leading, 5)
-			}
+			TimePreferences()
+			DatePreferences()
 			BasicNeonOptions(
 				mul: $dateTimeNeonMul,
 				color: $dateTimeNeonColor,

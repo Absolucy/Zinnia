@@ -11,12 +11,13 @@ TARGET_CC =  /opt/apple-llvm-hikari/bin/clang
 TARGET_CXX = /opt/apple-llvm-hikari/bin/clang++
 endif
 
-Zinnia_FILES				= Sources/Zinnia/Tweak.swift Sources/Zinnia/DRM.swift \
+Zinnia_FILES				= Sources/Zinnia/Tweak.swift \
+								$(shell find Sources/Zinnia/DRM -name '*.swift') \
 								$(shell find Sources/Zinnia/UI -name '*.swift') \
 								$(shell find Sources/Zinnia/NomaePreferences -name '*.swift') \
 								$(shell find Sources/ZinniaC -name '*.m' -o -name '*.c')
 Zinnia_SWIFTFLAGS			= -ISources/ZinniaC/include
-Zinnia_CFLAGS				= -fobjc-arc -DTHEOS_SWIFT
+Zinnia_CFLAGS				= -fobjc-arc -DTHEOS_SWIFT 
 ADDITIONAL_SWIFTFLAGS		= -DTHEOS_SWIFT
 Zinnia_LDFLAGS				= -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 Zinnia_FRAMEWORKS			= AVFoundation

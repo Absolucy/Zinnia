@@ -1,0 +1,70 @@
+/* UIAlertView header */
+Don't Panic!
+--- /* in-progress message */
+Zinnia is ensuring that you own an authentic copy!
+--- /* "u prolly pirated" message */
+Zinnia failed to verify itself as an authentic copy.
+If you have legitimately obtained Zinnia, try reinstalling or respringing; if that does not work, please report this as a bug, with some sort of proof-of-purchase.
+If you have pirated Zinnia, please buy it, as tweak development is my only source of decent money :(
+--- /* "connection failed" message */
+Zinnia failed to contact the authentication server.
+Ensure that you have a proper internet connection currently, and that there are no firewalls blocking access to the internet.
+--- /* success message */
+Zinnia has been successfully verified!
+Respringing in %d...
+--- /* button used whenever auth fails in any way */
+Continue Without Zinnia
+--- /* ISO-whatever format, chrono uses this to store time */
+yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+--- /* time locale */
+en_US_POSIX
+--- /* todo: delete this */
+/usr/lib/aspenuwu/me.aspenuwu.zinnia.bs
+--- /* sbreload path */
+/usr/bin/sbreload
+--- /* ticket storage folder */
+/var/mobile/Library/Application Support/me.aspenuwu.zinnia
+--- /* encrypted ticket file */
+/var/mobile/Library/Application Support/me.aspenuwu.zinnia/.goldenticket
+--- /* trial watermark for lockscreen */
+TRIAL VERSION (%d minutes left)
+--- /* in-progress message (trial) */
+Zinnia is authorizing your free 60-minute trial!
+--- /* failed to authenticate (trial) */
+Zinnia failed to authorize the free 60-minute trial.
+Either you have already used your device's 60-minute trial before, or the authentication server is having issues.
+--- /* trial expired */
+Your free 60-minute trial of Zinnia has expired!
+If you enjoyed using Zinnia, then please purchase the full version from Chariz :)
+--- /* DRM server endpoint url */
+https://aiwass.aspenuwu.me/v1/authorize
+--- /* pinned certificate for aiwass.aspenuwu.me */
+b3sum:res/aiwass.key.der
+--- /* current public key */
+base64:OMTapJGlUNNI0VbGmyDjIWDgXCfaxDNlw9RevUcBUDg=
+--- /* tweak version */
+env:VERSION
+--- /* jailbreak paths (for detecting to use in user agent) */
+/taurine/jailbreakd|/usr/libexec/libhooker/pspawn_payload.dylib|/.procursus_strapped|/var/checkra1n.dmg|/usr/libexec/substrated
+--- /* jailbreak names (for user agent) */
+Taurine|odysseyra1n|unknown libhooker jb|checkra1n|unc0ver|unknown
+--- /* formatting string (user agent) */
+{}/{} ({}; {}; iOS {})
+--- /* formatting string (iOS version) */
+%d.%d.%d
+--- /* formatting string (iOS version) */
+%d.%d
+--- /* tweak name */
+if:TRIAL:me.aspenuwu.zinnia.trial:me.aspenuwu.zinnia
+--- /* getDeviceKey blake3 key (udid hash) */
+base64:+L/XlQd4MgpY1Ju7hc02ROi6Y6FKRQtiLytiCwpwfOI=
+--- /* getDeviceKey blake3 key (model hash) */
+base64:AXqD4KgcKXsw+Z0HiVXPDI3icv6cNI8cvS8jLp/WRoU=
+--- /* getDeviceKey xor key */
+base64:bprtHDjzN044t0JncMja8n04cwdnXyqUsx3rqKqF1+Y=
+--- /* getDeviceAD blake3 key (udid hash) */
+base64:c5MAAMFG1Xdlwo7hYHnaumRTx4HFLC0pv9uHsRhi5B8=
+--- /* getDeviceAD blake3 key (model hash) */
+base64:1b5V5B8hU1K1qlk7q+yY/RW5KBRHNGdMTfeCiCImCvA=
+--- /* getDeviceAD xor key */
+base64:TavZsnaVXCmr/JZN7ett/q2NhZGFgbsalZug73rIOts=

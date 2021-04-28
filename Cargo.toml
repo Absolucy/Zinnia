@@ -4,11 +4,3 @@ members = ["tools/checksuminator", "tools/activator"]
 [profile.dev]
 debug = true
 incremental = true
-
-[profile.release]
-codegen-units = 1
-debug = false
-incremental = true
-lto = true
-opt-level = "z"
-panic = "abort"
