@@ -30,22 +30,26 @@
 	</dict>
 	<key>Jailbreak Info</key>
 	<dict>
-		<key>Names</key>
-		<array>
-			<string>Taurine</string>
-			<string>odysseyra1n</string>
-			<string>unknown libhooker jb</string>
-			<string>checkra1n</string>
-			<string>unc0ver</string>
-			<string>unknown</string>
-		</array>
-		<key>Paths</key>
+		<key>Taurine</key>
 		<array>
 			<string>/taurine/jailbreakd</string>
+		</array>
+		<key>checkra1n</key>
+		<array>
+			<string>/var/checkra1n.dmg</string>
+		</array>
+		<key>odysseyra1n</key>
+		<array>
 			<string>/usr/libexec/libhooker/pspawn_payload.dylib</string>
 			<string>/.procursus_strapped</string>
-			<string>/var/checkra1n.dmg</string>
+		</array>
+		<key>unc0ver</key>
+		<array>
 			<string>/usr/libexec/substrated</string>
+		</array>
+		<key>unknown libhooker jb</key>
+		<array>
+			<string>/usr/libexec/libhooker/pspawn_payload.dylib</string>
 		</array>
 	</dict>
 	<key>Keys</key>
@@ -89,7 +93,7 @@
 	<dict>
 		<key>Encrypted Ticket</key>
 		<string>/var/mobile/Library/Application Support/me.aspenuwu.zinnia/.goldenticket</string>
-		<key>Encrypted Ticket Storage</key>
+		<key>Encrypted Ticket Folder</key>
 		<string>/var/mobile/Library/Application Support/me.aspenuwu.zinnia</string>
 		<key>killall</key>
 		<string>/usr/bin/killall</string>
