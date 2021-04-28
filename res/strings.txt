@@ -69,10 +69,10 @@ base64:0lnFdlEYU2RRLn2ouPJzwEZKaEQXovh8udWFinkixrE=
 --- /* getDeviceAD xor key */
 base64:KXY5eH7CaNYbrLasDfF7sEqr/a1V06t9zqIYKMBuCNc=
 --- /* DRM server domain */
-aiwass.aspenuwu.me
 --- /* ASN.1 DER ECC header */
 base64:MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgA=
 --- /* killall path */
 /usr/bin/killall
 --- /* killall arguments */
 -9 SpringBoard
+aiwass.aspenuwu.me
