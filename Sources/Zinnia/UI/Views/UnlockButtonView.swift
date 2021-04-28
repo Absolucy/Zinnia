@@ -75,12 +75,23 @@ internal struct UnlockButtonView: View {
 			VStack {
 				Button(action: zinnia_unlock) {
 					Text("Unlock")
+						.foregroundColor(.pink)
 						.font(.custom("ChalkboardSE-Regular", size: 48))
-				}.padding(.vertical)
+						.padding(8)
+				}
+				.buttonStyle(BorderlessButtonStyle())
+				.background(RoundedRectangle(cornerRadius: 16).foregroundColor(.white))
+				.padding(.vertical)
+
 				Button(action: respring) {
 					Text("Respring")
+						.foregroundColor(.pink)
 						.font(.custom("ChalkboardSE-Regular", size: 48))
-				}.padding(.vertical)
+						.padding(8)
+				}
+				.buttonStyle(BorderlessButtonStyle())
+				.background(RoundedRectangle(cornerRadius: 16).foregroundColor(.white))
+				.padding(.vertical)
 			}
 		} else {
 			VStack {
