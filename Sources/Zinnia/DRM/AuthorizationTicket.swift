@@ -54,11 +54,11 @@ extension AuthorizationTicket: Decodable {
 		formatter.dateFormat = getStr(6)
 
 		guard let issued = formatter.date(from: try values.decode(String.self, forKey: .i))
-		else { throw MyError.err("issued was not date") }
+		else { throw MyError.err("i") }
 		i = issued
 
 		guard let expiry = formatter.date(from: try values.decode(String.self, forKey: .e))
-		else { throw MyError.err("expiry was not date") }
+		else { throw MyError.err("e") }
 		e = expiry
 
 		f = try values.decode(UInt8.self, forKey: .f)
