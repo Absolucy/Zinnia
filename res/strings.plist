@@ -2,124 +2,149 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>drm</key>
+	<key>DRM</key>
 	<dict>
-		<key>endpoint</key>
+		<key>ASN.1 DER ECC header</key>
+		<data>
+		MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgA=
+		</data>
+		<key>Endpoint</key>
 		<string>https://aiwass.aspenuwu.me/v1/authorize</string>
-		<key>pinned certificate</key>
-		<string>b3sum:res/aiwass.key.der</string>
+		<key>Pinned TLS Public Key</key>
+		<data>
+		46Uz/xTF9Cn19GT7zKHfmHc0JN8X7I6qB9F+duVLYCg=
+		</data>
 	</dict>
-	<key>drm ui</key>
+	<key>Formatting</key>
 	<dict>
-		<key>connection failed</key>
-		<string>Zinnia failed to contact the authentication server.
-Ensure that you have a proper internet connection currently, and that there are no firewalls blocking access to the internet.</string>
-		<key>fail button</key>
-		<string>Continue Without Zinnia</string>
-		<key>header text</key>
-		<string>Don't Panic!</string>
-		<key>in-progress</key>
-		<string>Zinnia is ensuring that you own an authentic copy!</string>
-		<key>pirated</key>
-		<string>Zinnia failed to verify itself as an authentic copy.
-If you have legitimately obtained Zinnia, try reinstalling or respringing; if that does not work, please report this as a bug, with some sort of proof-of-purchase.
-If you have pirated Zinnia, please buy it, as tweak development is my only source of decent money :(</string>
-		<key>success</key>
-		<string>Zinnia has been successfully verified!
-Respringing in %d...</string>
-		<key>trial</key>
-		<dict>
-			<key>expired</key>
-			<string>Your free 60-minute trial of Zinnia has expired!
-If you enjoyed using Zinnia, then please purchase the full version from Chariz :)</string>
-			<key>failed</key>
-			<string>Zinnia failed to authorize the free 60-minute trial.
-Either you have already used your device's 60-minute trial before, or the authentication server is having issues.</string>
-			<key>in-progress</key>
-			<string>Zinnia is authorizing your free 60-minute trial!</string>
-			<key>watermark</key>
-			<string>TRIAL VERSION (%d minutes left)</string>
-		</dict>
-	</dict>
-	<key>fmt</key>
-	<dict>
+		<key>ISO time</key>
+		<string>yyyy-MM-dd'T'HH:mm:ss.SSSSSS</string>
+		<key>Locale</key>
+		<string>en_US_POSIX</string>
+		<key>User Agent</key>
+		<string>{}/{} ({}; {}; iOS {})</string>
 		<key>iOS x.x</key>
 		<string>%d.%d</string>
 		<key>iOS x.x.x</key>
 		<string>%d.%d.%d</string>
-		<key>iso time</key>
-		<string>yyyy-MM-dd'T'HH:mm:ss.SSSSSS</string>
-		<key>locale</key>
-		<string>en_US_POSIX</string>
-		<key>user agent</key>
-		<string>{}/{} ({}; {}; iOS {})</string>
 	</dict>
-	<key>jailbreak names</key>
-	<array>
-		<string>Taurine</string>
-		<string>odysseyra1n</string>
-		<string>unknown libhooker jb</string>
-		<string>checkra1n</string>
-		<string>unc0ver</string>
-		<string>unknown</string>
-	</array>
-	<key>jailbreak paths</key>
-	<array>
-		<string>/taurine/jailbreakd</string>
-		<string>/usr/libexec/libhooker/pspawn_payload.dylib</string>
-		<string>/.procursus_strapped</string>
-		<string>/var/checkra1n.dmg</string>
-		<string>/usr/libexec/substrated</string>
-	</array>
-	<key>keys</key>
+	<key>Jailbreak Info</key>
 	<dict>
+		<key>Names</key>
+		<array>
+			<string>Taurine</string>
+			<string>odysseyra1n</string>
+			<string>unknown libhooker jb</string>
+			<string>checkra1n</string>
+			<string>unc0ver</string>
+			<string>unknown</string>
+		</array>
+		<key>Paths</key>
+		<array>
+			<string>/taurine/jailbreakd</string>
+			<string>/usr/libexec/libhooker/pspawn_payload.dylib</string>
+			<string>/.procursus_strapped</string>
+			<string>/var/checkra1n.dmg</string>
+			<string>/usr/libexec/substrated</string>
+		</array>
+	</dict>
+	<key>Keys</key>
+	<dict>
+		<key>Public ed25519 Signing Key</key>
+		<data>
+		OMTapJGlUNNI0VbGmyDjIWDgXCfaxDNlw9RevUcBUDg=
+		</data>
 		<key>getDeviceAD</key>
 		<dict>
-			<key>model</key>
+			<key>Model</key>
 			<data>
 			0lnFdlEYU2RRLn2ouPJzwEZKaEQXovh8udWFinkixrE=
 			</data>
-			<key>udid</key>
+			<key>UDID</key>
 			<data>
 			l60CJpJ933peulotay3wVzxP97iO2I7IegGGRHE37zY=
 			</data>
-			<key>xor</key>
+			<key>XOR</key>
 			<data>
 			KXY5eH7CaNYbrLasDfF7sEqr/a1V06t9zqIYKMBuCNc=
 			</data>
 		</dict>
 		<key>getDeviceKey</key>
 		<dict>
-			<key>model</key>
+			<key>Model</key>
 			<data>
 			nofwwFYo13sNFjCA1nYmJqsN5bjOuTYoepAXjVGXFW4=
 			</data>
-			<key>udid</key>
+			<key>UDID</key>
 			<data>
 			LaU/MdJVIDBIxMCvUcIyAI7lp5lALV5yVquT8vVGWB4=
 			</data>
-			<key>xor</key>
+			<key>XOR</key>
 			<data>
 			m/j+Gnug9blrYGadzeLfYw2qG56CAXU3XpePfPcWyXM=
 			</data>
 		</dict>
-		<key>public signing key</key>
-		<data>
-		OMTapJGlUNNI0VbGmyDjIWDgXCfaxDNlw9RevUcBUDg=
-		</data>
 	</dict>
-	<key>paths</key>
+	<key>Paths</key>
 	<dict>
-		<key>encrypted ticket</key>
+		<key>Encrypted Ticket</key>
 		<string>/var/mobile/Library/Application Support/me.aspenuwu.zinnia/.goldenticket</string>
+		<key>Encrypted Ticket Storage</key>
+		<string>/var/mobile/Library/Application Support/me.aspenuwu.zinnia</string>
+		<key>killall</key>
+		<string>/usr/bin/killall</string>
+		<key>killall arguments</key>
+		<string>-9 SpringBoard</string>
 		<key>sbreload</key>
 		<string>/usr/bin/sbreload</string>
-		<key>ticket storage folder</key>
-		<string>/var/mobile/Library/Application Support/me.aspenuwu.zinnia</string>
 	</dict>
-	<key>tweak</key>
+	<key>Tweak</key>
 	<string>if:TRIAL:me.aspenuwu.zinnia.trial:me.aspenuwu.zinnia</string>
-	<key>version</key>
+	<key>UI</key>
+	<dict>
+		<key>DRM</key>
+		<dict>
+			<key>Connection Failed</key>
+			<string>Zinnia failed to contact the authentication server.
+Ensure that you have a proper internet connection currently, and that there are no firewalls blocking access to the internet.</string>
+			<key>Fail Button</key>
+			<string>Continue Without Zinnia</string>
+			<key>Header</key>
+			<string>Don't Panic!</string>
+			<key>In-Progress</key>
+			<string>Zinnia is ensuring that you own an authentic copy!</string>
+			<key>Pirated</key>
+			<string>Zinnia failed to verify itself as an authentic copy.
+If you have legitimately obtained Zinnia, try reinstalling or respringing; if that does not work, please report this as a bug, with some sort of proof-of-purchase.
+If you have pirated Zinnia, please buy it, as tweak development is my only source of decent money :(</string>
+			<key>Success</key>
+			<string>Zinnia has been successfully verified!
+Respringing in %d...</string>
+			<key>Trial</key>
+			<dict>
+				<key>Expired</key>
+				<string>Your free 60-minute trial of Zinnia has expired!
+If you enjoyed using Zinnia, then please purchase the full version from Chariz :)</string>
+				<key>Failed</key>
+				<string>Zinnia failed to authorize the free 60-minute trial.
+Either you have already used your device's 60-minute trial before, or the authentication server is having issues.</string>
+				<key>In-Progress</key>
+				<string>Zinnia is authorizing your free 60-minute trial!</string>
+				<key>Watermark</key>
+				<string>TRIAL VERSION (%d minutes left)</string>
+			</dict>
+		</dict>
+		<key>Unlock Button</key>
+		<dict>
+			<key>Expired Font</key>
+			<string>ChalkboardSE-Regular</string>
+			<key>Respring</key>
+			<string>Respring</string>
+			<key>Unlock</key>
+			<string>Unlock</string>
+		</dict>
+	</dict>
+	<key>Version</key>
 	<string>env:VERSION</string>
 </dict>
 </plist>

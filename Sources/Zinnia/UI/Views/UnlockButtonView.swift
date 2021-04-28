@@ -3,18 +3,6 @@ import SwiftUI
 import UIKit
 import ZinniaC
 
-internal struct FrameModifier: ViewModifier {
-	var big: Bool
-
-	func body(content: Content) -> some View {
-		if big {
-			return AnyView(content.frame(height: mulByWidth(0.375) * 2))
-		} else {
-			return AnyView(content.fixedSize())
-		}
-	}
-}
-
 internal struct UnlockButtonView: View {
 	@ObservedObject private var globals = ZinniaSharedData.global
 	@ObservedObject private var popupController = ZinniaPopupController.global

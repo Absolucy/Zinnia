@@ -75,4 +75,3 @@ base64:MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgA=
 /usr/bin/killall
 --- /* killall arguments */
 -9 SpringBoard
-aiwass.aspenuwu.me
