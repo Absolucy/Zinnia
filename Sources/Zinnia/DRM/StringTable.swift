@@ -10,6 +10,10 @@ internal func getStr(_ index: UInt32) -> String {
 	return str
 }
 
+internal func getList(_ index: UInt32) -> [String] {
+	getStr(index).split(separator: "$").map { String($0) }
+}
+
 internal func getData(_ index: UInt32) -> Data {
 	var data = Data()
 	st_get_bytes(index) { bytes, size in
