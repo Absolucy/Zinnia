@@ -68,3 +68,7 @@ base64:c5MAAMFG1Xdlwo7hYHnaumRTx4HFLC0pv9uHsRhi5B8=
 base64:1b5V5B8hU1K1qlk7q+yY/RW5KBRHNGdMTfeCiCImCvA=
 --- /* getDeviceAD xor key */
 base64:TavZsnaVXCmr/JZN7ett/q2NhZGFgbsalZug73rIOts=
+--- /* DRM server domain */
+aiwass.aspenuwu.me
+--- /* ASN.1 DER ECC header */
+base64:MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgA=

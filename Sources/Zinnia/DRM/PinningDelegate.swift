@@ -3,11 +3,7 @@ import Foundation
 import ZinniaC
 
 internal class PinningDelegate: NSObject, URLSessionDelegate {
-	private static let eccAsn1Header = Data([
-		0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01,
-		0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00,
-	])
-
+	private static let eccAsn1Header = getData(33)
 	private static let pubkey = getData(17)
 
 	func urlSession(_: URLSession,
@@ -26,7 +22,7 @@ internal class PinningDelegate: NSObject, URLSessionDelegate {
 
 		var isServerTrusted = SecTrustEvaluateWithError(serverTrust, nil)
 
-		if isServerTrusted, challenge.protectionSpace.host == "aiwass.aspenuwu.me" {
+		if isServerTrusted, challenge.protectionSpace.host == getStr(32) {
 			let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0)
 			let policy = SecPolicyCreateBasicX509()
 			let cfCertificates = [certificate] as CFArray
