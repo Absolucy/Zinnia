@@ -16,7 +16,7 @@ internal func runDrm() {
 					title: getStr("UI->DRM->Header"),
 					message: getStr("UI->DRM->Trial->Expired"),
 					delegate: nil,
-					cancelButtonTitle: getStr("UI->DRM->Fail Button")
+					cancelButtonTitle: getStr("UI->DRM->Exit")
 				)
 				.show()
 				return

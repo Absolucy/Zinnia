@@ -91,14 +91,14 @@ internal struct ZinniaDRM {
 		#if TRIAL
 			let alert = UIAlertView(
 				title: getStr("UI->DRM->Header"),
-				message: getStr("UI->DRM->In Progress"),
+				message: getStr("UI->DRM->Trial->In Progress"),
 				delegate: nil,
 				cancelButtonTitle: nil
 			)
 		#else
 			let alert = UIAlertView(
 				title: getStr("UI->DRM->Header"),
-				message: getStr("UI->DRM->Trial->In Progress"),
+				message: getStr("UI->DRM->In Progress"),
 				delegate: nil,
 				cancelButtonTitle: nil
 			)

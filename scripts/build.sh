@@ -8,7 +8,7 @@ cp -R Sources "$TARGET_DIR" || exit 1
 cp -R Zinnia.plist "$TARGET_DIR" || exit 1
 cp -R zinniaprefs "$TARGET_DIR" || exit 1
 # Run preprocessor on source
-fd -t f -e swift . -X target/release/checksuminator source --string-table res/strings.plist {} || exit 1
+fd -t f -e swift . -X target/release/checksuminator source --string-table res/strings.plist "$TARGET_DIR"/{} || exit 1
 # Compile our temporary directory
 cd "$TARGET_DIR"
 gmake stage FINALPACKAGE=1 DRM=1 SHOULD_STRIP=0 || exit 1

@@ -43,12 +43,6 @@ Zinnia_CFLAGS				+= -DDEBUG
 ADDITIONAL_SWIFTFLAGS		+= -DDEBUG
 endif
 
-
-before-Zinnia-stage::
-	echo "TEST!"
-	exit 0
-
-
 include $(THEOS_MAKE_PATH)/tweak.mk
 SUBPROJECTS += zinniaprefs
 include $(THEOS_MAKE_PATH)/aggregate.mk

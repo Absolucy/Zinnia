@@ -46,7 +46,7 @@ pub fn process_string_table(table: BTreeMap<String, Value>) -> BTreeMap<String, 
 }
 
 pub fn preprocess(string_table_path: &Path, files: &[PathBuf]) {
-	let getx_regex = Regex::new(r#"(getStr|getList|getData)\("(.*)"\)"#)
+	let getx_regex = Regex::new(r#"(getStr|getList|getData)\("(.*?)"\)"#)
 		.expect("failed to create preprocessor regex");
 	let string_table = Value::from_file(string_table_path).expect("failed to read string table");
 	let mut processed_string_table = BTreeMap::<String, Value>::new();
@@ -82,7 +82,7 @@ pub fn preprocess(string_table_path: &Path, files: &[PathBuf]) {
 				.find(|(_, key)| key.eq_ignore_ascii_case(capture))
 				.unwrap_or_else(|| panic!("failed to find string table entry for '{}'", capture))
 				.0;
-			dbg!(format!("{}({})", function, index))
+			format!("{}({})", function, index)
 		});
 		eprintln!("writing {}", file.display());
 		std::fs::write(file, code.as_bytes()).unwrap_or_else(|err| {
