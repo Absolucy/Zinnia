@@ -30,9 +30,9 @@ extension AuthorizationTicket: Encodable {
 
 		let formatter = DateFormatter()
 		formatter.calendar = Calendar(identifier: .iso8601)
-		formatter.locale = Locale(identifier: getStr(7))
+		formatter.locale = Locale(identifier: getStr("Formatting->Locale"))
 		formatter.timeZone = TimeZone(secondsFromGMT: 0)
-		formatter.dateFormat = getStr(6)
+		formatter.dateFormat = getStr("Formatting->ISO time")
 
 		try container.encode(formatter.string(from: i), forKey: .i)
 		try container.encode(formatter.string(from: e), forKey: .e)
@@ -49,9 +49,9 @@ extension AuthorizationTicket: Decodable {
 
 		let formatter = DateFormatter()
 		formatter.calendar = Calendar(identifier: .iso8601)
-		formatter.locale = Locale(identifier: getStr(7))
+		formatter.locale = Locale(identifier: getStr("Formatting->Locale"))
 		formatter.timeZone = TimeZone(secondsFromGMT: 0)
-		formatter.dateFormat = getStr(6)
+		formatter.dateFormat = getStr("Formatting->ISO time")
 
 		guard let issued = formatter.date(from: try values.decode(String.self, forKey: .i))
 		else { throw MyError.err("i") }
@@ -69,7 +69,7 @@ extension AuthorizationTicket: Decodable {
 internal extension AuthorizationTicket {
 	init?() {
 		prepareGoldenTicket()
-		guard let encryptedTicket = try? Data(contentsOf: URL(fileURLWithPath: getStr(11))),
+		guard let encryptedTicket = try? Data(contentsOf: URL(fileURLWithPath: getStr("Paths->Encrypted Ticket"))),
 		      let sealedTicket = try? ChaChaPoly.SealedBox(combined: encryptedTicket),
 		      let unsealedTicket = openBox(sealedTicket),
 		      let ticket = try? JSONDecoder().decode(AuthorizationTicket.self, from: unsealedTicket)
@@ -81,7 +81,7 @@ internal extension AuthorizationTicket {
 		prepareGoldenTicket()
 		guard let json = try? JSONEncoder().encode(self),
 		      let sealedBox = sealBox(json) else { return }
-		try? sealedBox.combined.write(to: URL(fileURLWithPath: getStr(11)))
+		try? sealedBox.combined.write(to: URL(fileURLWithPath: getStr("Paths->Encrypted Ticket")))
 	}
 
 	func daysLeft() -> Int {
@@ -99,7 +99,8 @@ internal extension AuthorizationTicket {
 	}
 
 	func isSignatureValid() -> Bool {
-		guard let publicKey = try? Curve25519.Signing.PublicKey(rawRepresentation: getData(18)) else { return false }
+		guard let publicKey = try? Curve25519.Signing
+			.PublicKey(rawRepresentation: getData("DRM->Public ed25519 Signing Key")) else { return false }
 		var data = Data(capacity: 16 + MemoryLayout<UInt64>.size + MemoryLayout<UInt64>.size)
 
 		// Serialize the UUID into our data
@@ -109,7 +110,7 @@ internal extension AuthorizationTicket {
 		// Serialize UDID, model, and tweak name into the data next
 		data.append(udid().data(using: .utf8)!)
 		data.append(model().data(using: .utf8)!)
-		data.append(getStr(25).uppercased().data(using: .utf8)!)
+		data.append(getStr("Tweak").uppercased().data(using: .utf8)!)
 		// Convert issued/expired dates to seconds, then serialize them into our data
 		data.append(UInt64(i.timeIntervalSince1970).littleEndian.data)
 		data.append(UInt64(e.timeIntervalSince1970).littleEndian.data)

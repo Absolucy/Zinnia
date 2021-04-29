@@ -10,9 +10,15 @@
 		</data>
 		<key>Endpoint</key>
 		<string>https://aiwass.aspenuwu.me/v1/authorize</string>
+		<key>Hostname</key>
+		<string>aiwass.aspenuwu.me</string>
 		<key>Pinned TLS Public Key</key>
 		<data>
 		46Uz/xTF9Cn19GT7zKHfmHc0JN8X7I6qB9F+duVLYCg=
+		</data>
+		<key>Public ed25519 Signing Key</key>
+		<data>
+		OMTapJGlUNNI0VbGmyDjIWDgXCfaxDNlw9RevUcBUDg=
 		</data>
 	</dict>
 	<key>Formatting</key>
@@ -30,34 +36,26 @@
 	</dict>
 	<key>Jailbreak Info</key>
 	<dict>
-		<key>Taurine</key>
+		<key>Names</key>
+		<array>
+			<string>Taurine</string>
+			<string>odysseyra1n</string>
+			<string>unknown libhooker jb</string>
+			<string>checkra1n</string>
+			<string>unc0ver</string>
+			<string>unknown</string>
+		</array>
+		<key>Paths</key>
 		<array>
 			<string>/taurine/jailbreakd</string>
-		</array>
-		<key>checkra1n</key>
-		<array>
-			<string>/var/checkra1n.dmg</string>
-		</array>
-		<key>odysseyra1n</key>
-		<array>
 			<string>/usr/libexec/libhooker/pspawn_payload.dylib</string>
 			<string>/.procursus_strapped</string>
-		</array>
-		<key>unc0ver</key>
-		<array>
+			<string>/var/checkra1n.dmg</string>
 			<string>/usr/libexec/substrated</string>
-		</array>
-		<key>unknown libhooker jb</key>
-		<array>
-			<string>/usr/libexec/libhooker/pspawn_payload.dylib</string>
 		</array>
 	</dict>
 	<key>Keys</key>
 	<dict>
-		<key>Public ed25519 Signing Key</key>
-		<data>
-		OMTapJGlUNNI0VbGmyDjIWDgXCfaxDNlw9RevUcBUDg=
-		</data>
 		<key>getDeviceAD</key>
 		<dict>
 			<key>Model</key>
@@ -108,10 +106,10 @@
 	<dict>
 		<key>DRM</key>
 		<dict>
-			<key>Connection Failed</key>
+			<key>Error</key>
 			<string>Zinnia failed to contact the authentication server.
 Ensure that you have a proper internet connection currently, and that there are no firewalls blocking access to the internet.</string>
-			<key>Fail Button</key>
+			<key>Exit</key>
 			<string>Continue Without Zinnia</string>
 			<key>Header</key>
 			<string>Don't Panic!</string>
@@ -132,7 +130,7 @@ If you enjoyed using Zinnia, then please purchase the full version from Chariz :
 				<key>Failed</key>
 				<string>Zinnia failed to authorize the free 60-minute trial.
 Either you have already used your device's 60-minute trial before, or the authentication server is having issues.</string>
-				<key>In-Progress</key>
+				<key>In Progress</key>
 				<string>Zinnia is authorizing your free 60-minute trial!</string>
 				<key>Watermark</key>
 				<string>TRIAL VERSION (%d minutes left)</string>

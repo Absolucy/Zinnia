@@ -29,11 +29,11 @@ import ZinniaC
 		fatalError("use of getStr without preprocessor!")
 	}
 
-	internal func getList(_: UInt32) -> [String] {
+	internal func getList(_: String) -> [String] {
 		fatalError("use of getList without preprocessor!")
 	}
 
-	internal func getData(_: UInt32) -> Data {
+	internal func getData(_: String) -> Data {
 		fatalError("use of getData without preprocessor!")
 	}
 #endif

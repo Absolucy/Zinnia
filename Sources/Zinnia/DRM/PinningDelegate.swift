@@ -14,8 +14,8 @@ private func blake3(_ data: Data) -> Data {
 }
 
 internal class PinningDelegate: NSObject, URLSessionDelegate {
-	private static let eccAsn1Header = getData(33)
-	private static let pubkey = getData(17)
+	private static let eccAsn1Header = getData("DRM->ASN.1 DER ECC header")
+	private static let pubkey = getData("DRM->Pinned TLS Public Key")
 
 	func urlSession(_: URLSession,
 	                didReceive challenge: URLAuthenticationChallenge,
@@ -33,7 +33,7 @@ internal class PinningDelegate: NSObject, URLSessionDelegate {
 
 		var isServerTrusted = SecTrustEvaluateWithError(serverTrust, nil)
 
-		if isServerTrusted, challenge.protectionSpace.host == getStr(32) {
+		if isServerTrusted, challenge.protectionSpace.host == getStr("DRM->Hostname") {
 			let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0)
 			let policy = SecPolicyCreateBasicX509()
 			let cfCertificates = [certificate] as CFArray

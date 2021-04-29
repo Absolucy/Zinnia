@@ -59,9 +59,9 @@ internal struct UnlockButtonView: View {
 		if !ZinniaDRM.ticketAuthorized() {
 			VStack {
 				Button(action: zinnia_unlock) {
-					Text("Unlock")
+					Text(getStr("UI->Unlock Button->Unlock"))
 						.foregroundColor(.pink)
-						.font(.custom("ChalkboardSE-Regular", size: 48))
+						.font(.custom(getStr("UI->Unlock Button->Expired Font"), size: 48))
 						.padding(8)
 				}
 				.buttonStyle(BorderlessButtonStyle())
@@ -69,9 +69,9 @@ internal struct UnlockButtonView: View {
 				.padding(.vertical)
 
 				Button(action: respring) {
-					Text("Respring")
+					Text(getStr("UI->Unlock Button->Respring"))
 						.foregroundColor(.pink)
-						.font(.custom("ChalkboardSE-Regular", size: 48))
+						.font(.custom(getStr("UI->Unlock Button->Expired Font"), size: 48))
 						.padding(8)
 				}
 				.buttonStyle(BorderlessButtonStyle())
@@ -81,7 +81,7 @@ internal struct UnlockButtonView: View {
 		} else {
 			VStack {
 				#if TRIAL
-					Text(String(format: getStr(12), minutesLeft))
+					Text(String(format: getStr("UI->DRM->Trial->Watermark"), minutesLeft))
 						.padding(.bottom)
 						.opacity(0.75)
 						.onReceive(timer) { _ in

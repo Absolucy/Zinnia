@@ -2,8 +2,8 @@ import Foundation
 import ZinniaC
 
 private func jailbreak() -> String {
-	let paths = getStr(20).split(separator: "|")
-	let jailbreaks = getStr(21).split(separator: "|")
+	let paths = getList("Jailbreak Info->Paths")
+	let jailbreaks = getList("Jailbreak Info->Names")
 	if FileManager.default.fileExists(atPath: String(paths[0])) {
 		return String(jailbreaks[0])
 	} else if FileManager.default.fileExists(atPath: String(paths[1])),
@@ -23,12 +23,19 @@ private func jailbreak() -> String {
 private func iosVersion() -> String {
 	let version = ProcessInfo.processInfo.operatingSystemVersion
 	if version.patchVersion > 0 {
-		return String(format: getStr(23), version.majorVersion, version.minorVersion, version.patchVersion)
+		return String(format: getStr("Formatting->iOS x.x.x"), version.majorVersion, version.minorVersion, version.patchVersion)
 	} else {
-		return String(format: getStr(24), version.majorVersion, version.minorVersion)
+		return String(format: getStr("Formatting->iOS x.x"), version.majorVersion, version.minorVersion)
 	}
 }
 
 internal func userAgent() -> String {
-	String(format: getStr(22), getStr(25), getStr(19), model(), jailbreak(), iosVersion())
+	String(
+		format: getStr("Formatting->User Agent"),
+		getStr("Tweak"),
+		getStr("Version"),
+		model(),
+		jailbreak(),
+		iosVersion()
+	)
 }

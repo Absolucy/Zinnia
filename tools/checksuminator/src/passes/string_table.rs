@@ -1,20 +1,32 @@
 use crate::{
 	models::{DecryptionKey, StringEntry},
-	Opt,
+	preprocess,
 };
 use chacha20::{
 	cipher::{NewStreamCipher, SyncStreamCipher},
 	ChaCha20, Key, Nonce,
 };
 use goblin::mach::MachO;
-use trim_in_place::TrimInPlace;
+use plist::Value;
+use std::{collections::BTreeMap, path::Path};
 
-pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, opt: &Opt) {
-	let strings = std::fs::read_to_string(&opt.string)
-		.unwrap()
-		.split("---")
-		.map(|x| x.trim().to_string())
-		.collect::<Vec<String>>();
+pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, string_table_path: &Path) {
+	let strings = {
+		let string_table =
+			Value::from_file(string_table_path).expect("failed to read string table");
+		let mut processed_string_table = BTreeMap::<String, Value>::new();
+		preprocess::parser::parse(&mut processed_string_table, vec![], string_table);
+		let processed_string_table = preprocess::process_string_table(processed_string_table);
+		let mut string_table_keys = processed_string_table
+			.keys()
+			.cloned()
+			.collect::<Vec<String>>();
+		string_table_keys.sort();
+		string_table_keys
+			.into_iter()
+			.map(|key| processed_string_table.get(&key).unwrap().clone())
+			.collect::<Vec<Vec<u8>>>()
+	};
 
 	let total_len = strings.iter().fold(0, |x, s| x + s.len() + 1);
 	let mut table = Vec::<StringEntry>::with_capacity(strings.len());
@@ -23,30 +35,11 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, opt: &Opt) {
 	assert!(total_len <= 32768);
 	assert!(strings.len() <= 100);
 
-	strings
-		.into_iter()
-		.enumerate()
-		.for_each(|(idx, mut string)| {
-			if let Some((start, end)) = string
-				.find("/*")
-				.and_then(|start| Some((start, string[start..].find("*/")? + start + 2)))
-			{
-				string.replace_range(start..end, "");
-			}
-			string.trim_in_place();
-
-			let mut display_string = string.trim().replace('\n', " ");
-			if display_string.len() > 64 {
-				display_string.truncate(61);
-				display_string.trim_in_place();
-				display_string.push_str("...");
-			}
-			println!("[STRTAB {: >2}] {}", idx, display_string);
-
-			let (entry, encrypted) = StringEntry::new(string);
-			table.push(entry);
-			raw_strings.extend_from_slice(&encrypted);
-		});
+	strings.into_iter().for_each(|data| {
+		let (entry, encrypted) = StringEntry::new(data);
+		table.push(entry);
+		raw_strings.extend_from_slice(&encrypted);
+	});
 
 	let mut raw_table = bytemuck::cast_slice::<_, u8>(&table).to_vec();
 

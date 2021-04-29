@@ -1,3 +1,0 @@
-[build]
-target = "aarch64-apple-ios"
-#rustflags = ["-C", "embed-bitcode=no"]

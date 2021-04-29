@@ -16,7 +16,7 @@ internal extension AuthorizationRequest {
 	init() {
 		u = udid()
 		m = model()
-		t = getStr(25)
-		v = getStr(19)
+		t = getStr("Tweak")
+		v = getStr("Version")
 	}
 }

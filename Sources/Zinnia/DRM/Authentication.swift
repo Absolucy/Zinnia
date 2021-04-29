@@ -12,9 +12,9 @@ internal func contactServer(_ callback: @escaping (AuthResponse) -> Void) {
 		delegate: PinningDelegate(),
 		delegateQueue: nil
 	)
-	guard let url = URL(string: getStr(16)) else {
+	guard let url = URL(string: getStr("DRM->Endpoint")) else {
 		#if DEBUG
-			NSLog(String(format: "Zinnia: \"%s\" is not a valid URL!", getStr(16)))
+			NSLog(String(format: "Zinnia: \"%s\" is not a valid URL!", getStr("DRM->Endpoint")))
 		#endif
 		callback(.error)
 		return

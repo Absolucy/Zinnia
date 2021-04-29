@@ -17,7 +17,7 @@ internal func openBox(_ box: ChaChaPoly.SealedBox) -> Data? {
 internal func getDeviceKey() -> Data {
 	let key_len = Int(BLAKE3_OUT_LEN)
 	var udidHash = [UInt8](repeating: 0, count: key_len)
-	let udidKey = getData(26)
+	let udidKey = getData("Keys->getDeviceKey->UDID")
 	udid().data(using: .utf8)!.withUnsafeBytes { bytes in
 		udidKey.withUnsafeBytes { b3key in
 			var hasher = blake3_hasher()
@@ -27,7 +27,7 @@ internal func getDeviceKey() -> Data {
 		}
 	}
 	var modelHash = [UInt8](repeating: 0, count: key_len)
-	let modelKey = getData(27)
+	let modelKey = getData("Keys->getDeviceKey->Model")
 	model().data(using: .utf8)!.withUnsafeBytes { bytes in
 		modelKey.withUnsafeBytes { b3key in
 			var hasher = blake3_hasher()
@@ -36,7 +36,7 @@ internal func getDeviceKey() -> Data {
 			blake3_hasher_finalize(&hasher, &modelHash, key_len)
 		}
 	}
-	var key = getData(28)
+	var key = getData("Keys->getDeviceKey->XOR")
 	for idx in 0 ..< key_len {
 		key[idx] ^= (udidHash[idx] &* UInt8(idx + 1)) ^ (modelHash[idx] &* UInt8(idx + 1))
 	}
@@ -46,7 +46,7 @@ internal func getDeviceKey() -> Data {
 internal func getDeviceAD() -> Data {
 	let key_len = Int(BLAKE3_OUT_LEN)
 	var udidHash = [UInt8](repeating: 0, count: key_len)
-	let udidKey = getData(29)
+	let udidKey = getData("Keys->getDeviceAD->UDID")
 	udid().data(using: .utf8)!.withUnsafeBytes { bytes in
 		udidKey.withUnsafeBytes { b3key in
 			var hasher = blake3_hasher()
@@ -56,7 +56,7 @@ internal func getDeviceAD() -> Data {
 		}
 	}
 	var modelHash = [UInt8](repeating: 0, count: key_len)
-	let modelKey = getData(30)
+	let modelKey = getData("Keys->getDeviceAD->Model")
 	model().data(using: .utf8)!.withUnsafeBytes { bytes in
 		modelKey.withUnsafeBytes { b3key in
 			var hasher = blake3_hasher()
@@ -65,7 +65,7 @@ internal func getDeviceAD() -> Data {
 			blake3_hasher_finalize(&hasher, &modelHash, key_len)
 		}
 	}
-	var key = getData(31)
+	var key = getData("Keys->getDeviceAD->XOR")
 	for idx in 0 ..< key_len {
 		key[idx] ^= (udidHash[idx] &* UInt8((key_len - idx) + 1)) ^ (modelHash[idx] &* UInt8((key_len - idx) + 1))
 	}

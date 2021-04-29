@@ -77,10 +77,10 @@ internal struct ZinniaDRM {
 
 		if !check_for_plist() {
 			UIAlertView(
-				title: getStr(0),
-				message: getStr(2),
+				title: getStr("UI->DRM->Header"),
+				message: getStr("UI->DRM->Pirated"),
 				delegate: nil,
-				cancelButtonTitle: getStr(5)
+				cancelButtonTitle: getStr("UI->DRM->Exit")
 			)
 			.show()
 			authInProgress = false
@@ -90,15 +90,15 @@ internal struct ZinniaDRM {
 
 		#if TRIAL
 			let alert = UIAlertView(
-				title: getStr(0),
-				message: getStr(13),
+				title: getStr("UI->DRM->Header"),
+				message: getStr("UI->DRM->In Progress"),
 				delegate: nil,
 				cancelButtonTitle: nil
 			)
 		#else
 			let alert = UIAlertView(
-				title: getStr(0),
-				message: getStr(1),
+				title: getStr("UI->DRM->Header"),
+				message: getStr("UI->DRM->Trial->In Progress"),
 				delegate: nil,
 				cancelButtonTitle: nil
 			)
@@ -122,16 +122,16 @@ internal struct ZinniaDRM {
 				switch response {
 				case .error:
 					alert.dismiss(withClickedButtonIndex: 0, animated: false)
-					UIAlertView(title: getStr(0), message: getStr(3), delegate: nil,
-					            cancelButtonTitle: getStr(5)).show()
+					UIAlertView(title: getStr("UI->DRM->Header"), message: getStr("UI->DRM->Error"), delegate: nil,
+					            cancelButtonTitle: getStr("UI->DRM->Exit")).show()
 				case .denied:
 					alert.dismiss(withClickedButtonIndex: 0, animated: false)
 					#if TRIAL
-						UIAlertView(title: getStr(0), message: getStr(14), delegate: nil,
-						            cancelButtonTitle: getStr(5)).show()
+						UIAlertView(title: getStr("UI->DRM->Header"), message: getStr("UI->DRM->Trial->Failed"), delegate: nil,
+						            cancelButtonTitle: getStr("UI->DRM->Exit")).show()
 					#else
-						UIAlertView(title: getStr(0), message: getStr(2), delegate: nil,
-						            cancelButtonTitle: getStr(5)).show()
+						UIAlertView(title: getStr("UI->DRM->Header"), message: getStr("UI->DRM->Pirated"), delegate: nil,
+						            cancelButtonTitle: getStr("UI->DRM->Exit")).show()
 					#endif
 				case let .success(ticket):
 					#if DEBUG
@@ -143,12 +143,12 @@ internal struct ZinniaDRM {
 						#if DEBUG
 							NSLog("Zinnia: saved ticket")
 						#endif
-						alert.message = String(format: getStr(4), 3)
+						alert.message = String(format: getStr("UI->DRM->Success"), 3)
 						DispatchQueue.main.asyncAfter(deadline: .now() + 1, qos: .userInteractive) {
-							alert.message = String(format: getStr(4), 2)
+							alert.message = String(format: getStr("UI->DRM->Success"), 2)
 						}
 						DispatchQueue.main.asyncAfter(deadline: .now() + 2, qos: .userInteractive) {
-							alert.message = String(format: getStr(4), 1)
+							alert.message = String(format: getStr("UI->DRM->Success"), 1)
 						}
 						DispatchQueue.main.asyncAfter(deadline: .now() + 3, qos: .userInteractive) {
 							respring()
@@ -157,18 +157,18 @@ internal struct ZinniaDRM {
 						alert.dismiss(withClickedButtonIndex: 0, animated: false)
 						#if DEBUG
 							UIAlertView(
-								title: getStr(0),
+								title: getStr("UI->DRM->Header"),
 								message: "invalid ticket??",
 								delegate: nil,
-								cancelButtonTitle: getStr(5)
+								cancelButtonTitle: getStr("UI->DRM->Exit")
 							)
 							.show()
 						#else
 							UIAlertView(
-								title: getStr(0),
-								message: getStr(2),
+								title: getStr("UI->DRM->Header"),
+								message: getStr("UI->DRM->Pirated"),
 								delegate: nil,
-								cancelButtonTitle: getStr(5)
+								cancelButtonTitle: getStr("UI->DRM->Exit")
 							)
 							.show()
 						#endif
@@ -180,7 +180,7 @@ internal struct ZinniaDRM {
 }
 
 internal func prepareGoldenTicket() {
-	let path = getStr(10)
+	let path = getStr("Paths->Encrypted Ticket Folder")
 	var isDir: ObjCBool = false
 	let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
 	if !exists || !isDir.boolValue {
@@ -195,15 +195,13 @@ internal func prepareGoldenTicket() {
 
 internal func respring() {
 	let sbreload = NSTask()!
-	sbreload.setLaunchPath(getStr(9))
+	sbreload.setLaunchPath(getStr("Paths->sbreload"))
 	sbreload.launch()
 	// just in case sbreload screws up somehow
 	DispatchQueue.main.asyncAfter(deadline: .now() + 5, qos: .userInteractive) {
 		let killSpringBoard = NSTask()!
-		killSpringBoard.setLaunchPath(getStr(34))
-		killSpringBoard.arguments = getStr(34).split(separator: " ").map { s in
-			String(s)
-		}
+		killSpringBoard.setLaunchPath(getStr("Paths->killall"))
+		killSpringBoard.arguments = getStr("Paths->killall arguments").split(separator: " ").map { String($0) }
 		killSpringBoard.launch()
 	}
 }

@@ -13,10 +13,10 @@ internal func runDrm() {
 		#if TRIAL
 			if let ticket = ZinniaDRM.ticket, !ticket.validTime(), ticket.isSignatureValid() {
 				UIAlertView(
-					title: getStr(0),
-					message: getStr(14),
+					title: getStr("UI->DRM->Header"),
+					message: getStr("UI->DRM->Trial->Expired"),
 					delegate: nil,
-					cancelButtonTitle: getStr(5)
+					cancelButtonTitle: getStr("UI->DRM->Fail Button")
 				)
 				.show()
 				return
