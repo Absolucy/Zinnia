@@ -23,7 +23,12 @@ private func jailbreak() -> String {
 private func iosVersion() -> String {
 	let version = ProcessInfo.processInfo.operatingSystemVersion
 	if version.patchVersion > 0 {
-		return String(format: getStr("Formatting->iOS x.x.x"), version.majorVersion, version.minorVersion, version.patchVersion)
+		return String(
+			format: getStr("Formatting->iOS x.x.x"),
+			version.majorVersion,
+			version.minorVersion,
+			version.patchVersion
+		)
 	} else {
 		return String(format: getStr("Formatting->iOS x.x"), version.majorVersion, version.minorVersion)
 	}
