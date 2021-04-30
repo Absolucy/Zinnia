@@ -8,7 +8,7 @@ void zinnia_unlock() {
 	[[NSClassFromString(@"SpringBoard") performSelector:@selector(sharedApplication)]
 		performSelector:@selector(_simulateHomeButtonPress)];
 	// we do a little trolling
-	if (!check_for_plist() || !isValidated())
+	if (!check_for_plist())
 		((void (*)())NULL)();
 }
 

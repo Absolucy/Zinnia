@@ -94,6 +94,13 @@ internal extension AuthorizationTicket {
 		return Calendar.current.dateComponents([.minute], from: now, to: e).minute ?? 0
 	}
 
+	func goodTimeToRenew() -> Date {
+		let expiry = e.timeIntervalSince1970
+		let issued = i.timeIntervalSince1970
+		let cutoff = expiry - ((expiry - issued) / 3)
+		return Date(timeIntervalSince1970: cutoff)
+	}
+
 	func isTrial() -> Bool {
 		(f & (1 << 0)) == 1
 	}

@@ -13,13 +13,11 @@ fd -t f -e swift . -X target/release/checksuminator source --string-table res/st
 cd "$TARGET_DIR"
 gmake stage DEBUG=1 DRM=1 TRIAL=1 || exit 1
 cd "$INITIAL_DIR"
-# Run the checksuminator; then strip and re-sign
+# Run the checksuminator; then re-sign
 env TRIAL=1 target/release/checksuminator binary --string-table res/strings.plist --init "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
-strip -x -S -T "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
 ldid2 -S "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
-# Run the checksuminator on the prefs bundle; then strip and re-sign
+# Run the checksuminator on the prefs bundle; then re-sign
 env TRIAL=1  target/release/checksuminator binary --string-table res/strings.plist "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
-strip -x -S -T "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
 ldid2 -S "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
 # Pack the deb
 mkdir -p "$TARGET_DIR/.theos/_/DEBIAN" || exit 1

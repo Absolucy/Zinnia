@@ -16,10 +16,9 @@ internal struct ZinniaDRM {
 				authSemaphore.wait()
 			}
 			ticket = ticket ?? AuthorizationTicket()
-			if let ticket = self.ticket, !ticketCooldown, !fetchingNewTicket, !ticket.isTrial(), ticket.daysLeft() <= 5 {
-				#if DEBUG
-					NSLog("Zinnia: fetching new ticket, current ticket only has \(ticket.daysLeft()) days remaining")
-				#endif
+			if let ticket = self.ticket, !ticketCooldown, !fetchingNewTicket, !ticket.isTrial(),
+			   Date() >= ticket.goodTimeToRenew()
+			{
 				ticketCooldown = true
 				DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1800) {
 					ticketCooldown = false
@@ -38,11 +37,11 @@ internal struct ZinniaDRM {
 						ZinniaDRM.fetchingNewTicket = false
 						return nil
 					}
-					if ticket.validTime() {
-						pthread_create(&myThread, nil, thread, nil)
-					} else {
-						requestTicket()
-					}
+					//if ticket.validTime() {
+					pthread_create(&myThread, nil, thread, nil)
+					//} else {
+					//	requestTicket()
+					//}
 				}
 			}
 			return ticket?.isValid() ?? false
@@ -134,9 +133,6 @@ internal struct ZinniaDRM {
 						            cancelButtonTitle: getStr("UI->DRM->Exit")).show()
 					#endif
 				case let .success(ticket):
-					#if DEBUG
-						NSLog("Zinnia: ticket \(ticket.isValid()) \(ticket.isSignatureValid()) \(ticket.validTime())")
-					#endif
 					if ticket.isValid() {
 						ticket.save()
 						self.ticket = ticket
