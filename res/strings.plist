@@ -28,7 +28,7 @@
 		<key>Locale</key>
 		<string>en_US_POSIX</string>
 		<key>User Agent</key>
-		<string>{}/{} ({}; {}; iOS {})</string>
+		<string>%s/%s (%s; %s; iOS %s)</string>
 		<key>iOS x.x</key>
 		<string>%d.%d</string>
 		<key>iOS x.x.x</key>
