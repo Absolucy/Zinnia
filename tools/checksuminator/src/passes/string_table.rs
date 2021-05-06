@@ -8,14 +8,16 @@ use chacha20::{
 };
 use goblin::mach::MachO;
 use plist::Value;
-use std::{collections::BTreeMap, path::Path};
+use std::{collections::BTreeMap, path::PathBuf};
 
-pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, string_table_path: &Path) {
+pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, string_table_paths: &[PathBuf]) {
 	let strings = {
-		let string_table =
-			Value::from_file(string_table_path).expect("failed to read string table");
 		let mut processed_string_table = BTreeMap::<String, Value>::new();
-		preprocess::parser::parse(&mut processed_string_table, vec![], string_table);
+		for path in string_table_paths {
+			info!("loading string table entries from {}", path.display());
+			let string_table = Value::from_file(path).expect("failed to read string table");
+			preprocess::parser::parse(&mut processed_string_table, vec![], string_table);
+		}
 		let processed_string_table = preprocess::process_string_table(processed_string_table);
 		let mut string_table_keys = processed_string_table
 			.keys()
@@ -58,6 +60,25 @@ pub fn handle(macho: &MachO, offset: usize, binary: &mut Vec<u8>, string_table_p
 		&Nonce::from_slice(bytemuck::cast_slice(&section_keys[1].nonce)),
 	)
 	.apply_keystream(&mut raw_strings);
+
+	info!("encrypted string table of contents");
+	info!(
+		"key: {}",
+		hex::encode(bytemuck::cast_slice(&section_keys[0].key))
+	);
+	info!(
+		"nonce: {}",
+		hex::encode(bytemuck::cast_slice(&section_keys[0].nonce))
+	);
+	info!("encrypted string table entries");
+	info!(
+		"key: {}",
+		hex::encode(bytemuck::cast_slice(&section_keys[1].key))
+	);
+	info!(
+		"nonce: {}",
+		hex::encode(bytemuck::cast_slice(&section_keys[1].nonce))
+	);
 
 	section_keys[0].shuffle();
 	section_keys[1].shuffle();

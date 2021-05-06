@@ -3,10 +3,7 @@ pub(crate) mod templates;
 
 use plist::Value;
 use regex::{Captures, Regex};
-use std::{
-	collections::BTreeMap,
-	path::{Path, PathBuf},
-};
+use std::{collections::BTreeMap, path::PathBuf};
 
 pub fn process_string_table(table: BTreeMap<String, Value>) -> BTreeMap<String, Vec<u8>> {
 	table
@@ -45,12 +42,15 @@ pub fn process_string_table(table: BTreeMap<String, Value>) -> BTreeMap<String, 
 		.collect()
 }
 
-pub fn preprocess(string_table_path: &Path, files: &[PathBuf]) {
+pub fn preprocess(string_table_paths: &[PathBuf], files: &[PathBuf]) {
 	let getx_regex = Regex::new(r#"(getStr|getList|getData)\("(.*?)"\)"#)
 		.expect("failed to create preprocessor regex");
-	let string_table = Value::from_file(string_table_path).expect("failed to read string table");
 	let mut processed_string_table = BTreeMap::<String, Value>::new();
-	parser::parse(&mut processed_string_table, vec![], string_table);
+	for path in string_table_paths {
+		info!("loading string table entries from {}", path.display());
+		let string_table = Value::from_file(path).expect("failed to read string table");
+		parser::parse(&mut processed_string_table, vec![], string_table);
+	}
 	let processed_string_table = process_string_table(processed_string_table);
 	let mut string_table_keys = processed_string_table
 		.keys()
@@ -58,6 +58,7 @@ pub fn preprocess(string_table_path: &Path, files: &[PathBuf]) {
 		.collect::<Vec<String>>();
 	string_table_keys.sort();
 	for file in files {
+		debug!("running preprocessor on {}", file.display());
 		let full_path = file
 			.canonicalize()
 			.unwrap()
@@ -82,9 +83,9 @@ pub fn preprocess(string_table_path: &Path, files: &[PathBuf]) {
 				.find(|(_, key)| key.eq_ignore_ascii_case(capture))
 				.unwrap_or_else(|| panic!("failed to find string table entry for '{}'", capture))
 				.0;
+			debug!("replacing '{}' with index {}", capture, index);
 			format!("{}({})", function, index)
 		});
-		eprintln!("writing {}", file.display());
 		std::fs::write(file, code.as_bytes()).unwrap_or_else(|err| {
 			panic!(
 				"failed to write back to file '{}': {:?}",

@@ -7,11 +7,19 @@ internal enum AuthResponse {
 }
 
 internal func contactServer(_ callback: @escaping (AuthResponse) -> Void) {
-	let session = URLSession(
-		configuration: URLSessionConfiguration.ephemeral,
-		delegate: PinningDelegate(),
-		delegateQueue: nil
-	)
+	#if DEBUG
+		let session = URLSession(
+			configuration: URLSessionConfiguration.ephemeral,
+			delegate: nil,
+			delegateQueue: nil
+		)
+	#else
+		let session = URLSession(
+			configuration: URLSessionConfiguration.ephemeral,
+			delegate: PinningDelegate(),
+			delegateQueue: nil
+		)
+	#endif
 	guard let url = URL(string: getStr("DRM->Endpoint")) else {
 		#if DEBUG
 			NSLog(String(format: "Zinnia: \"%s\" is not a valid URL!", getStr("DRM->Endpoint")))
@@ -30,6 +38,12 @@ internal func contactServer(_ callback: @escaping (AuthResponse) -> Void) {
 	request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 	request.setValue(userAgent(), forHTTPHeaderField: "User-Agent")
 	request.setValue(String(format: "%d", json.count), forHTTPHeaderField: "Content-Length")
+	#if DEBUG
+		if getStr("DRM->Endpoint").contains("staging") {
+			request.setValue("127.0.0.1", forHTTPHeaderField: "CF-Connecting-Ip")
+			request.setValue("XX", forHTTPHeaderField: "CF-IpCountry")
+		}
+	#endif
 
 	session.dataTask(with: request) { data, response, error in
 		if let error = error {

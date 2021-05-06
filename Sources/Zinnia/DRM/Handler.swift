@@ -37,11 +37,11 @@ internal struct ZinniaDRM {
 						ZinniaDRM.fetchingNewTicket = false
 						return nil
 					}
-					//if ticket.validTime() {
+					// if ticket.validTime() {
 					pthread_create(&myThread, nil, thread, nil)
-					//} else {
+					// } else {
 					//	requestTicket()
-					//}
+					// }
 				}
 			}
 			return ticket?.isValid() ?? false

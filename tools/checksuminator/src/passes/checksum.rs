@@ -53,11 +53,14 @@ fn jmp_section(
 			(section, hash)
 		})
 		.expect("failed to find target section");
-	println!(
-		"blake3[12]({},{}) = {}",
+
+	info!(
+		"checksum of {},{}: {} (u64 value is {:#010X})",
 		target_segment,
 		target_section,
-		hex::encode(&sect_hash)
+		hex::encode(&sect_hash),
+		u64::from_le_bytes(sect_hash[..8].try_into().unwrap())
+			^ (u32::from_le_bytes(sect_hash[8..].try_into().unwrap()) as u64)
 	);
 
 	let ckey: u32 = rand::random();
@@ -104,8 +107,6 @@ fn jmp_section_multi(
 		.1
 		.n_value;
 
-	println!("target_offset = 0x{:X}", target_offset);
-
 	target_segments
 		.iter()
 		.zip(target_sections.iter())
@@ -132,8 +133,9 @@ fn jmp_section_multi(
 					(section, hash)
 				})
 				.expect("failed to find target section");
-			println!(
-				"blake3[12]({},{}) = {} [{:#010X} as u64]",
+
+			info!(
+				"checksum of {},{}: {} (u64 value is {:#010X})",
 				segment_name,
 				section_name,
 				hex::encode(&sect_hash),
@@ -168,8 +170,6 @@ fn jmp_section_multi(
 				jmp: rand::random::<u64>(),
 			});
 		});
-
-	println!("target_offset ^ all hashes = 0x{:X}", target_offset);
 
 	let mut last = out.iter_mut().last().unwrap();
 	last.jkey |= 1 << 0;

@@ -8,10 +8,6 @@
 		<data>
 		MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgA=
 		</data>
-		<key>Endpoint</key>
-		<string>https://aiwass.aspenuwu.me/v1/authorize</string>
-		<key>Hostname</key>
-		<string>aiwass.aspenuwu.me</string>
 		<key>Pinned TLS Public Key</key>
 		<data>
 		46Uz/xTF9Cn19GT7zKHfmHc0JN8X7I6qB9F+duVLYCg=
@@ -28,7 +24,7 @@
 		<key>Locale</key>
 		<string>en_US_POSIX</string>
 		<key>User Agent</key>
-		<string>%s/%s (%s; %s; iOS %s)</string>
+		<string>%@/%@ (%@; %@; iOS %@)</string>
 		<key>iOS x.x</key>
 		<string>%d.%d</string>
 		<key>iOS x.x.x</key>

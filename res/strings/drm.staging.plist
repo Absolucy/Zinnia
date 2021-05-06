@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DRM</key>
+	<dict>
+		<key>Endpoint</key>
+		<string>http://staging.drm:8042/v1/authorize</string>
+		<key>Hostname</key>
+		<string>staging.drm</string>
+	</dict>
+</dict>
+</plist>
