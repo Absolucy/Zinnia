@@ -15,11 +15,11 @@ gmake stage FINALPACKAGE=1 DRM=1 SHOULD_STRIP=0 || exit 1
 cd "$INITIAL_DIR"
 # Run the checksuminator; then strip and re-sign
 target/release/checksuminator binary --init "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" -s res/strings/main.plist -s res/strings/drm.production.plist || exit 1
-strip -x -S -T "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
+strip -x -S -T -N "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
 ldid2 -S "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
 # Run the checksuminator on the prefs bundle; then strip and re-sign
 target/release/checksuminator binary "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" -s res/strings/main.plist -s res/strings/drm.production.plist || exit 1
-strip -x -S -T "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
+strip -x -S -T -N "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
 ldid2 -S "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
 # Pack the deb
 mkdir -p "$TARGET_DIR/.theos/_/DEBIAN" || exit 1

@@ -17,7 +17,7 @@ Zinnia_FILES				= Sources/Zinnia/Tweak.swift \
 								$(shell find Sources/Zinnia/NomaePreferences -name '*.swift') \
 								$(shell find Sources/ZinniaC -name '*.m' -o -name '*.c')
 Zinnia_SWIFTFLAGS			= -ISources/ZinniaC/include
-Zinnia_CFLAGS				= -fobjc-arc -DTHEOS_SWIFT
+Zinnia_CFLAGS				= -fobjc-arc -DTHEOS_SWIFT -gfull
 ADDITIONAL_SWIFTFLAGS		= -DTHEOS_SWIFT
 Zinnia_LDFLAGS				= -weak_framework CydiaSubstrate -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libblackjack.dylib -weak_library $(THEOS)/sdks/iPhoneOS14.4.sdk/usr/lib/libhooker.dylib
 Zinnia_FRAMEWORKS			= AVFoundation
@@ -35,6 +35,7 @@ endif
 
 ifdef FINALPACKAGE
 Zinnia_CFLAGS				+= -fvisibility=hidden -mllvm --enable-bcfobf -mllvm --enable-strcry
+Zinnia_LDFLAGS              += -dead_strip
 SHOULD_STRIP				= 0
 OPTFLAG						= -Oz
 SWIFT_OPTFLAG				= -O -whole-module-optimization -num-threads 1

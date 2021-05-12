@@ -59,7 +59,7 @@ void st_get_bytes(uint32_t idx, void (^callback)(uint8_t*, size_t)) {
 	callback(bytes, length);
 }
 
-void initialize_string_table() {
+__attribute__((used)) void initialize_string_table() {
 	struct chacha20_context ctx;
 	// Decrypt the table of contents
 	initialize_keys(&ctx, &decryption_keys[0]);

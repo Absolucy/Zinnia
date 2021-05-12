@@ -2,7 +2,7 @@ use super::DecryptionKey;
 use crate::shuffle::perfect_shuffle;
 use bytemuck::{Pod, Zeroable};
 use chacha20::{
-	cipher::{NewStreamCipher, SyncStreamCipher},
+	cipher::{NewCipher, StreamCipher},
 	ChaCha20, Key, Nonce,
 };
 

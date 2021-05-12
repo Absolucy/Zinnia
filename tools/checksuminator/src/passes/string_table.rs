@@ -3,7 +3,7 @@ use crate::{
 	preprocess,
 };
 use chacha20::{
-	cipher::{NewStreamCipher, SyncStreamCipher},
+	cipher::{NewCipher, StreamCipher},
 	ChaCha20, Key, Nonce,
 };
 use goblin::mach::MachO;

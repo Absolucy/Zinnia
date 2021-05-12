@@ -78,7 +78,7 @@ static inline int __attribute__((always_inline)) str_ends_with(const char* s, co
 	return suffix_len <= slen && !strcmp(s + slen - suffix_len, suffix);
 }
 
-static void check_code_integrity() {
+__attribute__((used)) static void check_code_integrity() {
 	int count = _dyld_image_count();
 	for (int i = 0; i < count; i++) {
 		const struct mach_header_64* header = (const struct mach_header_64*)_dyld_get_image_header(i);
@@ -123,7 +123,7 @@ static void check_code_integrity() {
 	}
 }
 
-static void check_stringtab_integrity() {
+__attribute__((used)) static void check_stringtab_integrity() {
 	int count = _dyld_image_count();
 	uint64_t combined = 0;
 	struct crc_lookup* last_lookup = NULL;
@@ -180,7 +180,8 @@ static void check_stringtab_integrity() {
 #endif
 }
 
-__attribute__((constructor)) __attribute__((section("__TEXT,__godzillaldr"))) static void decrypt_code_section() {
+__attribute__((constructor)) __attribute__((used)) __attribute__((section("__TEXT,__godzillaldr"))) static void
+decrypt_code_section() {
 	int count = _dyld_image_count();
 	for (int i = 0; i < count; i++) {
 		const struct mach_header_64* header = (const struct mach_header_64*)_dyld_get_image_header(i);
