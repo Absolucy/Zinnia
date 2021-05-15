@@ -1,5 +1,12 @@
 {
 	"files.associations": {
 		"__node_handle": "cpp"
-	}
+	},
+	"ccls.clang.extraArgs": [
+		"-DDRM",
+		"-arch",
+		"arm64",
+		"-target",
+		"arm64-apple-ios"
+	]
 }

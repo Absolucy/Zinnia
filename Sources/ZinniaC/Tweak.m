@@ -5,10 +5,10 @@
 #import "Zinnia-Swift.h"
 #endif
 #import "drm/drm.h"
+#import "drm/obfuscation/string_table.h"
 #import "include/Tweak.h"
 #import "include/libblackjack.h"
 #import "include/libhooker.h"
-#import "obfuscation/string_table.h"
 
 #define VALIDITY_CHECK                                                                                                 \
 	if (!isValidated()) {                                                                                              \
