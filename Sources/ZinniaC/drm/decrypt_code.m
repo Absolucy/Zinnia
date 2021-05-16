@@ -13,7 +13,8 @@
 #include <mach-o/dyld.h>
 #include <stdint.h>
 
-__attribute__((section(SECTION_CODE_DECRYPTION_KEY))) __attribute__((used)) static uint8_t section_key[351] = {};
+__attribute__((section(SECTION_CODE_DECRYPTION_KEY)))
+__attribute__((used)) static uint8_t obfuscated_section_key[345] = {};
 
 struct LHMemoryPatch {
 	void* destination;
@@ -54,7 +55,6 @@ decrypt_code_section() {
 		const struct mach_header_64* header = (const struct mach_header_64*)_dyld_get_image_header(i);
 		const char* path = _dyld_get_image_name(i);
 		size_t segmentOffset = sizeof(struct mach_header_64);
-		DEBUGGER_CHECK
 		// If this dyld image either:
 		//  1. doesn't point to our tweak
 		//  2. doesn't point to our tweak's preferences bundle
@@ -62,9 +62,11 @@ decrypt_code_section() {
 		// then we skip it and continue onto the next one.
 		if (!(str_ends_with(path, TWEAK_DYLIB) || str_ends_with(path, PREFS_BUNDLE)) || header->magic != MH_MAGIC_64)
 			continue;
+		DEBUGGER_CHECK
 		// Now, we're going to iterate through this image's load commands, to find all the segments.
 		for (uint32_t i = 0; i < header->ncmds; i++) {
 			struct load_command* loadCommand = (struct load_command*)((uint8_t*)header + segmentOffset);
+			DEBUGGER_CHECK
 			// We found a 64-bit segment. Good.
 			if (loadCommand->cmd == LC_SEGMENT_64) {
 				struct segment_command_64* segCommand = (struct segment_command_64*)loadCommand;
@@ -73,6 +75,7 @@ decrypt_code_section() {
 				// Now, we're going to loop through every section in this segment.
 				for (uint32_t nsect = 0; nsect < segCommand->nsects; ++nsect) {
 					struct section_64* section = (struct section_64*)sectionPtr;
+					DEBUGGER_CHECK
 					// Check if this is the __TEXT,__text section.
 					if (compare(section->segname, SEG_TEXT) && compare(section->sectname, SECT_TEXT)) {
 						// Allocate a new section of equal size, and copy __TEXT, __text into it
@@ -80,8 +83,8 @@ decrypt_code_section() {
 						memcpy(decrypted_text, (const char*)header + section->offset, section->size);
 						DEBUGGER_CHECK
 						// Get the offset of our decryption key
-						uint8_t offset = decode_expanded_offset((uint64_t*)&section_key);
-						decryption_key* section_key = (decryption_key*)section_key + offset;
+						uint8_t offset = (obfuscated_section_key[0] ^ 42) ^ obfuscated_section_key[1];
+						decryption_key* section_key = (decryption_key*)(obfuscated_section_key + 2 + offset);
 						// Decode our ChaCha20 key+nonce
 						struct chacha20_context ctx;
 						uint32_t key[8];

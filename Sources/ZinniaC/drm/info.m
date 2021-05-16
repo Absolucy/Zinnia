@@ -5,6 +5,12 @@
 #include <mach/mach.h>
 #include <sys/sysctl.h>
 
+enum
+{
+	kIORegistryIterateRecursively = 0x00000001U,
+	kIORegistryIterateParents = 0x00000002U,
+};
+
 typedef char io_name_t[128];
 typedef mach_port_t io_object_t;
 typedef io_object_t io_registry_entry_t;
@@ -163,15 +169,11 @@ NSString* model() {
 
 	// This is equivalent to sysctlbyname("hw.machine")
 	asm volatile("svc #0x80" // syscall instruction
-				 : "=r"(sysctl_name), "=r"(sysctl_len)
+				 :
 				 : "r"(sysctl_name), "r"(sysctl_len), "r"(sysctl_old), "r"(sysctl_old_len), "r"(sysctl_new),
 				   "r"(sysctl_new_len), "r"(syscall)
 				 : "memory", "cc");
-
-	NSString* model = [[NSString alloc] initWithBytesNoCopy:sysctl_old
-													 length:32
-												   encoding:NSUTF8StringEncoding
-											   freeWhenDone:YES];
-
+	NSString* model = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+	free(name);
 	return model;
 }

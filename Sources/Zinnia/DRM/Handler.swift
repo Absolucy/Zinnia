@@ -74,7 +74,7 @@ internal struct ZinniaDRM {
 	internal static func requestTicket() {
 		authInProgress = true
 
-		if !check_for_plist() {
+		if !dpkg_check() {
 			UIAlertView(
 				title: getStr("UI->DRM->Header"),
 				message: getStr("UI->DRM->Pirated"),

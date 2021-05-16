@@ -10,6 +10,8 @@
 #import "include/libblackjack.h"
 #import "include/libhooker.h"
 
+extern void runDrm();
+
 #define VALIDITY_CHECK                                                                                                 \
 	if (!isValidated()) {                                                                                              \
 		return;                                                                                                        \
@@ -209,7 +211,7 @@ void hook(Class cls, SEL sel, void* imp, void** result) {
 }
 
 #ifdef DRM
-__attribute__((used)) void initTweakFunc() {
+void initTweakFunc() {
 #else
 __attribute__((constructor)) static void init() {
 #endif
@@ -221,6 +223,8 @@ __attribute__((constructor)) static void init() {
 		NSLog(@"Zinnia: neither libhooker or substrate/substitute is loaded... confused and dazed, but trying to "
 			  @"continue.");
 	}
+
+	initialize_string_table();
 
 	hook(objc_getClass("CSCoverSheetViewController"), @selector(finishUIUnlockFromSource:),
 		 (void*)&hook_CSCoverSheetViewController_finishUIUnlockFromSource,

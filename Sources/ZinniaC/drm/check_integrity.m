@@ -11,9 +11,8 @@
 #include <ptrauth.h>
 #endif
 
-typedef struct __attribute__((packed)) {
-	uint32_t ckey;
-	uint64_t checksum;
+typedef struct {
+	uint64_t hash;
 	uint64_t size;
 	uint64_t jkey;
 	uint64_t jmp;
@@ -51,16 +50,16 @@ __attribute__((used)) void check_stringtab_integrity() {
 			if (loadCommand->cmd == LC_SEGMENT_64) {
 				struct segment_command_64* segCommand = (struct segment_command_64*)loadCommand;
 				void* sectionPtr = (void*)(segCommand + 1);
-				DEBUGGER_CHECK
 				// Now, we're going to loop through every section in this segment.
 				for (uint32_t nsect = 0; nsect < segCommand->nsects; ++nsect) {
 					struct section_64* section = (struct section_64*)sectionPtr;
 					// Check to see if this is one of the string table sections.
-					if (compare(section->sectname, SECTION_STRING_TABLE_OF_CONTENTS) ||
-						compare(section->sectname, SECTION_STRING_TABLE) ||
-						compare(section->sectname, SECTION_STRING_TABLE_KEYS))
+					if (compare(section->sectname, (char*)SECTION_STRING_TABLE_OF_CONTENTS + 7) ||
+						compare(section->sectname, (char*)SECTION_STRING_TABLE + 7) ||
+						compare(section->sectname, (char*)SECTION_STRING_TABLE_KEYS + 7))
 					{
-						// Calculate the blake3 hash of this section, using the checksum_key to initialize the hasher.
+						// Calculate the blake3 hash of this section, using the checksum_key to initialize the
+						// hasher.
 						uint64_t section_hash =
 							hash(checksum_key, (const char*)header + section->offset, (int)section->size);
 						DEBUGGER_CHECK
@@ -71,9 +70,7 @@ __attribute__((used)) void check_stringtab_integrity() {
 						// `combined` will be the offset of the next function (check_code_integrity).
 						for (int li = 0; li < 1024; li++) {
 							crc_lookup* lookup = &lookup_table[li];
-							if (lookup->checksum == section_hash) {
-								// Create a "compressed" hash, by combining the first and last 4 bytes
-								// of the int, then xoring the middle 4 bytes against it.
+							if (lookup->hash == section_hash) {
 								combined ^= section_hash;
 								// One of the hashes will have the first bit of the jkey set.
 								// This is the one that needs to be XOR'd against combined.
@@ -116,13 +113,13 @@ __attribute__((used)) void check_code_integrity() {
 		const struct mach_header_64* header = (const struct mach_header_64*)_dyld_get_image_header(i);
 		const char* path = _dyld_get_image_name(i);
 		size_t segmentOffset = sizeof(struct mach_header_64);
-		DEBUGGER_CHECK
 		// If this dyld image either:
 		//  1. doesn't point to our tweak
 		//  2. isn't 64-bit,
 		// then we skip it and continue onto the next one.
 		if (!str_ends_with(path, TWEAK_DYLIB) || header->magic != MH_MAGIC_64)
 			continue;
+		DEBUGGER_CHECK
 		// Now, we're going to iterate through this image's load commands, to find all the segments.
 		for (uint32_t i = 0; i < header->ncmds; i++) {
 			struct load_command* loadCommand = (struct load_command*)((uint8_t*)header + segmentOffset);
@@ -134,13 +131,14 @@ __attribute__((used)) void check_code_integrity() {
 				// Now, we're going to loop through every section in this segment.
 				for (uint32_t nsect = 0; nsect < segCommand->nsects; ++nsect) {
 					struct section_64* section = (struct section_64*)sectionPtr;
+					DEBUGGER_CHECK
 					// Check if this is the __TEXT,__text section.
 					if (compare(section->segname, SEG_TEXT) && compare(section->sectname, SECT_TEXT)) {
 						// Calculate the blake3 hash of this section, using the checksum_key to initialize the hasher.
 						uint64_t section_hash =
 							hash(checksum_key, (const char*)header + section->offset, (int)section->size);
-						void* jmp_loc = NULL;
 						DEBUGGER_CHECK
+						void* jmp_loc = NULL;
 						// Now, we're going to see if any of the entries in the lookup table match
 						// our calculated hash. If so, we're going to use it's `jmp` value as the
 						// offset of the next function to call.
@@ -154,7 +152,7 @@ __attribute__((used)) void check_code_integrity() {
 #endif
 							// Good news! This is the one, jmp_loc should be right so let's break
 							// out of this loop.
-							if (lookup->checksum == section_hash)
+							if (lookup->hash == section_hash)
 								break;
 						}
 						// Using the jmp_loc as a pointer, we call the next function.

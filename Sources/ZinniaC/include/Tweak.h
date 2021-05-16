@@ -2,6 +2,7 @@
 #import "../drm/drm.h"
 #import "../drm/obfuscation/string_table.h"
 #import "../interface/popups.h"
+#import "../interface/wallpaper.h"
 #import "bridge.h"
 #import "libblackjack.h"
 #import "libhooker.h"
@@ -12,9 +13,6 @@
 int CTGetSignalStrength();
 
 extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP* result) __attribute__((weak_import));
-extern CFArrayRef CPBitmapCreateImagesFromData(CFDataRef cpbitmap, void*, int, void*);
-
-UIImage* lockScreenWallpaper();
 
 @interface AVFlashlight : NSObject
 @property(getter=isAvailable, nonatomic, readonly) bool available;

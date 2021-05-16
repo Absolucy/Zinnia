@@ -8,7 +8,7 @@ cp -R Sources "$TARGET_DIR" || exit 1
 cp -R Zinnia.plist "$TARGET_DIR" || exit 1
 cp -R zinniaprefs "$TARGET_DIR" || exit 1
 # Run preprocessor on source
-aiwass-processor --code "$TARGET_DIR" preprocess --string res/strings/main.plist --string res/strings/drm.production.plist
+aiwass-processor --code "$TARGET_DIR" preprocess --string res/strings/main.plist --string res/strings/drm.production.plist || exit 1
 # Compile our temporary directory
 cd "$TARGET_DIR"
 gmake stage FINALPACKAGE=1 DRM=1 SHOULD_STRIP=0 || exit 1

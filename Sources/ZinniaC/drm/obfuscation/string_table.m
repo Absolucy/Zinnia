@@ -13,7 +13,7 @@ __attribute__((used)) static string_entry string_table_of_contents[100] = {};
 // The actual encrypted strings.
 __attribute__((section(SECTION_STRING_TABLE))) __attribute__((used)) static uint8_t encrypted_string[32768] = {};
 // Two keypairs, which the ToC and strings are initially encrypted with.
-__attribute__((section(SECTION_STRING_TABLE_KEYS))) __attribute__((used)) static uint8_t decryption_keys[439] = {};
+__attribute__((section(SECTION_STRING_TABLE_KEYS))) __attribute__((used)) static uint8_t decryption_keys[433] = {};
 
 static inline __attribute__((always_inline)) void initialize_keys(struct chacha20_context* ctx, decryption_key* keys) {
 	uint32_t key[8];
@@ -28,17 +28,17 @@ static inline __attribute__((always_inline)) void initialize_keys(struct chacha2
 }
 
 #ifdef DRM
-const char* st_get(uint32_t idx) {
-	__block const char* ret;
+char* st_get(uint32_t idx) {
+	__block char* ret;
 	st_get_bytes(idx, ^(uint8_t* data, size_t _) {
-	  ret = (const char*)data;
+	  ret = (char*)data;
 	});
 	return ret;
 }
 #else
-const char* st_get(const char* name) {
+char* st_get(const char* name) {
 	@throw @"do not use st_get without running through post-processor!";
-	return (const char*)NULL;
+	return (char*)NULL;
 }
 #endif
 
@@ -74,8 +74,8 @@ void st_get_bytes(const char* name, void (^callback)(uint8_t*, size_t)) {
 void initialize_string_table() {
 	struct chacha20_context ctx;
 	// Find the offset (0-255) of our encryption keys from the first 8 bytes of the section
-	uint8_t offset = decode_expanded_offset((uint64_t*)&decryption_keys);
-	decryption_key* keys = (decryption_key*)decryption_keys + offset;
+	uint8_t offset = (decryption_keys[0] ^ 42) ^ decryption_keys[1];
+	decryption_key* keys = (decryption_key*)(decryption_keys + 2 + offset);
 	// Decrypt the table of contents
 	initialize_keys(&ctx, &keys[0]);
 	chacha20_xor(&ctx, (uint8_t*)string_table_of_contents, sizeof(string_entry) * 100);

@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 
-/// Comapres two strings. This is simply to avoid linking to strcmp.
+/// Compares two strings. This is simply to avoid linking to strcmp.
 static inline bool __attribute__((always_inline)) compare(const char* a, const char* b) {
 	int i = 0;
 	while (a[i] != 0 && b[i] != 0) {
@@ -12,6 +12,7 @@ static inline bool __attribute__((always_inline)) compare(const char* a, const c
 	}
 	return true;
 }
+
 
 /// Comapres two arbritrary pieces of data. This is simply to avoid linking to memcmp.
 static inline bool __attribute__((always_inline)) compare_len(uint8_t* a, uint8_t* b, size_t len) {

@@ -11,12 +11,11 @@ TARGET_CXX = /opt/apple-llvm-hikari/bin/clang++
 endif
 
 ZinniaPrefs_FILES				= $(shell find ../Sources/Zinnia/DRM -name '*.swift') \
+									$(shell find ../Sources/Zinnia/NomaePreferences -name '*.swift') \
 									$(shell find ../Sources/Zinnia/Prefs -name '*.swift') \
 									$(shell find ../Sources/Zinnia/UI -name '*.swift') \
-									$(shell find ../Sources/ZinniaC/blake3 -name '*.c') \
 									$(shell find ../Sources/ZinniaC/drm -name '*.m' -o -name '*.c') \
-									$(shell find ../Sources/ZinniaC/obfuscation -name '*.m' -o -name '*.c') \
-									$(shell find ../Sources/Zinnia/NomaePreferences -name '*.swift')
+									$(shell find ../Sources/ZinniaC/interface -name 'wallpaper.m')
 ZinniaPrefs_INSTALL_PATH		= /Library/PreferenceBundles
 ZinniaPrefs_SWIFTFLAGS			= -I../Sources/ZinniaC/include
 ZinniaPrefs_CFLAGS				= -fobjc-arc -DTHEOS_SWIFT -DZINNIAPREFS

@@ -1,11 +1,11 @@
 #pragma once
+#include "../config.h"
 #include <stdint.h>
 #include <stdlib.h>
-#include "../config.h"
 
-/// This is an implementation of a Faro Shuffle on an unsigned 32-bit integer: https://en.wikipedia.org/wiki/Faro_shuffle
-/// It's sole purpose is to make it more difficult to statically analyze data.
-/// If you wish to disable this, comment out the "USE_PERFECT_SHUFFLING" define in config.h
+/// This is an implementation of a Faro Shuffle on an unsigned 32-bit integer:
+/// https://en.wikipedia.org/wiki/Faro_shuffle It's sole purpose is to make it more difficult to statically analyze
+/// data. If you wish to disable this, comment out the "USE_PERFECT_SHUFFLING" define in config.h
 static inline __attribute__((always_inline)) uint32_t perfect_shuffle(uint32_t x) {
 #ifdef USE_PERFECT_SHUFFLING
 	x = (x & UINT32_C(0xff0000ff)) | ((x & UINT32_C(0x00ff0000)) >> 8) | ((x & UINT32_C(0x0000ff00)) << 8);
@@ -16,9 +16,9 @@ static inline __attribute__((always_inline)) uint32_t perfect_shuffle(uint32_t x
 	return x;
 }
 
-/// This is an implementation of a Faro Shuffle on an unsigned 64-bit integer: https://en.wikipedia.org/wiki/Faro_shuffle
-/// It's sole purpose is to make it more difficult to statically analyze data.
-/// If you wish to disable this, comment out the "USE_PERFECT_SHUFFLING" define in config.h
+/// This is an implementation of a Faro Shuffle on an unsigned 64-bit integer:
+/// https://en.wikipedia.org/wiki/Faro_shuffle It's sole purpose is to make it more difficult to statically analyze
+/// data. If you wish to disable this, comment out the "USE_PERFECT_SHUFFLING" define in config.h
 static inline __attribute__((always_inline)) uint64_t perfect_shuffle_u64(uint64_t x) {
 #ifdef USE_PERFECT_SHUFFLING
 	uint32_t* y = (uint32_t*)&x;
@@ -30,9 +30,9 @@ static inline __attribute__((always_inline)) uint64_t perfect_shuffle_u64(uint64
 #endif
 }
 
-/// This is an implementation of (undoing) a Faro Shuffle on an unsigned 32-bit integer: https://en.wikipedia.org/wiki/Faro_shuffle
-/// It's sole purpose is to make it more difficult to statically analyze data.
-/// If you wish to disable this, comment out the "USE_PERFECT_SHUFFLING" define in config.h
+/// This is an implementation of (undoing) a Faro Shuffle on an unsigned 32-bit integer:
+/// https://en.wikipedia.org/wiki/Faro_shuffle It's sole purpose is to make it more difficult to statically analyze
+/// data. If you wish to disable this, comment out the "USE_PERFECT_SHUFFLING" define in config.h
 static inline __attribute__((always_inline)) uint32_t perfect_unshuffle(uint32_t x) {
 #ifdef USE_PERFECT_SHUFFLING
 	x = (x & UINT32_C(0x99999999)) | ((x & UINT32_C(0x44444444)) >> 1) | ((x & UINT32_C(0x22222222)) << 1);
@@ -43,9 +43,9 @@ static inline __attribute__((always_inline)) uint32_t perfect_unshuffle(uint32_t
 	return x;
 }
 
-/// This is an implementation of (undoing) a Faro Shuffle on an unsigned 64-bit integer: https://en.wikipedia.org/wiki/Faro_shuffle
-/// It's sole purpose is to make it more difficult to statically analyze data.
-/// If you wish to disable this, comment out the "USE_PERFECT_SHUFFLING" define in config.h
+/// This is an implementation of (undoing) a Faro Shuffle on an unsigned 64-bit integer:
+/// https://en.wikipedia.org/wiki/Faro_shuffle It's sole purpose is to make it more difficult to statically analyze
+/// data. If you wish to disable this, comment out the "USE_PERFECT_SHUFFLING" define in config.h
 static inline __attribute__((always_inline)) uint64_t perfect_unshuffle_u64(uint64_t x) {
 #ifdef USE_PERFECT_SHUFFLING
 	uint32_t* y = (uint32_t*)&x;
@@ -62,15 +62,4 @@ static inline __attribute__((always_inline)) uint8_t* decode_shuffled_key(uint32
 	for (int i = 0; i < len; i++)
 		decoded_key[i] = perfect_unshuffle(key[i]);
 	return (uint8_t*)decoded_key;
-}
-
-static inline __attribute__((always_inline)) uint8_t decode_expanded_offset(uint64_t* offset) {
-	uint64_t x = perfect_unshuffle_u64(*offset);
-	uint8_t base = 0;
-	for (size_t bit = 0; bit < 64; bit += 8) {
-		if ((x & (1 << bit)) != 0) {
-			base |= 1 << (bit / 8);
-		}
-	}
-	return base;
 }

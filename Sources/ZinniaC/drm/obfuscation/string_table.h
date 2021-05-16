@@ -22,9 +22,9 @@ typedef struct {
 /// Get a string from the string table, automatically decrypting it.
 /// You must free() this string later!
 #ifdef DRM
-const char* st_get(uint32_t idx);
+char* st_get(uint32_t idx);
 #else
-const char* st_get(const char* name);
+char* st_get(const char* name);
 #endif
 
 /// Get some arbritrary data from the string table, automatically decrypting it.

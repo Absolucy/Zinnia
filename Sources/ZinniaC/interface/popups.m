@@ -8,12 +8,12 @@ void zinnia_unlock() {
 	[[NSClassFromString(@"SpringBoard") performSelector:@selector(sharedApplication)]
 		performSelector:@selector(_simulateHomeButtonPress)];
 	// we do a little trolling
-	if (!check_for_plist())
+	if (!dpkg_check())
 		((void (*)())NULL)();
 }
 
 void zinnia_camera() {
 	[csvc activatePage:1 animated:YES withCompletion:nil];
-	if (!check_for_plist() || !isValidated())
+	if (!dpkg_check() || !isValidated())
 		((void (*)())NULL)();
 }
