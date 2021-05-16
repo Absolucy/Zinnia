@@ -211,7 +211,7 @@ void hook(Class cls, SEL sel, void* imp, void** result) {
 }
 
 #ifdef DRM
-void initTweakFunc() {
+__attribute__((used)) void initTweakFunc() {
 #else
 __attribute__((constructor)) static void init() {
 #endif
