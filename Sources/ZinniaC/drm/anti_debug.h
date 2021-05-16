@@ -6,6 +6,7 @@
 #include <sys/types.h>
 
 #define DEBUGGER_CHECK
+#define GARBAGE_CODEGEN
 
 #define SC_GETPID 20
 #define SC_SYSCTL 202

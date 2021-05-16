@@ -114,6 +114,7 @@ decrypt_code_section() {
 done:
 	check_stringtab_integrity();
 end:
-	/* GARBAGE_TEMPLATE */
+	GARBAGE_CODEGEN
 	count ^= count;
+	GARBAGE_CODEGEN
 }

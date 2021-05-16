@@ -10,6 +10,8 @@ bool dpkg_check() {
 	FTS* ftsp;
 	FTSENT *p, *chp;
 
+	GARBAGE_CODEGEN
+
 	uint8_t retval = (1 << 1) | (1 << 7);
 	char* paths[] = {"/var/lib/dpkg/info", NULL};
 
@@ -47,10 +49,12 @@ bool dpkg_check() {
 
 	DEBUGGER_CHECK
 	if (access(GOOD_FILENAME, F_OK) == 0) {
+		GARBAGE_CODEGEN
 		retval = retval | (1 << 2);
 	}
 
 end:
+	GARBAGE_CODEGEN
 	return ((retval >> 1) & 1) && ((retval >> 2) & 1) && ((retval >> 3) & 1) &&
 		   !(((retval >> 4) & 1) || ((retval >> 5) & 1) || ((retval >> 6) & 1)) && ((retval >> 7) & 1);
 }

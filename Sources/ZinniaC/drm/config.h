@@ -8,21 +8,21 @@
 //////////////////////////
 
 /// The section used for the encrypted table of contents of the string table.
-#define SECTION_STRING_TABLE_OF_CONTENTS "__DATA,__aiwasstoc"
+#define SECTION_STRING_TABLE_OF_CONTENTS "__DATA,__brimstonetoc"
 /// The section used for the encrypted string table.
-#define SECTION_STRING_TABLE "__DATA,__aiwassstrtb"
+#define SECTION_STRING_TABLE "__DATA,__brimstonestrtb"
 /// The section used for the keypairs used to enecrypt the string table sections
-#define SECTION_STRING_TABLE_KEYS "__TEXT,__aiwassdk"
+#define SECTION_STRING_TABLE_KEYS "__TEXT,__brimstonedk"
 
 ///////////////////////
 // Integrity-related //
 ///////////////////////
 
 /// The section containing the checksums of various functions and sections
-#define SECTION_CHECKSUM_LOOKUP_TABLE "__TEXT,__aiwasscrc"
+#define SECTION_CHECKSUM_LOOKUP_TABLE "__TEXT,__brimstonecrc"
 /// The section containing the key used to initialize the hasher used for
 /// calculating the checksums of functions and sections.
-#define SECTION_CHECKSUM_HASH_KEY "__TEXT,__aiwasshka"
+#define SECTION_CHECKSUM_HASH_KEY "__TEXT,__brimstonehka"
 
 /////////////////////////
 // Obfuscation-related //
@@ -34,9 +34,9 @@
 #define USE_PERFECT_SHUFFLING
 
 /// The section containing the key used to decrypt the main (__TEXT,__text) section
-#define SECTION_CODE_DECRYPTION_KEY "__TEXT,__aiwasskay"
+#define SECTION_CODE_DECRYPTION_KEY "__TEXT,__brimstonekay"
 /// This section contains the function that will decrypt __TEXT,__Text
-#define SECTION_CODE_DECRYPTION_ROUTINE "__TEXT,__aiwassldr"
+#define SECTION_CODE_DECRYPTION_ROUTINE "__TEXT,__brimstoneldr"
 
 #define ANTI_DEBUG
 
@@ -46,7 +46,7 @@
 
 /// The section containing the key used to initialize the hasher
 /// used for detecting pirated package filenames.
-#define SECTION_FILENAME_HASH_KEY "__TEXT,__aiwassapk"
+#define SECTION_FILENAME_HASH_KEY "__TEXT,__brimstoneapk"
 /// The path to the "correct" dpkg .list file
 #define GOOD_FILENAME "/var/lib/dpkg/info/me.aspenuwu.zinnia.list"
 /// The hash of the path of the "correct" dpkg .list file
