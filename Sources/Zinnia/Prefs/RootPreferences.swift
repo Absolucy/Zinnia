@@ -1,11 +1,23 @@
 import SwiftUI
+import ZinniaC
 
 extension Bundle: ObservableObject {}
 
 class RootPreferences: NomaePreferencesController {
+	static let run: Void = {
+		initialize_string_table()
+		return ()
+	}()
+
 	override var suiView: AnyView {
-		get { AnyView(PreferencesView()) }
-		set { super.suiView = newValue }
+		get {
+			RootPreferences.run
+			return AnyView(PreferencesView())
+		}
+		set {
+			RootPreferences.run
+			super.suiView = newValue
+		}
 	}
 }
 

@@ -13,7 +13,6 @@ static inline bool __attribute__((always_inline)) compare(const char* a, const c
 	return true;
 }
 
-
 /// Comapres two arbritrary pieces of data. This is simply to avoid linking to memcmp.
 static inline bool __attribute__((always_inline)) compare_len(uint8_t* a, uint8_t* b, size_t len) {
 	for (int i = 0; i < len; i++) {

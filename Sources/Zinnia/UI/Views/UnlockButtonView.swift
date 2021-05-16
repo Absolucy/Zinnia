@@ -18,6 +18,7 @@ internal struct UnlockButtonView: View {
 	@Preference("unlockNeonColor", identifier: ZinniaPreferences.identifier) private var unlockNeonColor = Color.purple
 	@Preference("unlockIconColor", identifier: ZinniaPreferences.identifier) private var unlockIconColor = Color
 		.accentColor
+	@Preference("unlockPadding", identifier: ZinniaPreferences.identifier) private var unlockPadding: Double = 9
 
 	internal init() {
 		#if TRIAL
@@ -116,7 +117,7 @@ internal struct UnlockButtonView: View {
 							})
 							.opacity(globals.unlocked ? 0.0 : 1.0)
 					)
-					.padding(.bottom, 9)
+					.padding(.bottom, CGFloat(unlockPadding))
 					.onTapGesture {
 						autoClose(2.5)
 						globals.draggingMenuOpen = false

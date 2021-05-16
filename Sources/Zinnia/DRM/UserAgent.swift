@@ -35,7 +35,7 @@ private func iosVersion() -> String {
 }
 
 internal func userAgent() -> String {
-	return String(
+	String(
 		format: getStr("Formatting->User Agent"),
 		getStr("Tweak"),
 		getStr("Version"),

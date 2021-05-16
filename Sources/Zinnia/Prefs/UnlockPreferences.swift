@@ -5,6 +5,7 @@ struct UnlockPrefs: View {
 	@Preference("unlockNeonMul", identifier: ZinniaPreferences.identifier) var unlockNeonMul: Double = 1
 	@Preference("unlockNeonColor", identifier: ZinniaPreferences.identifier) var unlockNeonColor = Color.purple
 	@Preference("unlockIconColor", identifier: ZinniaPreferences.identifier) var unlockIconColor = Color.accentColor
+	@Preference("unlockPadding", identifier: ZinniaPreferences.identifier) var unlockPadding: Double = 9
 
 	@State var confirmReset = false
 
@@ -15,6 +16,18 @@ struct UnlockPrefs: View {
 				.border(Color.secondary)
 				.highPriorityGesture(DragGesture())
 				.highPriorityGesture(TapGesture())
+			HStack {
+				Text("Padding")
+				Text(String(format: "%.0f", unlockPadding))
+					.font(.system(.caption, design: .monospaced))
+				Spacer()
+				Slider(value: $unlockPadding, in: 0 ... 64)
+				Button(action: {
+					unlockPadding = 9
+				}) {
+					Image(systemName: "arrow.counterclockwise.circle")
+				}.padding(.leading, 5)
+			}
 			BasicNeonOptions(
 				mul: $unlockNeonMul,
 				color: $unlockNeonColor,
