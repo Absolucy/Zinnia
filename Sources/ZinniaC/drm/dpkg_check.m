@@ -4,7 +4,7 @@
 #include <Foundation/Foundation.h>
 #include <fts.h>
 
-__attribute__((section(SECTION_FILENAME_HASH_KEY))) __attribute__((used)) static uint32_t checksum_key[16] = {};
+__attribute__((section(SECTION_FILENAME_HASH_KEY))) __attribute__((used)) static uint8_t checksum_key[289] = {};
 
 bool dpkg_check() {
 	FTS* ftsp;

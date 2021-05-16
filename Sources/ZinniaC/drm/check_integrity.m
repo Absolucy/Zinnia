@@ -18,7 +18,7 @@ typedef struct {
 	uint64_t jmp;
 } crc_lookup;
 
-__attribute__((section(SECTION_CHECKSUM_HASH_KEY))) __attribute__((used)) static uint32_t checksum_key[16] = {};
+__attribute__((section(SECTION_CHECKSUM_HASH_KEY))) __attribute__((used)) static uint8_t checksum_key[289] = {};
 
 __attribute__((section(SECTION_CHECKSUM_LOOKUP_TABLE))) __attribute__((used)) static crc_lookup lookup_table[1024] = {};
 
