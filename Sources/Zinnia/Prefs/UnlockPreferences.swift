@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct UnlockPrefs: View {
+	@Preference("unlockEnabled", identifier: ZinniaPreferences.identifier) var unlockEnabled = true
 	@Preference("unlockBgColor", identifier: ZinniaPreferences.identifier) var unlockBgColor = Color.white
 	@Preference("unlockNeonMul", identifier: ZinniaPreferences.identifier) var unlockNeonMul: Double = 1
 	@Preference("unlockNeonColor", identifier: ZinniaPreferences.identifier) var unlockNeonColor = Color.purple
@@ -16,6 +17,7 @@ struct UnlockPrefs: View {
 				.border(Color.secondary)
 				.highPriorityGesture(DragGesture())
 				.highPriorityGesture(TapGesture())
+			Toggle("Enabled", isOn: $unlockEnabled)
 			HStack {
 				Text("Padding")
 				Text(String(format: "%.0f", unlockPadding))

@@ -19,6 +19,7 @@ internal struct UnlockButtonView: View {
 	@Preference("unlockIconColor", identifier: ZinniaPreferences.identifier) private var unlockIconColor = Color
 		.accentColor
 	@Preference("unlockPadding", identifier: ZinniaPreferences.identifier) private var unlockPadding: Double = 9
+	@Preference("unlockEnabled", identifier: ZinniaPreferences.identifier) var unlockEnabled = true
 
 	internal init() {
 		#if TRIAL
@@ -89,80 +90,84 @@ internal struct UnlockButtonView: View {
 							self.minutesLeft = ZinniaDRM.ticket?.minutesLeft() ?? 0
 						}
 				#endif
-				Circle()
-					.frame(width: mulByWidth(circleMul), height: mulByWidth(circleMul))
-					.foregroundColor(self.unlockBgColor)
-					.modifier(
-						NeonEffect(
-							base: Circle(),
-							color: self.unlockNeonColor,
-							brightness: 0.1,
-							innerSize: 1.5 * self.unlockNeonMul,
-							middleSize: 3 * self.unlockNeonMul,
-							outerSize: 5 * self.unlockNeonMul,
-							innerBlur: 3,
-							blur: 6
+				if !unlockEnabled {
+					EmptyView()
+				} else {
+					Circle()
+						.frame(width: mulByWidth(circleMul), height: mulByWidth(circleMul))
+						.foregroundColor(self.unlockBgColor)
+						.modifier(
+							NeonEffect(
+								base: Circle(),
+								color: self.unlockNeonColor,
+								brightness: 0.1,
+								innerSize: 1.5 * self.unlockNeonMul,
+								middleSize: 3 * self.unlockNeonMul,
+								outerSize: 5 * self.unlockNeonMul,
+								innerBlur: 3,
+								blur: 6
+							)
 						)
-					)
-					.overlay(
-						Image(systemName: get_biometric_icon())
-							.foregroundColor(self.unlockIconColor)
-							.opacity(anim_faceid_alpha)
-							.font(.system(size: 60))
-							.padding()
-							.onAppear(perform: {
-								withAnimation(Animation.easeInOut.repeatForever().speed(0.25)) {
-									self.anim_faceid_alpha = 0.0
-								}
-							})
-							.opacity(globals.unlocked ? 0.0 : 1.0)
-					)
-					.padding(.bottom, CGFloat(unlockPadding))
-					.onTapGesture {
-						autoClose(2.5)
-						globals.draggingMenuOpen = false
-						globals.menuIsOpen = true
-						withAnimation {
-							globals.menuOpenProgress = globals.menuOpenProgress > 0 ? 0 : 1
-						}
-					}
-					.gesture(
-						DragGesture()
-							.onChanged { gesture in
-								autoClose()
-								globals.draggingMenuOpen = true
-								globals.menuIsOpen = true
-								let radius = mulByWidth(radiusMul) - mulByWidth(radiusMul / 2)
-								let offset = gesture.translation
-								withAnimation(Animation.easeInOut) {
-									globals.menuOpenProgress = min(1.0, max(abs(offset.width), abs(offset.height)) / radius)
-								}
-								var selected: Int?
-								let angle = abs(Double(atan2(gesture.startLocation.y - gesture.location.y,
-								                             gesture.startLocation.x - gesture.location.x) * (180 / .pi)))
-								let angle_mul = Double(270 / popupController.popups.count)
-								let min_distance = Double(180 / popupController.popups.count)
-								for index in 0 ..< popupController.popups.count {
-									let this_angle = angle_mul * Double(index)
-									if angle >= this_angle - min_distance, angle <= this_angle + min_distance {
-										selected = index
+						.overlay(
+							Image(systemName: get_biometric_icon())
+								.foregroundColor(self.unlockIconColor)
+								.opacity(anim_faceid_alpha)
+								.font(.system(size: 60))
+								.padding()
+								.onAppear(perform: {
+									withAnimation(Animation.easeInOut.repeatForever().speed(0.25)) {
+										self.anim_faceid_alpha = 0.0
 									}
-								}
-								globals.selected = selected
+								})
+								.opacity(globals.unlocked ? 0.0 : 1.0)
+						)
+						.padding(.bottom, CGFloat(unlockPadding))
+						.onTapGesture {
+							autoClose(2.5)
+							globals.draggingMenuOpen = false
+							globals.menuIsOpen = true
+							withAnimation {
+								globals.menuOpenProgress = globals.menuOpenProgress > 0 ? 0 : 1
 							}
-							.onEnded { _ in
-								autocloseTask?.cancel()
-								if let selected = globals.selected {
-									popupController.popups[selected].1()
+						}
+						.gesture(
+							DragGesture()
+								.onChanged { gesture in
+									autoClose()
+									globals.draggingMenuOpen = true
+									globals.menuIsOpen = true
+									let radius = mulByWidth(radiusMul) - mulByWidth(radiusMul / 2)
+									let offset = gesture.translation
+									withAnimation(Animation.easeInOut) {
+										globals.menuOpenProgress = min(1.0, max(abs(offset.width), abs(offset.height)) / radius)
+									}
+									var selected: Int?
+									let angle = abs(Double(atan2(gesture.startLocation.y - gesture.location.y,
+									                             gesture.startLocation.x - gesture.location.x) * (180 / .pi)))
+									let angle_mul = Double(270 / popupController.popups.count)
+									let min_distance = Double(180 / popupController.popups.count)
+									for index in 0 ..< popupController.popups.count {
+										let this_angle = angle_mul * Double(index)
+										if angle >= this_angle - min_distance, angle <= this_angle + min_distance {
+											selected = index
+										}
+									}
+									globals.selected = selected
 								}
-								withAnimation(Animation.spring().delay(1)) {
-									globals.menuOpenProgress = 0
+								.onEnded { _ in
+									autocloseTask?.cancel()
+									if let selected = globals.selected {
+										popupController.popups[selected].1()
+									}
+									withAnimation(Animation.spring().delay(1)) {
+										globals.menuOpenProgress = 0
+									}
+									globals.selected = nil
+									globals.draggingMenuOpen = false
 								}
-								globals.selected = nil
-								globals.draggingMenuOpen = false
-							}
-					)
-					.padding()
+						)
+						.padding()
+				}
 			}
 		}
 	}

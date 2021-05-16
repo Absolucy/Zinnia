@@ -6,6 +6,7 @@ struct UnlockPopupView: View {
 	@ObservedObject private var popupController = ZinniaPopupController.global
 	@ObservedObject private var globals = ZinniaSharedData.global
 
+	@Preference("unlockEnabled", identifier: ZinniaPreferences.identifier) var unlockEnabled = true
 	@Preference("unlockPadding", identifier: ZinniaPreferences.identifier) private var unlockPadding: Double = 9
 
 	@ViewBuilder private func Popup(_ index: Int) -> some View {
@@ -22,16 +23,20 @@ struct UnlockPopupView: View {
 	}
 
 	var body: some View {
-		VStack(alignment: .center) {
-			Spacer()
-			ZStack {
-				ForEach(0 ..< popupController.popups.count, id: \.self) { index in
-					Popup(index)
+		if !unlockEnabled {
+			EmptyView()
+		} else {
+			VStack(alignment: .center) {
+				Spacer()
+				ZStack {
+					ForEach(0 ..< popupController.popups.count, id: \.self) { index in
+						Popup(index)
+					}
 				}
 			}
+			.frame(width: UIScreen.main.bounds.width, height: globals.menuIsOpen ? mulByWidth(0.375) * 2 : 0)
+			.padding([.top, .leading, .trailing])
+			.padding(.bottom, CGFloat(unlockPadding) + mulByWidth(radiusMul / 4))
 		}
-		.frame(width: UIScreen.main.bounds.width, height: globals.menuIsOpen ? mulByWidth(0.375) * 2 : 0)
-		.padding([.top, .leading, .trailing])
-		.padding(.bottom, CGFloat(unlockPadding) + mulByWidth(radiusMul / 4))
 	}
 }
