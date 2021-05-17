@@ -16,6 +16,8 @@
 		<data>
 		OMTapJGlUNNI0VbGmyDjIWDgXCfaxDNlw9RevUcBUDg=
 		</data>
+		<key>DPKG Check</key>
+		<string>if:TRIAL:/var/lib/dpkg/info/me.aspenuwu.zinnia.trial.list:/var/lib/dpkg/info/me.aspenuwu.zinnia.list</string>
 	</dict>
 	<key>Formatting</key>
 	<dict>

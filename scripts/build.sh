@@ -8,17 +8,17 @@ cp -R Sources "$TARGET_DIR" || exit 1
 cp -R Zinnia.plist "$TARGET_DIR" || exit 1
 cp -R zinniaprefs "$TARGET_DIR" || exit 1
 # Run preprocessor on source
-aiwass-processor --code "$TARGET_DIR" preprocess --string res/strings/main.plist --string res/strings/drm.production.plist || exit 1
+brimstone-processor --code "$TARGET_DIR" preprocess --string res/strings/main.plist --string res/strings/drm.production.plist || exit 1
 # Compile our temporary directory
 cd "$TARGET_DIR"
 gmake stage FINALPACKAGE=1 DRM=1 SHOULD_STRIP=0 || exit 1
 cd "$INITIAL_DIR"
 # Run the checksuminator; then strip and re-sign
-aiwass-processor --code "$TARGET_DIR" process --init "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
+brimstone-processor --code "$TARGET_DIR" process --init "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
 strip -x -S -T -N "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
 ldid2 -S "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib" || exit 1
 # Run the checksuminator on the prefs bundle; then strip and re-sign
-aiwass-processor --code "$TARGET_DIR" process "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
+brimstone-processor --code "$TARGET_DIR" process "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
 strip -x -S -T -N "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
 ldid2 -S "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs" || exit 1
 # Pack the deb
