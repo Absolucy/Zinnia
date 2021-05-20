@@ -1,8 +1,9 @@
 #import "popups.h"
-#import "../drm/drm.h"
 #import "../include/Tweak.h"
 #import "../include/bridge.h"
 #import <Foundation/Foundation.h>
+
+extern BOOL dpkg_check();
 
 void zinnia_unlock() {
 	[[NSClassFromString(@"SpringBoard") performSelector:@selector(sharedApplication)]

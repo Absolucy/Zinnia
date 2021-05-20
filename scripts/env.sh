@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="1.1.0"
+VERSION="1.1.1"
 TARGET_DIR=$(mktemp -d)
 INITIAL_DIR="$PWD"
 

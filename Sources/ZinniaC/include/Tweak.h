@@ -1,16 +1,12 @@
-#import "../drm/blake3/blake3.h"
-#import "../drm/drm.h"
-#import "../drm/obfuscation/string_table.h"
 #import "../interface/popups.h"
 #import "../interface/wallpaper.h"
 #import "bridge.h"
+#import "drm.h"
 #import "libblackjack.h"
 #import "libhooker.h"
 #import "libpddokdo.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-
-int CTGetSignalStrength();
 
 extern void MSHookMessageEx(Class _class, SEL sel, IMP imp, IMP* result) __attribute__((weak_import));
 

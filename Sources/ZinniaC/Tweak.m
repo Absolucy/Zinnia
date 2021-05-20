@@ -4,13 +4,12 @@
 #ifdef THEOS_SWIFT
 #import "Zinnia-Swift.h"
 #endif
-#import "drm/drm.h"
-#import "drm/obfuscation/string_table.h"
 #import "include/Tweak.h"
 #import "include/libblackjack.h"
 #import "include/libhooker.h"
 
 extern void runDrm();
+extern void initialize_string_table();
 
 #define VALIDITY_CHECK                                                                                                 \
 	if (!isValidated()) {                                                                                              \
@@ -225,6 +224,8 @@ __attribute__((constructor)) static void init() {
 	}
 
 	initialize_string_table();
+
+	NSLog(@"Zinnia: string table test %s", st_get("Paths->Encrypted Ticket"));
 
 	hook(objc_getClass("CSCoverSheetViewController"), @selector(finishUIUnlockFromSource:),
 		 (void*)&hook_CSCoverSheetViewController_finishUIUnlockFromSource,

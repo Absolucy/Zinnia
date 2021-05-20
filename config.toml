@@ -1,0 +1,27 @@
+[info]
+bundles = ["Zinnia.dylib", "ZinniaPrefs"]
+
+[protection]
+anti-debug = true
+faro-shuffle = true
+
+[dpkg]
+bad = [
+	"/var/lib/dpkg/info/org.mr.zinnia.list",
+	"/var/lib/dpkg/info/ru.rejail.zinnia.list",
+	"/var/lib/dpkg/info/org.hackyouriphone.zinnia.list",
+]
+good = [
+	"/var/lib/dpkg/info/me.aspenuwu.zinnia.list",
+	"/var/lib/dpkg/info/me.aspenuwu.zinnia.trial.list",
+]
+
+[sections]
+string-table = "__DATA,__brimstonestrtb"
+string-table-of-contents = "__DATA,__brimstonetoc"
+string-table-keys = "__TEXT,__brimstonedk"
+jmp-table = "__TEXT,__brimstonecrc"
+jmp-table-key = "__TEXT,__brimstonehka"
+code-key = "__TEXT,__brimstonekay"
+code-decryption = "__TEXT,__brimstoneldr"
+dpkg-hash = "__TEXT,__brimstoneapk"
