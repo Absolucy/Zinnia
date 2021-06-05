@@ -3,6 +3,8 @@ bundles = ["Zinnia.dylib", "ZinniaPrefs"]
 
 [protection]
 anti-debug = true
+dpkg-check = true
+encryption = true
 faro-shuffle = true
 
 [dpkg]
@@ -17,11 +19,11 @@ good = [
 ]
 
 [sections]
-string-table = "__DATA,__brimstonestrtb"
-string-table-of-contents = "__DATA,__brimstonetoc"
-string-table-keys = "__TEXT,__brimstonedk"
-jmp-table = "__TEXT,__brimstonecrc"
-jmp-table-key = "__TEXT,__brimstonehka"
+strtab = "__DATA,__brimstonestrtb"
+strtab-toc = "__DATA,__brimstonetoc"
+strtab-keys = "__TEXT,__brimstonedk"
+jmp = "__TEXT,__brimstonecrc"
+jmp-key = "__TEXT,__brimstonehka"
 code-key = "__TEXT,__brimstonekay"
-code-decryption = "__TEXT,__brimstoneldr"
+code-decrypt = "__TEXT,__brimstoneldr"
 dpkg-hash = "__TEXT,__brimstoneapk"

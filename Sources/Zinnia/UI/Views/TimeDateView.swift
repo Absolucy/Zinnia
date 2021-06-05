@@ -8,9 +8,11 @@ internal struct TimeDateView: View {
 	@Preference("timeFormat", identifier: ZinniaPreferences.identifier) var timeFormat = "hh:mm a"
 	@Preference("timeFont", identifier: ZinniaPreferences.identifier) var timeFont = "San Fransisco"
 	@Preference("timeFontSize", identifier: ZinniaPreferences.identifier) var timeFontSize = 34.0
+	@Preference("dateTimeEnabled", identifier: ZinniaPreferences.identifier) var dateTimeEnabled = true
 	@Preference("dateTimeNeonMul", identifier: ZinniaPreferences.identifier) private var dateTimeNeonMul: Double = 1
 	@Preference("dateTimeNeonColor", identifier: ZinniaPreferences.identifier) private var dateTimeNeonColor = Color.purple
 	@Preference("dateTimeBgColor", identifier: ZinniaPreferences.identifier) private var dateTimeBgColor = Color.black
+	@Preference("dateTimePadding", identifier: ZinniaPreferences.identifier) private var dateTimePadding: Double = 8
 
 	@State private var dateText: String = "4/9/2021"
 	@State private var timeText: String = "9:41 AM"
@@ -36,44 +38,50 @@ internal struct TimeDateView: View {
 
 	private func BuildView() -> some View {
 		VStack {
-			Text(timeText)
-				.font(.custom(timeFont, size: CGFloat(timeFontSize)))
-				.minimumScaleFactor(0.001)
-				.lineLimit(1)
-			Text(dateText)
-				.font(.custom(dateFont, size: CGFloat(dateFontSize)))
-				.minimumScaleFactor(0.001)
-				.lineLimit(1)
-		}
-		.padding(.vertical, 8)
-		.padding(.horizontal, 24)
-		.fixedSize()
-		.modifier(
-			NeonEffect(
-				base: RoundedRectangle(cornerRadius: 16, style: .continuous),
-				color: dateTimeNeonColor,
-				brightness: 0.1,
-				innerSize: 1.5 * dateTimeNeonMul,
-				middleSize: 3 * dateTimeNeonMul,
-				outerSize: 5 * dateTimeNeonMul,
-				innerBlur: 3,
-				blur: 5
-			)
-		)
-		.background(
-			RoundedRectangle(cornerRadius: 16, style: .continuous)
-				.foregroundColor(dateTimeBgColor)
-		)
-		.onReceive(Just(dateFormat)) { newFormat in
-			dateFormatter.dateFormat = newFormat
-			updateTimeDate()
-		}
-		.onReceive(Just(timeFormat)) { newFormat in
-			timeFormatter.dateFormat = newFormat
-			updateTimeDate()
-		}
-		.onReceive(timer) { _ in
-			updateTimeDate()
+			if !dateTimeEnabled {
+				EmptyView()
+			} else {
+				VStack {
+					Text(timeText)
+						.font(.custom(timeFont, size: CGFloat(timeFontSize)))
+						.minimumScaleFactor(0.001)
+						.lineLimit(1)
+					Text(dateText)
+						.font(.custom(dateFont, size: CGFloat(dateFontSize)))
+						.minimumScaleFactor(0.001)
+						.lineLimit(1)
+				}
+				.padding(.vertical, CGFloat(dateTimePadding))
+				.padding(.horizontal, 24)
+				.fixedSize()
+				.modifier(
+					NeonEffect(
+						base: RoundedRectangle(cornerRadius: 16, style: .continuous),
+						color: dateTimeNeonColor,
+						brightness: 0.1,
+						innerSize: 1.5 * dateTimeNeonMul,
+						middleSize: 3 * dateTimeNeonMul,
+						outerSize: 5 * dateTimeNeonMul,
+						innerBlur: 3,
+						blur: 5
+					)
+				)
+				.background(
+					RoundedRectangle(cornerRadius: 16, style: .continuous)
+						.foregroundColor(dateTimeBgColor)
+				)
+				.onReceive(Just(dateFormat)) { newFormat in
+					dateFormatter.dateFormat = newFormat
+					updateTimeDate()
+				}
+				.onReceive(Just(timeFormat)) { newFormat in
+					timeFormatter.dateFormat = newFormat
+					updateTimeDate()
+				}
+				.onReceive(timer) { _ in
+					updateTimeDate()
+				}
+			}
 		}
 	}
 

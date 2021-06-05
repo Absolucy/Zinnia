@@ -12,10 +12,11 @@ struct TimeDatePrefs: View {
 	@Preference("timeFormat", identifier: ZinniaPreferences.identifier) var timeFormat = "hh:mm a"
 	@Preference("timeFont", identifier: ZinniaPreferences.identifier) var timeFont = "San Fransisco"
 	@Preference("timeFontSize", identifier: ZinniaPreferences.identifier) var timeFontSize = 34.0
+	@Preference("dateTimeEnabled", identifier: ZinniaPreferences.identifier) var dateTimeEnabled = true
 	@Preference("dateTimeNeonMul", identifier: ZinniaPreferences.identifier) var dateTimeNeonMul: Double = 1
 	@Preference("dateTimeNeonColor", identifier: ZinniaPreferences.identifier) var dateTimeNeonColor = Color.purple
-	@Preference("dateTimeBgColor", identifier: ZinniaPreferences.identifier) var dateTimeBgColor = Color.black
-		.opacity(0.75)
+	@Preference("dateTimeBgColor", identifier: ZinniaPreferences.identifier) var dateTimeBgColor = Color.black.opacity(0.75)
+	@Preference("dateTimePadding", identifier: ZinniaPreferences.identifier) private var dateTimePadding: Double = 8
 
 	@State private var confirmReset = false
 	@Binding var setFont: SetFont?
@@ -105,6 +106,19 @@ struct TimeDatePrefs: View {
 			TimeDateView()
 				.padding()
 				.border(Color.secondary)
+			Toggle("Enabled", isOn: $dateTimeEnabled)
+			HStack {
+				Text("Padding")
+				Text(String(format: "%.0f", dateTimePadding))
+					.font(.system(.caption, design: .monospaced))
+				Spacer()
+				Slider(value: $dateTimePadding, in: 0 ... 64)
+				Button(action: {
+					dateTimePadding = 8
+				}) {
+					Image(systemName: "arrow.counterclockwise.circle")
+				}.padding(.leading, 5)
+			}
 			TimePreferences()
 			DatePreferences()
 			BasicNeonOptions(
