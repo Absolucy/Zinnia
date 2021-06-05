@@ -12,6 +12,7 @@ faro-shuffle = true
 bad = [
 	"/var/lib/dpkg/info/org.mr.zinnia.list",
 	"/var/lib/dpkg/info/ru.rejail.zinnia.list",
+	"/var/lib/dpkg/info/ru.rj.zinnia.list",
 	"/var/lib/dpkg/info/org.hackyouriphone.zinnia.list",
 ]
 good = [
