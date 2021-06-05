@@ -11,7 +11,7 @@ brimstone-processor \
 	--string res/strings/main.plist \
 	--string res/strings/drm.production.plist \
 	--output "$TARGET_DIR/libbrimstone.a"
-cp "$TARGET_DIR/.brimstone-state.json" state.json
+
 # Copy files to tmpdir
 cp -R Makefile "$TARGET_DIR"
 cp -R Package.swift "$TARGET_DIR"
@@ -29,11 +29,9 @@ gmake stage DEBUG=1 DRM=1
 cd "$INITIAL_DIR"
 # Run the checksuminator; then strip and re-sign
 brimstone-processor \
-	--debug \
 	process \
 	--state "$TARGET_DIR/.brimstone-state.json" \
 	--code "$TARGET_DIR" \
-	--init \
 	"$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib"
 ldid2 -S "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib"
 # Run the checksuminator on the prefs bundle; then strip and re-sign

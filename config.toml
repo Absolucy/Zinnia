@@ -1,5 +1,6 @@
 [info]
 bundles = ["Zinnia.dylib", "ZinniaPrefs"]
+ctor = true
 
 [protection]
 anti-debug = true
