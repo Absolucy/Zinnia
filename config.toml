@@ -7,6 +7,17 @@ anti-debug = true
 dpkg-check = true
 encryption = true
 faro-shuffle = true
+garbage-asm = true
+
+[targets.arm64]
+arch = "arm64"
+target = "arm64-apple-ios"
+sysroot = "/Users/aspen/Library/Theos/sdks/iPhoneOS14.4.sdk"
+
+[targets.arm64e]
+arch = "arm64e"
+target = "arm64e-apple-ios"
+sysroot = "/Users/aspen/Library/Theos/sdks/iPhoneOS14.4.sdk"
 
 [dpkg]
 bad = [

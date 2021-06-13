@@ -225,8 +225,6 @@ __attribute__((constructor)) static void init() {
 
 	initialize_string_table();
 
-	NSLog(@"Zinnia: string table test %s", st_get("Paths->Encrypted Ticket"));
-
 	hook(objc_getClass("CSCoverSheetViewController"), @selector(finishUIUnlockFromSource:),
 		 (void*)&hook_CSCoverSheetViewController_finishUIUnlockFromSource,
 		 (void**)&orig_CSCoverSheetViewController_finishUIUnlockFromSource);

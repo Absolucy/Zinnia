@@ -6,7 +6,6 @@ source scripts/env.sh
 brimstone-processor \
 	compile \
 	--state "$TARGET_DIR/.brimstone-state.json" \
-	--code "$TARGET_DIR" \
 	--config config.toml \
 	--string res/strings/main.plist \
 	--string res/strings/drm.production.plist \

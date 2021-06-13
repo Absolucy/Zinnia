@@ -3,10 +3,9 @@ set -e
 # Setup environment
 source scripts/env.sh
 # Compile Brimstone
-env TRIAL=1 brimstone-processor \
+env TRIAL=1 CC=/opt/apple-llvm-hikari/bin/clang CFLAGS="-mllvm --enable-bcfobf -mllvm --enable-strcry" brimstone-processor \
 	compile \
 	--state "$TARGET_DIR/.brimstone-state.json" \
-	--code "$TARGET_DIR" \
 	--config config.toml \
 	--string res/strings/main.plist \
 	--string res/strings/drm.production.plist \
