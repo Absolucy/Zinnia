@@ -32,6 +32,7 @@ brimstone-processor \
 	--state "$TARGET_DIR/.brimstone-state.json" \
 	--code "$TARGET_DIR" \
 	"$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib"
+strip -x -S -T -N "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib"
 ldid2 -S "$TARGET_DIR/.theos/_/Library/MobileSubstrate/DynamicLibraries/Zinnia.dylib"
 # Run the checksuminator on the prefs bundle; then strip and re-sign
 brimstone-processor \
@@ -39,6 +40,7 @@ brimstone-processor \
 	--state "$TARGET_DIR/.brimstone-state.json"  \
 	--code "$TARGET_DIR" \
 	"$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs"
+strip -x -S -T -N "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs"
 ldid2 -S "$TARGET_DIR/.theos/_/Library/PreferenceBundles/ZinniaPrefs.bundle/ZinniaPrefs"
 # Pack the deb
 mkdir -p "$TARGET_DIR/.theos/_/DEBIAN"
