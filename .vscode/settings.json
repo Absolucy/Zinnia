@@ -1,0 +1,13 @@
+{
+	"files.associations": {
+		"__node_handle": "cpp"
+	},
+	"ccls.clang.extraArgs": [
+		"-arch",
+		"arm64",
+		"-target",
+		"arm64-apple-ios",
+		"-isysroot",
+		"/Users/Lucy/Library/Theos/sdks/iPhoneOS14.4.sdk"
+	]
+}

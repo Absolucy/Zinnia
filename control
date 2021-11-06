@@ -1,0 +1,10 @@
+Package: me.aspenuwu.zinnia
+Name: Zinnia
+Version: 1.1.5
+Architecture: iphoneos-arm
+Description: A wonderful neon overhaul for your lock screen!
+Maintainer: Lucy <support@absolucy.moe>
+Author: Lucy <support@absolucy.moe>
+Section: Tweaks
+Replaces: me.aspenuwu.zinnia.trial
+Depends: firmware (>= 14.0), preferenceloader
